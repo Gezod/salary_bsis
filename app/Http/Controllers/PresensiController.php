@@ -15,22 +15,23 @@ class PresensiController extends Controller
      */
     public function index(Request $request)
     {
-         $query = Presensi::query();
+        $query = Presensi::query();
 
-    // Filtering by username
-    if ($request->filled('search')) {
-        $query->where('username', 'like', '%' . $request->search . '%');
-    }
+        if ($request->filled('search')) {
+            $query->where('username', 'like', '%' . $request->search . '%');
+        }
 
-    // Sorting
-    $sort = $request->get('sort', 'tanggal_presensi');
-    $order = $request->get('order', 'desc');
-    $query->orderBy($sort, $order);
+        if ($request->filled('month')) {
+            $query->whereMonth('tanggal_presensi', $request->month);
+        }
 
-    // Pagination
-    $presensis = $query->paginate(10);
+        if ($request->filled('year')) {
+            $query->whereYear('tanggal_presensi', $request->year);
+        }
 
-    return view('presensi.index', compact('presensis', 'sort', 'order'));
+        $presensis = $query->orderBy('tanggal_presensi', 'desc')->paginate(10);
+
+        return view('presensi.index', compact('presensis'));
     }
 
     /**
