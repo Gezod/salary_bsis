@@ -7,15 +7,30 @@ use App\Models\Presensi;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\PresensiImport;
 
+
 class PresensiController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $presensis = Presensi::latest()->get();
-        return view('presensi.index', compact('presensis'));
+         $query = Presensi::query();
+
+    // Filtering by username
+    if ($request->filled('search')) {
+        $query->where('username', 'like', '%' . $request->search . '%');
+    }
+
+    // Sorting
+    $sort = $request->get('sort', 'tanggal_presensi');
+    $order = $request->get('order', 'desc');
+    $query->orderBy($sort, $order);
+
+    // Pagination
+    $presensis = $query->paginate(10);
+
+    return view('presensi.index', compact('presensis', 'sort', 'order'));
     }
 
     /**

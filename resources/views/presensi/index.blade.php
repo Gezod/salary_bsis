@@ -5,6 +5,16 @@
 @section('content')
     <h3>Data Presensi</h3>
 
+    {{-- Form Pencarian Username --}}
+    <form method="GET" action="{{ route('presensi.index') }}" class="row g-2 mb-3">
+        <div class="col-md-6">
+            <input type="text" name="search" class="form-control" placeholder="Cari username..." value="{{ request('search') }}">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-secondary w-100">Cari</button>
+        </div>
+    </form>
+
     {{-- Form Upload Excel --}}
     <form action="{{ route('presensi.import') }}" method="POST" enctype="multipart/form-data" class="mb-3">
         @csrf
@@ -49,23 +59,28 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" class="text-center">Belum ada data presensi</td>
+                    <td colspan="8" class="text-center">Belum ada data presensi</td>
                 </tr>
             @endforelse
         </tbody>
     </table>
+
+    {{-- Pagination --}}
+    <div class="mt-3">
+        {{ $presensis->appends(request()->query())->links() }}
+    </div>
 @endsection
 
 @push('scripts')
-    @if (session('success'))
-        <script>
-            Swal.fire({
-                icon: 'success',
-                title: 'Sukses!',
-                text: '{{ session('success') }}',
-                timer: 2500,
-                showConfirmButton: false
-            });
-        </script>
-    @endif
+@if (session('success'))
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Sukses!',
+            text: '{{ session('success') }}',
+            timer: 2500,
+            showConfirmButton: false
+        });
+    </script>
+@endif
 @endpush
