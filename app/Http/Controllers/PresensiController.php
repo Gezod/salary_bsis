@@ -72,17 +72,29 @@ class PresensiController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        //
+        $presensi = Presensi::findOrFail($id);
+        return view('presensi.edit', compact('presensi'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'jam_denda' => 'nullable|integer|min:0',
+            'jam_lembur' => 'nullable|integer|min:0',
+        ]);
+
+        $presensi = Presensi::findOrFail($id);
+        $presensi->update([
+            'jam_denda' => $request->jam_denda,
+            'jam_lembur' => $request->jam_lembur,
+        ]);
+
+        return redirect()->route('presensi.index')->with('success', 'Denda dan lembur berhasil disimpan.');
     }
 
     /**

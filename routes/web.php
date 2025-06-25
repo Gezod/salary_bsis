@@ -11,7 +11,7 @@ use App\Http\Controllers\PresensiController;
 */
 
 Route::get('/', function () {
-    return view('welcome'); // Atau redirect jika kamu mau langsung ke login
+    return redirect()->route('login');
 });
 
 // Route Breeze (Login/Register/etc)
