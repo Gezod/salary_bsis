@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PresensiController;
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\ImportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,7 +17,7 @@ Route::get('/', function () {
 });
 
 // Route Breeze (Login/Register/etc)
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 // Semua route di bawah ini hanya bisa diakses setelah login
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -26,4 +28,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Import dari Excel
     Route::post('/presensi/import', [PresensiController::class, 'import'])->name('presensi.import');
+
+    Route::get('/absensi/import', [ImportController::class, 'create'])->name('absensi.import.form');
+    Route::post('/absensi/import', [ImportController::class, 'store'])->name('absensi.import');
+
+    /* Tabel harian & filter */
+    Route::get('/absensi', [AttendanceController::class, 'index'])->name('absensi.index');
+
+    /* Rekap bulanan denda */
+    Route::get('/absensi/rekap', [AttendanceController::class, 'recap'])->name('absensi.recap');
 });

@@ -9,19 +9,20 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('foto')->nullable()->after('email');
-        });
-    }
+    public function up()
+{
+    Schema::table('attendances', function (Blueprint $table) {
+        $table->integer('late_minutes')->nullable();
+        $table->integer('total_fine')->nullable(); // opsional
+    });
+}
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('attendances', function (Blueprint $table) {
             //
         });
     }

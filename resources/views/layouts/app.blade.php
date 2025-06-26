@@ -1,43 +1,44 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="id">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Absensi</title>
 
-    <title>@yield('title', config('app.name', 'Laravel'))</title>
+    {{-- Bootstrap CSS --}}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    {{-- Google Fonts --}}
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    {{-- Bootstrap Icons --}}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
-    {{-- ① CSS untuk menyembunyikan elemen ber-x-cloak sampai Alpine aktif --}}
-    <style>[x-cloak]{display:none!important}</style>
-
-    {{-- Vite --}}
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    {{-- Tempat ekstra <head> dari halaman jika diperlukan --}}
-    @stack('head')
+    {{-- Tambahan style jika perlu --}}
+    <style>
+    html, body {
+        margin: 0;
+        padding: 0;
+        background-color: #0f172a; /* dark slate */
+    }
+    .sidebar {
+        min-height: 100vh;
+    }
+    .nav-link.active-link {
+        background-color: rgba(0, 0, 0, 0.2);
+        font-weight: bold;
+        color: #fff !important;
+        border-radius: 0.25rem;
+    }
+    .nav-link:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+        color: #fff !important;
+    }
+    </style>
 </head>
-<body class="font-sans antialiased bg-gray-100 text-gray-800 dark:bg-gray-900">
-
-    {{-- Navigasi --}}
-    @include('layouts.navigation')
-
-    {{-- Page Header --}}
-    @yield('header')
-
-    {{-- Konten --}}
-    <main class="py-6">
+<body>
+    <div class="container-fluid">
         @yield('content')
-    </main>
+    </div>
 
-    {{-- ② Alpine.js (via CDN) – tambahkan **SEBELUM** @stack('scripts') --}}
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    {{-- ③ Slot untuk script tambahan tiap-halaman (@push('scripts')) --}}
-    @stack('scripts')
+    {{-- Bootstrap JS (opsional jika pakai dropdown, sidebar collapse, dll) --}}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
