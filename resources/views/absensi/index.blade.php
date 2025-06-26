@@ -25,19 +25,26 @@
                         <h6 class="mt-2">Bank Sampah</h6>
                     </div>
                     <ul class="nav flex-column px-2">
-                        <li class="nav-item mb-2">
-                            <a class="nav-link {{ request()->routeIs('absensi.index') ? 'active-link text-white' : 'text-white' }}"
-                                href="{{ route('absensi.index') }}">
-                                <i class="bi bi-calendar-check me-2"></i> Absensi Harian
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('absensi.recap') ? 'active-link text-white' : 'text-white' }}"
-                                href="{{ route('absensi.recap') }}">
-                                <i class="bi bi-file-earmark-text me-2"></i> Rekap Denda
-                            </a>
-                        </li>
-                    </ul>
+    <li class="nav-item mb-2">
+        <a class="nav-link {{ request()->routeIs('absensi.index') ? 'active-link text-white' : 'text-white' }}"
+            href="{{ route('absensi.index') }}">
+            <i class="bi bi-calendar-check me-2"></i> Absensi Harian
+        </a>
+    </li>
+    <li class="nav-item mb-2">
+        <a class="nav-link {{ request()->routeIs('absensi.recap') ? 'active-link text-white' : 'text-white' }}"
+            href="{{ route('absensi.recap') }}">
+            <i class="bi bi-file-earmark-text me-2"></i> Rekap Denda
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {{ request()->routeIs('absensi.import') ? 'active-link text-white' : 'text-white' }}"
+            href="{{ route('absensi.import') }}">
+            <i class="bi bi-upload me-2"></i> Import Absensi
+        </a>
+    </li>
+</ul>
+
                 </div>
             </nav>
 
@@ -84,6 +91,8 @@
                                 <th>Departemen</th>
                                 <th>Tanggal</th>
                                 <th>Masuk</th>
+                                <th>Istirahat Mulai</th>
+                                <th>Istirahat Selesai</th>
                                 <th>Pulang</th>
                                 <th>Telat (mnt)</th>
                                 <th class="text-end">Denda (Rp)</th>
@@ -107,6 +116,16 @@
                                         {{ $a->getFormattedScan('scan1') }}
                                     </td>
 
+                                    {{-- Istirahat Mulai --}}
+                                    <td class="text-white">
+                                        {{ $a->getFormattedScan('scan2') }}
+                                    </td>
+
+                                    {{-- Istirahat Selesai --}}
+                                    <td class="text-white">
+                                        {{ $a->getFormattedScan('scan3') }}
+                                    </td>
+
                                     {{-- Pulang --}}
                                     <td class="{{ $noCheckOut ? 'bg-warning text-dark' : 'text-white' }}">
                                         {{ $a->getFormattedScan('scan4') }}
@@ -124,7 +143,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center text-muted py-3">Data tidak ditemukan</td>
+                                    <td colspan="9" class="text-center text-muted py-3">Data tidak ditemukan</td>
                                 </tr>
                             @endforelse
                         </tbody>

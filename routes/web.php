@@ -37,4 +37,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     /* Rekap bulanan denda */
     Route::get('/absensi/rekap', [AttendanceController::class, 'recap'])->name('absensi.recap');
+    Route::get('/absensi/evaluate-all', [AttendanceController::class, 'reevaluateAll']);
 });

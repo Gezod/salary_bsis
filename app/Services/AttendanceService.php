@@ -10,43 +10,35 @@ class AttendanceService
 {
     public static function evaluate(Attendance $a): void
     {
-        // Cek hari
-        $hari     = $a->tanggal->format('l'); // pakai format biasa, bukan translated
-        $isJumat  = $hari === 'Friday';
+        $hari = $a->tanggal->format('l'); // 'Monday', 'Tuesday', etc.
+        $isJumat = $hari === 'Friday';
 
-        [$start, $end] = $isJumat
-            ? ['07:00', '16:00']
-            : ['07:30', '16:30'];
+        // Jam kerja
+        $start = '07:30';
+        $end = $isJumat ? '16:00' : '16:30';
 
+        // Jam istirahat
         $breakStart = '11:00';
-        $breakEnd   = $isJumat ? '12:30' : '12:00';
+        $breakEnd = $isJumat ? '12:30' : '12:00';
 
-        // Format waktu referensi
-        $time = fn($hms) => Carbon::parse($a->tanggal->format('Y-m-d') . ' ' . $hms)->setTimezone(config('app.timezone', 'Asia/Jakarta'));
+        // Helper konversi waktu
+        $time = fn($hms) => Carbon::parse($a->tanggal->format('Y-m-d') . ' ' . $hms)
+            ->setTimezone(config('app.timezone', 'Asia/Jakarta'));
 
-        // Telat masuk
+        // Hitung keterlambatan
         if ($a->scan1 instanceof Carbon) {
             $expectedTime = $time($start);
             $actualTime = $a->scan1->copy()->setTimezone(config('app.timezone', 'Asia/Jakarta'));
-
-            $diff = $expectedTime->diffInMinutes($actualTime, false);
-            Log::info("== Evaluasi Telat Masuk ==");
-            Log::info("Tanggal      : {$a->tanggal->toDateString()}");
-            Log::info("Hari         : {$hari}");
-            Log::info("Batas Masuk  : {$expectedTime->format('H:i:s')}");
-            Log::info("Jam Masuk    : {$actualTime->format('H:i:s')}");
-            Log::info("Terlambat    : {$diff} menit");
-
-            $a->late_minutes = max(0, $diff);
+            $a->late_minutes = max(0, $expectedTime->diffInMinutes($actualTime, false));
         }
 
-        // Pulang cepat dan lembur
+        // Hitung pulang cepat dan lembur
         if ($a->scan4 instanceof Carbon) {
             $expectedOut = $time($end);
             $actualOut = $a->scan4->copy()->setTimezone(config('app.timezone', 'Asia/Jakarta'));
 
             $a->early_leave_minutes = max(0, $expectedOut->diffInMinutes($actualOut, false) * -1);
-            $a->overtime_minutes    = max(0, $actualOut->diffInMinutes($expectedOut, false));
+            $a->overtime_minutes = max(0, $actualOut->diffInMinutes($expectedOut, false));
         }
 
         // Evaluasi istirahat
@@ -54,34 +46,41 @@ class AttendanceService
             $breakOut = $a->scan2->copy()->setTimezone(config('app.timezone', 'Asia/Jakarta'));
             $breakIn  = $a->scan3->copy()->setTimezone(config('app.timezone', 'Asia/Jakarta'));
 
-            $actual  = $breakIn->diffInMinutes($breakOut);
-            $allowed = Carbon::parse($breakEnd)->diffInMinutes(Carbon::parse($breakStart));
+            $actualDuration = $breakIn->diffInMinutes($breakOut);
+            $allowedDuration = Carbon::parse($breakEnd)->diffInMinutes(Carbon::parse($breakStart));
 
-            $a->excess_break_minutes = max(0, $actual - $allowed);
+            $a->excess_break_minutes = max(0, $actualDuration - $allowedDuration);
             $a->invalid_break = $breakOut->lt($time($breakStart)) || $breakIn->gt($time($breakEnd));
         }
 
-        // Hitung denda
+        // Hitung total denda
         self::computeFine($a);
         $a->save();
     }
 
     private static function computeFine(Attendance $a): void
     {
-        $role = $a->employee->role;
+        $role = strtolower($a->employee->departemen); // pakai departemen sebagai acuan role
         $rule = config("penalties.{$role}");
+
+        if (!$rule) {
+            $a->late_fine = 0;
+            $a->break_fine = 0;
+            $a->absence_fine = 0;
+            $a->total_fine = 0;
+            return;
+        }
 
         // Denda telat
         $lateFine = 0;
         if ($a->late_minutes > 0) {
             foreach ($rule['late'] as $range) {
-                [$min, $max, $fine] = $range;
-                if ($min === '>' && $a->late_minutes > $max) {
-                    $lateFine = $fine($a->late_minutes);
+                if ($range[0] === '>' && $a->late_minutes > $range[1]) {
+                    $lateFine = $range[2]($a->late_minutes);
                     break;
                 }
-                if ($a->late_minutes >= $min && $a->late_minutes <= $max) {
-                    $lateFine = $fine;
+                if ($a->late_minutes >= $range[0] && $a->late_minutes <= $range[1]) {
+                    $lateFine = $range[2];
                     break;
                 }
             }
@@ -106,10 +105,10 @@ class AttendanceService
 
         $absenceFine += $missing->sum();
 
-        // Simpan total denda
-        $a->late_fine    = $lateFine;
-        $a->break_fine   = $breakFine;
+        // Total semua
+        $a->late_fine = $lateFine;
+        $a->break_fine = $breakFine;
         $a->absence_fine = $absenceFine;
-        $a->total_fine   = $lateFine + $breakFine + $absenceFine;
+        $a->total_fine = $lateFine + $breakFine + $absenceFine;
     }
 }

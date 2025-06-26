@@ -21,7 +21,7 @@ class AttendanceController extends Controller
             })
             ->when($r->filled('employee'), function ($q) use ($r) {
                 $q->whereHas('employee', fn($e) =>
-                    $e->where('nama', 'like', '%' . $r->employee . '%'));
+                $e->where('nama', 'like', '%' . $r->employee . '%'));
             });
 
         $rows = $query->paginate(50)->withQueryString();
@@ -56,5 +56,17 @@ class AttendanceController extends Controller
             ->get();
 
         return view('absensi.recap', compact('data', 'month'));
+    }
+    public function reevaluateAll()
+    {
+        $attendances = \App\Models\Attendance::with('employee')->get();
+
+        foreach ($attendances as $attendance) {
+            if ($attendance instanceof \App\Models\Attendance && $attendance->employee) {
+                \App\Services\AttendanceService::evaluate($attendance);
+            }
+        }
+
+        return redirect()->back()->with('success', 'Semua absensi berhasil dievaluasi ulang.');
     }
 }

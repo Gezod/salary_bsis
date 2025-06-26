@@ -3,42 +3,31 @@
 return [
     'staff' => [
         'late' => [
-            // Format: [min, max, fine] atau ['>', batas, fungsi per menit]
-            [1, 15, 5000],                 // 1–15 menit: denda 5.000
-            [16, 30, 10000],               // 16–30 menit: denda 10.000
-            ['>', 30, fn($m) => $m * 1000] // >30 menit: 1.000/menit
+            [1, 15, 3000],                   // 1–15 menit = 3000
+            [16, 30, 6000],                  // 16–30 menit = 6000
+            [31, 45, 8000],                  // 31–45 menit = 8000
+            [46, 60, 12000],                 // 46–60 menit = 12000
+            ['>', 60, fn($m) => 12000 + ($m - 60)] // >60 menit = 12000 + sisa menit
         ],
-        'late_break' => 10000,           // Jika istirahat berlebihan
-        'missing_checkin' => 20000,      // Scan1 kosong
-        'missing_checkout' => 20000,     // Scan4 kosong
-        'absent_break_once' => 5000,     // Scan2 atau scan3 kosong
-        'absent_twice' => 15000,         // Scan2 & scan3 kosong
+        'late_break' => 1500,               // Telat istirahat
+        'missing_checkin' => 9000,          // Lupa absen masuk
+        'missing_checkout' => 3000,         // Lupa absen pulang
+        'absent_break_once' => 2000,        // 1x absen istirahat
+        'absent_twice' => 3000,             // 2x absen istirahat
     ],
 
-    'manager' => [
-        'late' => [
-            [1, 10, 10000],
-            [11, 30, 20000],
-            ['>', 30, fn($m) => $m * 2000]
-        ],
-        'late_break' => 20000,
-        'missing_checkin' => 30000,
-        'missing_checkout' => 30000,
-        'absent_break_once' => 10000,
-        'absent_twice' => 25000,
-    ],
-
-    // ✅ Tambahan untuk role karyawan
     'karyawan' => [
         'late' => [
-            [1, 15, 5000],
-            [16, 30, 10000],
-            ['>', 30, fn($m) => $m * 1000]
+            [1, 15, 2000],                   // 1–15 menit = 2000
+            [16, 30, 4000],                  // 16–30 menit = 4000
+            [31, 45, 6000],                  // 31–45 menit = 6000
+            [46, 60, 10000],                 // 46–60 menit = 10000
+            ['>', 60, fn($m) => 10000 + ($m - 60)] // >60 menit = 10000 + sisa menit
         ],
-        'late_break' => 10000,
-        'missing_checkin' => 20000,
-        'missing_checkout' => 20000,
-        'absent_break_once' => 5000,
-        'absent_twice' => 15000,
+        'late_break' => 1000,               // Telat istirahat
+        'missing_checkin' => 6000,          // Lupa absen masuk
+        'missing_checkout' => 2000,         // Lupa absen pulang
+        'absent_break_once' => 1500,        // 1x absen istirahat
+        'absent_twice' => 2000,             // 2x absen istirahat
     ],
 ];
