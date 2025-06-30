@@ -19,8 +19,9 @@
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
-        .text-muted{
-             background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+
+        .text-muted {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -237,6 +238,7 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -270,7 +272,7 @@
             <nav class="col-md-2 d-none d-md-block sidebar">
                 <div class="position-sticky pt-4 px-3">
                     <div class="logo-container text-center">
-                         <img src="{{ asset('images/Logo-Bank-Sampah-Surabaya-bank-sampah-induk-surabaya-v2 (1).png') }}"
+                        <img src="{{ asset('images/Logo-Bank-Sampah-Surabaya-bank-sampah-induk-surabaya-v2 (1).png') }}"
                             alt="Bank Sampah" class="img-fluid sidebar-logo mb-3">
                         <small class="text-muted">Sistem Absensi</small>
                     </div>
@@ -355,7 +357,7 @@
                     </div>
 
                     {{-- Notifications --}}
-                    @if(session('success'))
+                    @if (session('success'))
                         <div class="alert alert-success d-flex align-items-center">
                             <i class="bi bi-check-circle-fill me-3 fs-5"></i>
                             <div>
@@ -364,7 +366,7 @@
                         </div>
                     @endif
 
-                    @if($errors->any())
+                    @if ($errors->any())
                         <div class="alert alert-danger d-flex align-items-center">
                             <i class="bi bi-exclamation-triangle-fill me-3 fs-5"></i>
                             <div>
@@ -380,7 +382,8 @@
                             Upload File Excel
                         </h5>
 
-                        <form method="POST" action="{{ route('absensi.import') }}" enctype="multipart/form-data" id="uploadForm">
+                        <form method="POST" action="{{ route('absensi.import') }}" enctype="multipart/form-data"
+                            id="uploadForm">
                             @csrf
                             <div class="file-upload-area" id="fileUploadArea">
                                 <div class="upload-icon">
@@ -388,8 +391,10 @@
                                 </div>
                                 <h6 class="text-white mb-2">Drag & Drop file Excel di sini</h6>
                                 <p class="text-muted mb-3">atau klik untuk memilih file</p>
-                                <input type="file" name="file" id="file" class="form-control" accept=".xlsx,.xls" required style="display: none;">
-                                <button type="button" class="btn btn-outline-info" onclick="document.getElementById('file').click()">
+                                <input type="file" name="file" id="file" class="form-control" accept=".xlsx,.xls"
+                                    required style="display: none;">
+                                <button type="button" class="btn btn-outline-info"
+                                    onclick="document.getElementById('file').click()">
                                     <i class="bi bi-folder2-open me-2"></i>Pilih File
                                 </button>
                                 <div class="file-info mt-3" id="fileInfo" style="display: none;">
@@ -408,9 +413,19 @@
                                                 Format File Excel
                                             </h6>
                                             <ul class="text-muted mb-0 small">
+                                                <li>Convert file download scanner fingerprint menjadi file terbaru agar bisa
+                                                    dibaca oleh sistem</li>
+                                                <li>
+                                                    Bisa diconvert di link berikut ini:
+                                                    <a href="https://cloudconvert.com/" target="_blank"
+                                                        class="text-decoration-underline text-primary">
+                                                        https://cloudconvert.com/
+                                                    </a>
+                                                </li>
                                                 <li>Format file: .xlsx atau .xls , .csv</li>
                                                 <li>Maksimal ukuran: 10MB</li>
-                                                <li>Kolom yang diperlukan: PIN,NIP,Nama,Jabatan,Departemen,Kantor,Tanggal,Scan 1,Scan 2,Scan 3,Scan 4,Scan 5</li>
+                                                <li>Kolom yang diperlukan: PIN, NIP, Nama, Jabatan, Departemen, Kantor,
+                                                    Tanggal, Scan 1, Scan 2, Scan 3, Scan 4, Scan 5</li>
                                                 <li>Pastikan format tanggal: DD/MM/YYYY</li>
                                             </ul>
                                         </div>
@@ -423,8 +438,10 @@
                                                 <i class="bi bi-download me-2 text-success"></i>
                                                 Template Excel
                                             </h6>
-                                            <p class="text-muted small mb-3">Download template untuk memudahkan proses import</p>
-                                            <a href="#" class="btn btn-sm btn-outline-info">
+                                            <p class="text-muted small mb-3">Download template untuk memudahkan proses
+                                                import</p>
+                                            <a href="{{ asset('files/cek magang_fix.csv') }}"
+                                                class="btn btn-sm btn-outline-info" download>
                                                 <i class="bi bi-download me-2"></i>Download Template
                                             </a>
                                         </div>
