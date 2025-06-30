@@ -382,7 +382,7 @@
                                 <input type="text" name="employee" value="{{ request('employee') }}"
                                     class="form-control" placeholder="Cari nama karyawan...">
                             </div>
-                            <div class="col-md-3">
+                            {{-- <div class="col-md-3">
                                 <label class="form-label text-muted small">Departemen</label>
                                 <select name="department" class="form-control">
                                     <option value="">Semua Departemen</option>
@@ -393,7 +393,7 @@
                                     <option value="Finance" {{ request('department') == 'Finance' ? 'selected' : '' }}>
                                         Finance</option>
                                 </select>
-                            </div>
+                            </div> --}}
                             <div class="col-md-2 d-flex align-items-end">
                                 <button type="submit" class="btn btn-primary w-100">
                                     <i class="bi bi-search me-2"></i>Filter
