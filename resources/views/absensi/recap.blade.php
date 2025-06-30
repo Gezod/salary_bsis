@@ -38,8 +38,9 @@
             padding: 0.75rem 1rem;
             color: #cbd5e1 !important;
         }
-        .text-muted{
-             background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+
+        .text-muted {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -279,6 +280,7 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -298,15 +300,88 @@
             font-weight: 600;
             display: inline-block;
         }
+
+        /* Sidebar Responsive */
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            overflow-y: auto;
+        }
+
+        /* Untuk mobile, sidebar disembunyikan */
+        @media (max-width: 767.98px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            /* Tambahkan overlay ketika sidebar terbuka */
+            .sidebar-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+                display: none;
+            }
+
+            .sidebar-overlay.show {
+                display: block;
+            }
+
+            /* Sesuaikan margin main content */
+            main {
+                margin-left: 0 !important;
+            }
+        }
+
+        /* Untuk desktop, sidebar selalu terlihat */
+        @media (min-width: 768px) {
+            .sidebar {
+                transform: translateX(0) !important;
+            }
+
+            main {
+                margin-left: 250px;
+            }
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 10px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
     </style>
 
     <div class="container-fluid min-vh-100 px-0">
         <div class="row g-0">
             {{-- Enhanced Sidebar --}}
-            <nav class="col-md-2 d-none d-md-block sidebar">
+            <nav class="col-md-2 sidebar">
                 <div class="position-sticky pt-4 px-3">
                     <div class="logo-container text-center">
-                         <img src="{{ asset('images/Logo-Bank-Sampah-Surabaya-bank-sampah-induk-surabaya-v2 (1).png') }}"
+                        <img src="{{ asset('images/Logo-Bank-Sampah-Surabaya-bank-sampah-induk-surabaya-v2 (1).png') }}"
                             alt="Bank Sampah" class="img-fluid sidebar-logo mb-3">
                         <small class="text-muted">Sistem Absensi</small>
                     </div>
@@ -354,6 +429,9 @@
                 {{-- Enhanced Navbar --}}
                 <nav class="navbar navbar-expand-lg sticky-top">
                     <div class="container-fluid">
+                        <button class="btn btn-primary me-3 d-md-none" type="button" id="sidebarToggle">
+                            <i class="bi bi-list"></i>
+                        </button>
                         <div class="d-flex align-items-center">
                             <div class="icon-wrapper me-3">
                                 <i class="bi bi-file-earmark-text text-white"></i>
@@ -381,7 +459,7 @@
                         <div>
                             <h1 class="page-title mb-2">Rekap Denda Karyawan</h1>
                             <p class="text-muted mb-0">
-                                Laporan denda bulan {{ \Carbon\Carbon::parse($month.'-01')->translatedFormat('F Y') }}
+                                Laporan denda bulan {{ \Carbon\Carbon::parse($month . '-01')->translatedFormat('F Y') }}
                             </p>
                         </div>
                         <div class="stats-card">
@@ -426,8 +504,7 @@
                         <form method="GET" class="row g-3">
                             <div class="col-md-4">
                                 <label class="form-label text-muted small">Pilih Bulan</label>
-                                <input type="month" name="month" value="{{ $month }}"
-                                    class="form-control">
+                                <input type="month" name="month" value="{{ $month }}" class="form-control">
                             </div>
                             <div class="col-md-2 d-flex align-items-end">
                                 <button type="submit" class="btn btn-primary w-100">
@@ -454,22 +531,24 @@
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3"
-                                                         style="width: 40px; height: 40px;">
+                                                        style="width: 40px; height: 40px;">
                                                         <span class="text-white fw-bold">
                                                             {{ substr($d->employee->nama ?? 'N', 0, 1) }}
                                                         </span>
                                                     </div>
                                                     <div>
-                                                        <div class="text-white fw-semibold">{{ $d->employee->nama ?? '-' }}</div>
+                                                        <div class="text-white fw-semibold">{{ $d->employee->nama ?? '-' }}
+                                                        </div>
                                                         <small class="text-muted">ID: {{ $d->employee->id ?? '-' }}</small>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td>
-                                                <span class="badge bg-secondary">{{ $d->employee->departemen ?? '-' }}</span>
+                                                <span
+                                                    class="badge bg-secondary">{{ $d->employee->departemen ?? '-' }}</span>
                                             </td>
                                             <td class="text-end">
-                                                @if($d->fine > 0)
+                                                @if ($d->fine > 0)
                                                     <span class="currency-highlight">
                                                         Rp {{ number_format($d->fine, 0, ',', '.') }}
                                                     </span>
@@ -500,4 +579,25 @@
 
     {{-- Add Google Fonts --}}
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.querySelector('.sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.createElement('div');
+            sidebarOverlay.className = 'sidebar-overlay';
+            document.body.appendChild(sidebarOverlay);
+
+            // Toggle sidebar
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('show');
+                sidebarOverlay.classList.toggle('show');
+            });
+
+            // Tutup sidebar ketika overlay diklik
+            sidebarOverlay.addEventListener('click', function() {
+                sidebar.classList.remove('show');
+                this.classList.remove('show');
+            });
+        });
+    </script>
 @endsection

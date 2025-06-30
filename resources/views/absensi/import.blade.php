@@ -264,12 +264,86 @@
             color: #3b82f6;
             font-size: 0.875rem;
         }
+
+        /* Sidebar Responsive */
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            overflow-y: auto;
+        }
+
+        /* Untuk mobile, sidebar disembunyikan */
+        @media (max-width: 767.98px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            /* Tambahkan overlay ketika sidebar terbuka */
+            .sidebar-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+                display: none;
+            }
+
+            .sidebar-overlay.show {
+                display: block;
+            }
+
+            /* Sesuaikan margin main content */
+            main {
+                margin-left: 0 !important;
+            }
+        }
+
+        /* Untuk desktop, sidebar selalu terlihat */
+        @media (min-width: 768px) {
+            .sidebar {
+                transform: translateX(0) !important;
+            }
+
+            main {
+                margin-left: 250px;
+            }
+        }
+
+        /* Custom scrollbar untuk sidebar */
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 10px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
     </style>
 
     <div class="container-fluid min-vh-100 px-0">
         <div class="row g-0">
             {{-- Enhanced Sidebar --}}
-            <nav class="col-md-2 d-none d-md-block sidebar">
+            <nav class="col-md-2 sidebar">
                 <div class="position-sticky pt-4 px-3">
                     <div class="logo-container text-center">
                         <img src="{{ asset('images/Logo-Bank-Sampah-Surabaya-bank-sampah-induk-surabaya-v2 (1).png') }}"
@@ -320,6 +394,9 @@
                 {{-- Enhanced Navbar --}}
                 <nav class="navbar navbar-expand-lg sticky-top">
                     <div class="container-fluid">
+                        <button class="btn btn-primary me-3 d-md-none" type="button" id="sidebarToggle">
+                            <i class="bi bi-list"></i>
+                        </button>
                         <div class="d-flex align-items-center">
                             <div class="icon-wrapper me-3">
                                 <i class="bi bi-upload text-white"></i>
@@ -465,6 +542,26 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <script>
+        // Sidebar Toggle for Mobile
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.querySelector('.sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.createElement('div');
+            sidebarOverlay.className = 'sidebar-overlay';
+            document.body.appendChild(sidebarOverlay);
+
+            // Toggle sidebar
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('show');
+                sidebarOverlay.classList.toggle('show');
+            });
+
+            // Tutup sidebar ketika overlay diklik
+            sidebarOverlay.addEventListener('click', function() {
+                sidebar.classList.remove('show');
+                this.classList.remove('show');
+            });
+        });
         // File upload functionality
         const fileInput = document.getElementById('file');
         const fileUploadArea = document.getElementById('fileUploadArea');
