@@ -211,8 +211,9 @@
             font-weight: 700;
             font-size: 2rem;
         }
-        .text-muted{
-             background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+
+        .text-muted {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -253,6 +254,7 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -273,6 +275,7 @@
             background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
             margin-right: 1rem;
         }
+
     </style>
 
     <div class="container-fluid min-vh-100 px-0">
@@ -282,8 +285,7 @@
                 <div class="position-sticky pt-4 px-3">
                     <div class="logo-container text-center">
                         <img src="{{ asset('images/Logo-Bank-Sampah-Surabaya-bank-sampah-induk-surabaya-v2 (1).png') }}"
-                            alt="Bank Sampah" class="img-fluid rounded-circle mb-3" style="max-width: 80px; border: 3px solid rgba(255,255,255,0.2);">
-                        <h6 class="text-white fw-bold mb-0">Bank Sampah</h6>
+                            alt="Bank Sampah" class="img-fluid sidebar-logo mb-3">
                         <small class="text-muted">Sistem Absensi</small>
                     </div>
 
@@ -373,8 +375,7 @@
                         <form method="GET" class="row g-3">
                             <div class="col-md-3">
                                 <label class="form-label text-muted small">Tanggal</label>
-                                <input type="date" name="date" value="{{ request('date') }}"
-                                    class="form-control">
+                                <input type="date" name="date" value="{{ request('date') }}" class="form-control">
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label text-muted small">Nama Karyawan</label>
@@ -385,9 +386,12 @@
                                 <label class="form-label text-muted small">Departemen</label>
                                 <select name="department" class="form-control">
                                     <option value="">Semua Departemen</option>
-                                    <option value="IT" {{ request('department') == 'IT' ? 'selected' : '' }}>IT</option>
-                                    <option value="HR" {{ request('department') == 'HR' ? 'selected' : '' }}>HR</option>
-                                    <option value="Finance" {{ request('department') == 'Finance' ? 'selected' : '' }}>Finance</option>
+                                    <option value="IT" {{ request('department') == 'IT' ? 'selected' : '' }}>IT
+                                    </option>
+                                    <option value="HR" {{ request('department') == 'HR' ? 'selected' : '' }}>HR
+                                    </option>
+                                    <option value="Finance" {{ request('department') == 'Finance' ? 'selected' : '' }}>
+                                        Finance</option>
                                 </select>
                             </div>
                             <div class="col-md-2 d-flex align-items-end">
@@ -427,13 +431,14 @@
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3"
-                                                         style="width: 40px; height: 40px;">
+                                                        style="width: 40px; height: 40px;">
                                                         <span class="text-white fw-bold">
                                                             {{ substr($employee->nama ?? 'N', 0, 1) }}
                                                         </span>
                                                     </div>
                                                     <div>
-                                                        <div class="text-white fw-semibold">{{ $employee->nama ?? '-' }}</div>
+                                                        <div class="text-white fw-semibold">{{ $employee->nama ?? '-' }}
+                                                        </div>
                                                         <small class="text-muted">ID: {{ $employee->id ?? '-' }}</small>
                                                     </div>
                                                 </div>
@@ -443,32 +448,35 @@
                                             </td>
                                             <td class="text-white">{{ $a->tanggal->format('d M Y') }}</td>
                                             <td>
-                                                @if($noCheckIn)
+                                                @if ($noCheckIn)
                                                     <span class="status-badge status-absent">Tidak Hadir</span>
                                                 @elseif($isLate)
-                                                    <span class="status-badge status-late">{{ $a->getFormattedScan('scan1') }}</span>
+                                                    <span
+                                                        class="status-badge status-late">{{ $a->getFormattedScan('scan1') }}</span>
                                                 @else
-                                                    <span class="status-badge status-present">{{ $a->getFormattedScan('scan1') }}</span>
+                                                    <span
+                                                        class="status-badge status-present">{{ $a->getFormattedScan('scan1') }}</span>
                                                 @endif
                                             </td>
                                             <td class="text-white">{{ $a->getFormattedScan('scan2') ?: '-' }}</td>
                                             <td class="text-white">{{ $a->getFormattedScan('scan3') ?: '-' }}</td>
                                             <td>
-                                                @if($noCheckOut)
+                                                @if ($noCheckOut)
                                                     <span class="status-badge status-absent">Belum Pulang</span>
                                                 @else
                                                     <span class="text-white">{{ $a->getFormattedScan('scan4') }}</span>
                                                 @endif
                                             </td>
                                             <td class="text-center">
-                                                @if($isLate)
-                                                    <span class="badge bg-warning text-dark">{{ $a->late_minutes }} mnt</span>
+                                                @if ($isLate)
+                                                    <span class="badge bg-warning text-dark">{{ $a->late_minutes }}
+                                                        mnt</span>
                                                 @else
                                                     <span class="text-muted">-</span>
                                                 @endif
                                             </td>
                                             <td class="text-end">
-                                                @if($a->total_fine)
+                                                @if ($a->total_fine)
                                                     <span class="text-warning fw-bold">
                                                         Rp {{ number_format($a->total_fine, 0, ',', '.') }}
                                                     </span>

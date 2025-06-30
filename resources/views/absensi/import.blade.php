@@ -270,9 +270,8 @@
             <nav class="col-md-2 d-none d-md-block sidebar">
                 <div class="position-sticky pt-4 px-3">
                     <div class="logo-container text-center">
-                        <img src="{{ asset('images/Logo-Bank-Sampah-Surabaya-bank-sampah-induk-surabaya-v2 (1).png') }}"
-                            alt="Bank Sampah" class="img-fluid rounded-circle mb-3" style="max-width: 80px; border: 3px solid rgba(255,255,255,0.2);">
-                        <h6 class="text-white fw-bold mb-0">Bank Sampah</h6>
+                         <img src="{{ asset('images/Logo-Bank-Sampah-Surabaya-bank-sampah-induk-surabaya-v2 (1).png') }}"
+                            alt="Bank Sampah" class="img-fluid sidebar-logo mb-3">
                         <small class="text-muted">Sistem Absensi</small>
                     </div>
 
@@ -409,9 +408,9 @@
                                                 Format File Excel
                                             </h6>
                                             <ul class="text-muted mb-0 small">
-                                                <li>Format file: .xlsx atau .xls</li>
+                                                <li>Format file: .xlsx atau .xls , .csv</li>
                                                 <li>Maksimal ukuran: 10MB</li>
-                                                <li>Kolom yang diperlukan: Nama, Departemen, Tanggal, Jam</li>
+                                                <li>Kolom yang diperlukan: PIN,NIP,Nama,Jabatan,Departemen,Kantor,Tanggal,Scan 1,Scan 2,Scan 3,Scan 4,Scan 5</li>
                                                 <li>Pastikan format tanggal: DD/MM/YYYY</li>
                                             </ul>
                                         </div>
