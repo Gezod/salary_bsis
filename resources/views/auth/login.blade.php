@@ -388,12 +388,12 @@
                     </div>
 
                     <!-- Remember Me -->
-                    <div class="checkbox-wrapper">
+                    {{-- <div class="checkbox-wrapper">
                         <input id="remember_me" type="checkbox" class="checkbox-input" name="remember">
                         <label for="remember_me" class="checkbox-label">
                             Remember me for 30 days
                         </label>
-                    </div>
+                    </div> --}}
 
                     <!-- Submit Button -->
                     <button type="submit" class="btn-primary">
@@ -402,14 +402,14 @@
                     </button>
 
                     <!-- Forgot Password -->
-                    <div style="text-align: center; margin-top: 1rem;">
+                    {{-- <div style="text-align: center; margin-top: 1rem;">
                         @if (Route::has('password.request'))
                             <a class="forgot-password" href="{{ route('password.request') }}">
                                 <i class="bi bi-question-circle me-1"></i>
                                 Forgot your password?
                             </a>
                         @endif
-                    </div>
+                    </div> --}}
 
                     <!-- Register Link -->
                     <div class="register-link">
