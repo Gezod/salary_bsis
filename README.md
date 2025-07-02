@@ -189,7 +189,6 @@ resources/views/
 ### **Frontend Deployment**
 - **Netlify** - Drag and drop the `dist` folder
 - **Vercel** - Connect your Git repository
-- **AWS S3** - Upload build files to S3 bucket
 - **GitHub Pages** - Use GitHub Actions for deployment
 
 ### **Backend Requirements**
