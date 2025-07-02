@@ -269,3 +269,6 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ### 📑 Rekap Denda
 ![Rekap Denda](docs/images/rekap_denda.jpg)
+
+### 📑 Absensi Manual
+![Rekap Denda](docs/images/absensi_manual.png)
