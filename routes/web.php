@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PresensiController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ImportController;
+use App\Http\Controllers\Api\EmployeeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,4 +39,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     /* Rekap bulanan denda */
     Route::get('/absensi/rekap', [AttendanceController::class, 'recap'])->name('absensi.recap');
     Route::get('/absensi/evaluate-all', [AttendanceController::class, 'reevaluateAll']);
+
+    // Input Manual Absensi
+    Route::get('/absensi/manual', [AttendanceController::class, 'manual'])->name('absensi.manual');
+    Route::post('/absensi/manual', [AttendanceController::class, 'manualStore'])->name('absensi.manual.store');
 });
+Route::get('/api/employees/search', [EmployeeController::class, 'search'])->name('api.employees.search');

@@ -20,15 +20,6 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
-        .text-muted {
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 50;
-            font-size: 1rem;
-        }
-
         ::placeholder {
             color: #94a3b8 !important;
             opacity: 1;
@@ -140,6 +131,20 @@
             backdrop-filter: blur(10px);
         }
 
+        .stats-card {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(30, 64, 175, 0.1));
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(59, 130, 246, 0.2);
+        }
+
         .page-title {
             background: linear-gradient(135deg, #3b82f6, #8b5cf6);
             -webkit-background-clip: text;
@@ -149,33 +154,22 @@
             font-size: 2rem;
         }
 
-        .upload-section {
+        .text-muted {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 50;
+            font-size: 1rem;
+        }
+
+        .form-section {
             background: var(--card-bg);
             border-radius: 1rem;
             padding: 2rem;
             margin-bottom: 2rem;
             border: 1px solid var(--border-color);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .file-upload-area {
-            border: 2px dashed var(--border-color);
-            border-radius: 1rem;
-            padding: 2rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            background: rgba(30, 41, 59, 0.3);
-        }
-
-        .file-upload-area:hover {
-            border-color: var(--primary-color);
-            background: rgba(59, 130, 246, 0.1);
-        }
-
-        .file-upload-area.dragover {
-            border-color: var(--primary-color);
-            background: rgba(59, 130, 246, 0.2);
-            transform: scale(1.02);
         }
 
         .alert {
@@ -208,37 +202,11 @@
             margin-right: 1rem;
         }
 
-        .upload-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            margin: 0 auto 1rem;
-        }
-
-        .stats-card {
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(30, 64, 175, 0.1));
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .stats-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 15px 35px rgba(59, 130, 246, 0.2);
-        }
-
         @keyframes fadeInUp {
             from {
                 opacity: 0;
                 transform: translateY(30px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -255,14 +223,42 @@
             margin-bottom: 0.5rem;
         }
 
-        .file-info {
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            border-radius: 0.5rem;
+        .employee-search {
+            position: relative;
+        }
+
+        .employee-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .employee-dropdown.show {
+            display: block;
+        }
+
+        .employee-item {
             padding: 0.75rem 1rem;
-            margin-top: 1rem;
-            color: #3b82f6;
-            font-size: 0.875rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .employee-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .employee-item:last-child {
+            border-bottom: none;
         }
 
         /* Sidebar Responsive */
@@ -410,7 +406,7 @@
                         </button>
                         <div class="d-flex align-items-center">
                             <div class="icon-wrapper me-3">
-                                <i class="bi bi-upload text-white"></i>
+                                <i class="bi bi-clipboard-check text-white"></i>
                             </div>
                             <span class="navbar-brand fw-bold text-white mb-0">Sistem Absensi</span>
                         </div>
@@ -433,19 +429,19 @@
                     {{-- Page Header --}}
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
-                            <h1 class="page-title mb-2">Import Data Absensi</h1>
-                            <p class="text-muted mb-0">Upload file Excel untuk mengimpor data absensi secara batch</p>
+                            <h1 class="page-title mb-2">Input Absensi Manual</h1>
+                            <p class="text-muted mb-0">Tambahkan data absensi karyawan secara manual</p>
                         </div>
                         <div class="stats-card">
                             <div class="fw-bold text-white fs-4">
-                                <i class="bi bi-file-earmark-excel text-success"></i>
+                                <i class="bi bi-clipboard-check text-primary"></i>
                             </div>
-                            <small class="text-muted">Excel Import</small>
+                            <small class="text-muted">Manual Input</small>
                         </div>
                     </div>
 
                     {{-- Notifications --}}
-                    @if (session('success'))
+                    @if(session('success'))
                         <div class="alert alert-success d-flex align-items-center">
                             <i class="bi bi-check-circle-fill me-3 fs-5"></i>
                             <div>
@@ -454,93 +450,155 @@
                         </div>
                     @endif
 
-                    @if ($errors->any())
+                    @if($errors->any())
                         <div class="alert alert-danger d-flex align-items-center">
                             <i class="bi bi-exclamation-triangle-fill me-3 fs-5"></i>
                             <div>
-                                <strong>Error!</strong> {{ $errors->first() }}
+                                <strong>Error!</strong>
+                                <ul class="mb-0 mt-2">
+                                    @foreach($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
                             </div>
                         </div>
                     @endif
 
-                    {{-- Upload Section --}}
-                    <div class="upload-section">
+                    {{-- Form Section --}}
+                    <div class="form-section">
                         <h5 class="text-white mb-4 d-flex align-items-center">
-                            <i class="bi bi-cloud-upload me-2 text-primary"></i>
-                            Upload File Excel
+                            <i class="bi bi-person-plus me-2 text-primary"></i>
+                            Data Karyawan & Absensi
                         </h5>
 
-                        <form method="POST" action="{{ route('absensi.import') }}" enctype="multipart/form-data"
-                            id="uploadForm">
+                        <form method="POST" action="{{ route('absensi.manual.store') }}" id="manualForm">
                             @csrf
-                            <div class="file-upload-area" id="fileUploadArea">
-                                <div class="upload-icon">
-                                    <i class="bi bi-file-earmark-excel text-white fs-1"></i>
+
+                            {{-- Employee Information --}}
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        <i class="bi bi-search me-2"></i>Cari Karyawan
+                                    </label>
+                                    <div class="employee-search">
+                                        <input type="text" id="employeeSearch" class="form-control"
+                                               placeholder="Ketik nama atau NIP karyawan..." autocomplete="off">
+                                        <div class="employee-dropdown" id="employeeDropdown"></div>
+                                    </div>
                                 </div>
-                                <h6 class="text-white mb-2">Drag & Drop file Excel di sini</h6>
-                                <p class="text-muted mb-3">atau klik untuk memilih file</p>
-                                <input type="file" name="file" id="file" class="form-control" accept=".xlsx,.xls"
-                                    required style="display: none;">
-                                <button type="button" class="btn btn-outline-info"
-                                    onclick="document.getElementById('file').click()">
-                                    <i class="bi bi-folder2-open me-2"></i>Pilih File
-                                </button>
-                                <div class="file-info mt-3" id="fileInfo" style="display: none;">
-                                    <i class="bi bi-file-earmark-check me-2"></i>
-                                    <span id="fileName"></span>
-                                    <small class="d-block mt-1" id="fileSize"></small>
+                                <div class="col-md-6">
+                                    <label class="form-label">
+                                        <i class="bi bi-calendar me-2"></i>Tanggal Absensi
+                                    </label>
+                                    <input type="date" name="tanggal" class="form-control"
+                                           value="{{ old('tanggal', date('Y-m-d')) }}" required>
                                 </div>
                             </div>
 
-                            <div class="row mt-4">
-                                <div class="col-md-6">
+                            {{-- Hidden Employee Data --}}
+                            <input type="hidden" name="employee_id" id="selectedEmployeeId" value="{{ old('employee_id') }}">
+
+                            {{-- Employee Details Display --}}
+                            <div class="row mb-4" id="employeeDetails" style="display: none;">
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h6 class="text-white mb-3">
+                                                <i class="bi bi-person-check me-2 text-success"></i>
+                                                Data Karyawan Terpilih
+                                            </h6>
+                                            <div class="row">
+                                                <div class="col-md-3">
+                                                    <small class="text-muted">PIN</small>
+                                                    <div class="text-white fw-semibold" id="displayPIN">-</div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <small class="text-muted">NIP</small>
+                                                    <div class="text-white fw-semibold" id="displayNIP">-</div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <small class="text-muted">Nama</small>
+                                                    <div class="text-white fw-semibold" id="displayNama">-</div>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <small class="text-muted">Departemen</small>
+                                                    <div class="text-white fw-semibold" id="displayDepartemen">-</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Scan Times --}}
+                            <div class="mb-4">
+                                <h6 class="text-white mb-3">
+                                    <i class="bi bi-clock me-2 text-primary"></i>
+                                    Waktu Scan Absensi
+                                </h6>
+                                <div class="row g-3">
+                                    <div class="col-md-4 col-lg-2">
+                                        <label class="form-label small">Scan 1 (Masuk)</label>
+                                        <input type="time" name="scan1" class="form-control" value="{{ old('scan1') }}">
+                                    </div>
+                                    <div class="col-md-4 col-lg-2">
+                                        <label class="form-label small">Scan 2 (Istirahat)</label>
+                                        <input type="time" name="scan2" class="form-control" value="{{ old('scan2') }}">
+                                    </div>
+                                    <div class="col-md-4 col-lg-2">
+                                        <label class="form-label small">Scan 3 (Kembali)</label>
+                                        <input type="time" name="scan3" class="form-control" value="{{ old('scan3') }}">
+                                    </div>
+                                    <div class="col-md-4 col-lg-2">
+                                        <label class="form-label small">Scan 4 (Pulang)</label>
+                                        <input type="time" name="scan4" class="form-control" value="{{ old('scan4') }}">
+                                    </div>
+                                    <div class="col-md-4 col-lg-2">
+                                        <label class="form-label small">Scan 5 (Opsional)</label>
+                                        <input type="time" name="scan5" class="form-control" value="{{ old('scan5') }}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Additional Information --}}
+                            <div class="row mb-4">
+                                <div class="col-12">
                                     <div class="card">
                                         <div class="card-body">
                                             <h6 class="text-white mb-3">
                                                 <i class="bi bi-info-circle me-2 text-info"></i>
-                                                Format File Excel
+                                                Informasi Tambahan
                                             </h6>
-                                            <ul class="text-muted mb-0 small">
-                                                <li>Convert file download scanner fingerprint menjadi file terbaru agar bisa
-                                                    dibaca oleh sistem</li>
-                                                <li>
-                                                    Bisa diconvert di link berikut ini:
-                                                    <a href="https://cloudconvert.com/" target="_blank"
-                                                        class="text-decoration-underline text-primary">
-                                                        https://cloudconvert.com/
-                                                    </a>
-                                                </li>
-                                                <li>Format file: .xlsx atau .xls , .csv</li>
-                                                <li>Maksimal ukuran: 10MB</li>
-                                                <li>Kolom yang diperlukan: PIN, NIP, Nama, Jabatan, Departemen, Kantor,
-                                                    Tanggal, Scan 1, Scan 2, Scan 3, Scan 4, Scan 5</li>
-                                                <li>Pastikan format tanggal: DD/MM/YYYY</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <h6 class="text-white mb-3">
-                                                <i class="bi bi-download me-2 text-success"></i>
-                                                Template Excel
-                                            </h6>
-                                            <p class="text-muted small mb-3">Download template untuk memudahkan proses
-                                                import</p>
-                                            <a href="{{ asset('files/cek magang_fix.csv') }}"
-                                                class="btn btn-sm btn-outline-info" download>
-                                                <i class="bi bi-download me-2"></i>Download Template
-                                            </a>
+                                            <div class="row g-3">
+                                                <div class="col-md-4">
+                                                    <label class="form-label small">Terlambat (menit)</label>
+                                                    <input type="number" name="late_minutes" class="form-control"
+                                                           value="{{ old('late_minutes', 0) }}" min="0">
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label small">Pulang Cepat (menit)</label>
+                                                    <input type="number" name="early_leave_minutes" class="form-control"
+                                                           value="{{ old('early_leave_minutes', 0) }}" min="0">
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label small">Lembur (menit)</label>
+                                                    <input type="number" name="overtime_minutes" class="form-control"
+                                                           value="{{ old('overtime_minutes', 0) }}" min="0">
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="text-center mt-4">
-                                <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" disabled>
-                                    <i class="bi bi-cloud-upload me-2"></i>Import Data Absensi
+                            {{-- Submit Button --}}
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                    <i class="bi bi-save me-2"></i>Simpan Data Absensi
                                 </button>
+                                <a href="{{ route('absensi.index') }}" class="btn btn-outline-info btn-lg ms-3">
+                                    <i class="bi bi-arrow-left me-2"></i>Kembali ke Daftar
+                                </a>
                             </div>
                         </form>
                     </div>
@@ -549,85 +607,118 @@
         </div>
     </div>
 
+    {{-- Sidebar Overlay for Mobile --}}
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     {{-- Add Google Fonts --}}
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <script>
-        // Sidebar Toggle for Mobile
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.querySelector('.sidebar');
             const sidebarToggle = document.getElementById('sidebarToggle');
-            const sidebarOverlay = document.createElement('div');
-            sidebarOverlay.className = 'sidebar-overlay';
-            document.body.appendChild(sidebarOverlay);
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
 
-            // Toggle sidebar
-            sidebarToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('show');
-                sidebarOverlay.classList.toggle('show');
-            });
+            // Toggle sidebar for mobile
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                    sidebarOverlay.classList.toggle('show');
+                });
+            }
 
-            // Tutup sidebar ketika overlay diklik
+            // Close sidebar when overlay is clicked
             sidebarOverlay.addEventListener('click', function() {
                 sidebar.classList.remove('show');
                 this.classList.remove('show');
             });
-        });
-        // File upload functionality
-        const fileInput = document.getElementById('file');
-        const fileUploadArea = document.getElementById('fileUploadArea');
-        const fileInfo = document.getElementById('fileInfo');
-        const fileName = document.getElementById('fileName');
-        const fileSize = document.getElementById('fileSize');
-        const submitBtn = document.getElementById('submitBtn');
 
-        // Handle file selection
-        fileInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                displayFileInfo(file);
-            }
-        });
+            // Employee search functionality
+            const employeeSearch = document.getElementById('employeeSearch');
+            const employeeDropdown = document.getElementById('employeeDropdown');
+            const employeeDetails = document.getElementById('employeeDetails');
+            let searchTimeout;
 
-        // Handle drag and drop
-        fileUploadArea.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            fileUploadArea.classList.add('dragover');
-        });
+            employeeSearch.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                const query = this.value.trim();
 
-        fileUploadArea.addEventListener('dragleave', function(e) {
-            e.preventDefault();
-            fileUploadArea.classList.remove('dragover');
-        });
-
-        fileUploadArea.addEventListener('drop', function(e) {
-            e.preventDefault();
-            fileUploadArea.classList.remove('dragover');
-
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                const file = files[0];
-                if (file.type.includes('sheet') || file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
-                    fileInput.files = files;
-                    displayFileInfo(file);
-                } else {
-                    alert('Please select a valid Excel file (.xlsx or .xls)');
+                if (query.length < 2) {
+                    employeeDropdown.classList.remove('show');
+                    return;
                 }
-            }
-        });
 
-        function displayFileInfo(file) {
-            fileName.textContent = file.name;
-            fileSize.textContent = `Size: ${(file.size / 1024 / 1024).toFixed(2)} MB`;
-            fileInfo.style.display = 'block';
-            submitBtn.disabled = false;
-        }
+                searchTimeout = setTimeout(() => {
+                    searchEmployees(query);
+                }, 300);
+            });
 
-        // Click to select file
-        fileUploadArea.addEventListener('click', function(e) {
-            if (e.target.tagName !== 'BUTTON') {
-                fileInput.click();
+            function searchEmployees(query) {
+                // Show loading state
+                employeeDropdown.innerHTML = '<div class="employee-item text-muted">Mencari...</div>';
+                employeeDropdown.classList.add('show');
+
+                fetch(`/api/employees/search?q=${encodeURIComponent(query)}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        displayEmployeeResults(data);
+                    })
+                    .catch(error => {
+                        console.error('Error searching employees:', error);
+                        employeeDropdown.innerHTML = '<div class="employee-item text-danger">Error mencari karyawan</div>';
+                    });
             }
+
+            function displayEmployeeResults(employees) {
+                if (employees.length === 0) {
+                    employeeDropdown.innerHTML = '<div class="employee-item text-muted">Tidak ada karyawan ditemukan</div>';
+                } else {
+                    employeeDropdown.innerHTML = employees.map(emp => `
+                        <div class="employee-item" onclick="selectEmployee(${emp.id}, '${emp.pin || ''}', '${emp.nip || ''}', '${emp.nama || ''}', '${emp.jabatan || ''}', '${emp.departemen || ''}', '${emp.kantor || ''}')">
+                            <div class="text-white fw-semibold">${emp.nama || 'Nama tidak tersedia'}</div>
+                            <small class="text-muted">NIP: ${emp.nip || '-'} | ${emp.departemen || 'Departemen tidak tersedia'}</small>
+                        </div>
+                    `).join('');
+                }
+                employeeDropdown.classList.add('show');
+            }
+
+            // Make selectEmployee function global
+            window.selectEmployee = function(id, pin, nip, nama, jabatan, departemen, kantor) {
+                document.getElementById('selectedEmployeeId').value = id;
+                document.getElementById('employeeSearch').value = nama;
+
+                // Display employee details
+                document.getElementById('displayPIN').textContent = pin || '-';
+                document.getElementById('displayNIP').textContent = nip || '-';
+                document.getElementById('displayNama').textContent = nama || '-';
+                document.getElementById('displayDepartemen').textContent = departemen || '-';
+
+                employeeDetails.style.display = 'block';
+                employeeDropdown.classList.remove('show');
+            };
+
+            // Hide dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.employee-search')) {
+                    employeeDropdown.classList.remove('show');
+                }
+            });
+
+            // Form validation
+            document.getElementById('manualForm').addEventListener('submit', function(e) {
+                const employeeId = document.getElementById('selectedEmployeeId').value;
+                if (!employeeId) {
+                    e.preventDefault();
+                    alert('Silakan pilih karyawan terlebih dahulu');
+                    return false;
+                }
+            });
         });
     </script>
 @endsection

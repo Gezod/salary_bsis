@@ -396,6 +396,17 @@
                                 </div>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('absensi.manual') ? 'active-link' : '' }}"
+                                href="{{ route('absensi.manual') }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-wrapper me-3">
+                                        <i class="bi bi-clipboard-check"></i>
+                                    </div>
+                                    <span>Manual Presensi</span>
+                                </div>
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </nav>

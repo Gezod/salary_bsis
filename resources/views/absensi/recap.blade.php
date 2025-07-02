@@ -39,15 +39,6 @@
             color: #cbd5e1 !important;
         }
 
-        .text-muted {
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 50;
-            font-size: 1rem;
-        }
-
         .nav-link:hover {
             background: rgba(255, 255, 255, 0.1);
             color: white !important;
@@ -280,7 +271,6 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -299,6 +289,15 @@
             color: #f59e0b;
             font-weight: 600;
             display: inline-block;
+        }
+
+        .text-muted {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 50;
+            font-size: 1rem;
         }
 
         /* Sidebar Responsive */
@@ -356,6 +355,7 @@
             }
         }
 
+        /* Custom scrollbar untuk sidebar */
         .sidebar::-webkit-scrollbar {
             width: 6px;
         }
@@ -420,6 +420,17 @@
                                 </div>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('absensi.manual') ? 'active-link' : '' }}"
+                                href="{{ route('absensi.manual') }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-wrapper me-3">
+                                        <i class="bi bi-clipboard-check"></i>
+                                    </div>
+                                    <span>Manual Presensi</span>
+                                </div>
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </nav>
@@ -459,7 +470,7 @@
                         <div>
                             <h1 class="page-title mb-2">Rekap Denda Karyawan</h1>
                             <p class="text-muted mb-0">
-                                Laporan denda bulan {{ \Carbon\Carbon::parse($month . '-01')->translatedFormat('F Y') }}
+                                Laporan denda bulan {{ \Carbon\Carbon::parse($month.'-01')->translatedFormat('F Y') }}
                             </p>
                         </div>
                         <div class="stats-card">
@@ -504,7 +515,8 @@
                         <form method="GET" class="row g-3">
                             <div class="col-md-4">
                                 <label class="form-label text-muted small">Pilih Bulan</label>
-                                <input type="month" name="month" value="{{ $month }}" class="form-control">
+                                <input type="month" name="month" value="{{ $month }}"
+                                    class="form-control">
                             </div>
                             <div class="col-md-2 d-flex align-items-end">
                                 <button type="submit" class="btn btn-primary w-100">
@@ -531,24 +543,22 @@
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3"
-                                                        style="width: 40px; height: 40px;">
+                                                         style="width: 40px; height: 40px;">
                                                         <span class="text-white fw-bold">
                                                             {{ substr($d->employee->nama ?? 'N', 0, 1) }}
                                                         </span>
                                                     </div>
                                                     <div>
-                                                        <div class="text-white fw-semibold">{{ $d->employee->nama ?? '-' }}
-                                                        </div>
+                                                        <div class="text-white fw-semibold">{{ $d->employee->nama ?? '-' }}</div>
                                                         <small class="text-muted">ID: {{ $d->employee->id ?? '-' }}</small>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td>
-                                                <span
-                                                    class="badge bg-secondary">{{ $d->employee->departemen ?? '-' }}</span>
+                                                <span class="badge bg-secondary">{{ $d->employee->departemen ?? '-' }}</span>
                                             </td>
                                             <td class="text-end">
-                                                @if ($d->fine > 0)
+                                                @if($d->fine > 0)
                                                     <span class="currency-highlight">
                                                         Rp {{ number_format($d->fine, 0, ',', '.') }}
                                                     </span>
