@@ -43,5 +43,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Input Manual Absensi
     Route::get('/absensi/manual', [AttendanceController::class, 'manual'])->name('absensi.manual');
     Route::post('/absensi/manual', [AttendanceController::class, 'manualStore'])->name('absensi.manual.store');
+
+    // Denda
+    Route::get('/absensi/denda', [AttendanceController::class, 'denda'])->name('absensi.denda');
+    Route::put('/absensi/denda', [AttendanceController::class, 'dendaUpdate'])->name('absensi.denda.update');
 });
 Route::get('/api/employees/search', [EmployeeController::class, 'search'])->name('api.employees.search');

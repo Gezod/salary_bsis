@@ -7,6 +7,8 @@ use App\Models\Attendance;
 use App\Models\Employee;
 use Carbon\Carbon;
 use App\Services\AttendanceService;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Artisan;
 
 class AttendanceController extends Controller
 {
@@ -131,5 +133,121 @@ class AttendanceController extends Controller
 
         return redirect()->route('absensi.manual')
             ->with('success', 'Data absensi berhasil ditambahkan dan dievaluasi.');
+    }
+     public function denda()
+    {
+        $penalties = config('penalties');
+        return view('absensi.denda', compact('penalties'));
+    }
+
+    public function dendaUpdate(Request $request)
+    {
+        $request->validate([
+            'staff.late.*.2' => 'required|integer|min:0',
+            'staff.late_break' => 'required|integer|min:0',
+            'staff.missing_checkin' => 'required|integer|min:0',
+            'staff.missing_checkout' => 'required|integer|min:0',
+            'staff.absent_break_once' => 'required|integer|min:0',
+            'staff.absent_twice' => 'required|integer|min:0',
+            'staff.late_base' => 'required|integer|min:0',
+            'karyawan.late.*.2' => 'required|integer|min:0',
+            'karyawan.late_break' => 'required|integer|min:0',
+            'karyawan.missing_checkin' => 'required|integer|min:0',
+            'karyawan.missing_checkout' => 'required|integer|min:0',
+            'karyawan.absent_break_once' => 'required|integer|min:0',
+            'karyawan.absent_twice' => 'required|integer|min:0',
+            'karyawan.late_base' => 'required|integer|min:0',
+        ]);
+
+        try {
+            // Build new penalties configuration
+            $newPenalties = [
+                'staff' => [
+                    'late' => [
+                        [1, 15, (int)$request->input('staff.late.0.2')],
+                        [16, 30, (int)$request->input('staff.late.1.2')],
+                        [31, 45, (int)$request->input('staff.late.2.2')],
+                        [46, 60, (int)$request->input('staff.late.3.2')],
+                        ['>', 60, function($m) use ($request) {
+                            return (int)$request->input('staff.late_base') + ($m - 60);
+                        }]
+                    ],
+                    'late_break' => (int)$request->input('staff.late_break'),
+                    'missing_checkin' => (int)$request->input('staff.missing_checkin'),
+                    'missing_checkout' => (int)$request->input('staff.missing_checkout'),
+                    'absent_break_once' => (int)$request->input('staff.absent_break_once'),
+                    'absent_twice' => (int)$request->input('staff.absent_twice'),
+                ],
+                'karyawan' => [
+                    'late' => [
+                        [1, 15, (int)$request->input('karyawan.late.0.2')],
+                        [16, 30, (int)$request->input('karyawan.late.1.2')],
+                        [31, 45, (int)$request->input('karyawan.late.2.2')],
+                        [46, 60, (int)$request->input('karyawan.late.3.2')],
+                        ['>', 60, function($m) use ($request) {
+                            return (int)$request->input('karyawan.late_base') + ($m - 60);
+                        }]
+                    ],
+                    'late_break' => (int)$request->input('karyawan.late_break'),
+                    'missing_checkin' => (int)$request->input('karyawan.missing_checkin'),
+                    'missing_checkout' => (int)$request->input('karyawan.missing_checkout'),
+                    'absent_break_once' => (int)$request->input('karyawan.absent_break_once'),
+                    'absent_twice' => (int)$request->input('karyawan.absent_twice'),
+                ]
+            ];
+
+            // Generate PHP config file content
+            $configContent = "<?php\n\nreturn " . $this->arrayToPhpString($newPenalties) . ";\n";
+
+            // Write to config file
+            $configPath = config_path('penalties.php');
+            File::put($configPath, $configContent);
+
+            // Clear config cache
+            if (function_exists('config_clear')) {
+               Artisan::call('config:clear');
+            }
+
+            return redirect()->route('absensi.denda')
+                ->with('success', 'Pengaturan denda berhasil diperbarui!');
+
+        } catch (\Exception $e) {
+            return redirect()->route('absensi.denda')
+                ->with('error', 'Gagal memperbarui pengaturan denda: ' . $e->getMessage());
+        }
+    }
+    private function arrayToPhpString($array, $indent = 0)
+    {
+        $spaces = str_repeat('    ', $indent);
+        $result = "[\n";
+
+        foreach ($array as $key => $value) {
+            $result .= $spaces . '    ';
+
+            if (is_string($key)) {
+                $result .= "'{$key}' => ";
+            }
+
+            if (is_array($value)) {
+                if (isset($value[0]) && $value[0] === '>') {
+                    // Special handling for closure
+                    $baseValue = $indent === 2 ?
+                        ($key === 'staff' ? 12000 : 10000) :
+                        (strpos(json_encode($array), '"staff"') !== false ? 12000 : 10000);
+                    $result .= "['>', 60, fn(\$m) => {$baseValue} + (\$m - 60)]";
+                } else {
+                    $result .= $this->arrayToPhpString($value, $indent + 1);
+                }
+            } elseif (is_string($value)) {
+                $result .= "'{$value}'";
+            } else {
+                $result .= $value;
+            }
+
+            $result .= ",\n";
+        }
+
+        $result .= $spaces . ']';
+        return $result;
     }
 }
