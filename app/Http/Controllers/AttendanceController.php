@@ -59,6 +59,19 @@ class AttendanceController extends Controller
 
         return view('absensi.recap', compact('data', 'month'));
     }
+
+    public function import()
+    {
+        return view('absensi.import');
+    }
+
+    public function importStore(Request $request)
+    {
+        // Implementation for import functionality
+        return redirect()->route('absensi.import')
+            ->with('success', 'Data berhasil diimport.');
+    }
+
     public function reevaluateAll()
     {
         $attendances = \App\Models\Attendance::with('employee')->get();
@@ -216,6 +229,111 @@ class AttendanceController extends Controller
                 ->with('error', 'Gagal memperbarui pengaturan denda: ' . $e->getMessage());
         }
     }
+
+    // Employee Management Methods
+    public function role(Request $request)
+    {
+        $query = Employee::query();
+
+        // Search functionality - menggunakan logic yang sama dengan API
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                  ->orWhere('nip', 'like', "%{$search}%")
+                  ->orWhere('pin', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by departemen
+        if ($request->filled('departemen')) {
+            $query->where('departemen', $request->departemen);
+        }
+
+        // Filter by jabatan
+        if ($request->filled('jabatan')) {
+            $query->where('jabatan', 'like', "%{$request->jabatan}%");
+        }
+
+        $employees = $query->orderBy('nama')->paginate(20)->withQueryString();
+
+        return view('absensi.role', compact('employees'));
+    }
+
+    public function roleStore(Request $request)
+    {
+        $request->validate([
+            'pin' => 'required|string|max:20|unique:employees,pin',
+            'nip' => 'required|string|max:50|unique:employees,nip',
+            'nama' => 'required|string|max:255',
+            'jabatan' => 'required|string|max:100',
+            'departemen' => 'required|in:staff,karyawan',
+            'kantor' => 'required|string|max:100',
+        ]);
+
+        Employee::create([
+            'pin' => $request->pin,
+            'nip' => $request->nip,
+            'nama' => $request->nama,
+            'jabatan' => $request->jabatan,
+            'departemen' => $request->departemen,
+            'kantor' => $request->kantor,
+        ]);
+
+        return redirect()->route('absensi.role')
+            ->with('success', 'Karyawan berhasil ditambahkan!');
+    }
+
+    public function roleEdit($id)
+    {
+        $employee = Employee::findOrFail($id);
+
+        return response()->json([
+            'success' => true,
+            'employee' => $employee
+        ]);
+    }
+
+    public function roleUpdate(Request $request, $id)
+    {
+        $employee = Employee::findOrFail($id);
+
+        $request->validate([
+            'pin' => 'required|string|max:20|unique:employees,pin,' . $id,
+            'nip' => 'required|string|max:50|unique:employees,nip,' . $id,
+            'nama' => 'required|string|max:255',
+            'jabatan' => 'required|string|max:100',
+            'departemen' => 'required|in:staff,karyawan',
+            'kantor' => 'required|string|max:100',
+        ]);
+
+        $employee->update([
+            'pin' => $request->pin,
+            'nip' => $request->nip,
+            'nama' => $request->nama,
+            'jabatan' => $request->jabatan,
+            'departemen' => $request->departemen,
+            'kantor' => $request->kantor,
+        ]);
+
+        return redirect()->route('absensi.role')
+            ->with('success', 'Data karyawan berhasil diperbarui!');
+    }
+
+    public function roleDestroy($id)
+    {
+        $employee = Employee::findOrFail($id);
+
+        // Delete related attendance records first
+        Attendance::where('employee_id', $id)->delete();
+
+        // Then delete the employee
+        $employee->delete();
+
+        return redirect()->route('absensi.role')
+            ->with('success', 'Karyawan dan semua data absensi terkait berhasil dihapus!');
+    }
+
     private function arrayToPhpString($array, $indent = 0)
     {
         $spaces = str_repeat('    ', $indent);

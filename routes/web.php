@@ -47,5 +47,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Denda
     Route::get('/absensi/denda', [AttendanceController::class, 'denda'])->name('absensi.denda');
     Route::put('/absensi/denda', [AttendanceController::class, 'dendaUpdate'])->name('absensi.denda.update');
+
+    // API untuk karyawan
+     // Employee Management Routes
+    Route::get('/absensi/role', [AttendanceController::class, 'role'])->name('absensi.role');
+    Route::post('/absensi/role', [AttendanceController::class, 'roleStore'])->name('absensi.role.store');
+    Route::get('/absensi/role/{id}/edit', [AttendanceController::class, 'roleEdit'])->name('absensi.role.edit');
+    Route::put('/absensi/role/{id}', [AttendanceController::class, 'roleUpdate'])->name('absensi.role.update');
+    Route::delete('/absensi/role/{id}', [AttendanceController::class, 'roleDestroy'])->name('absensi.role.destroy');
 });
 Route::get('/api/employees/search', [EmployeeController::class, 'search'])->name('api.employees.search');

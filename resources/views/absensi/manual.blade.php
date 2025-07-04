@@ -70,6 +70,17 @@
                                 </div>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('absensi.role') ? 'active-link' : '' }}"
+                                href="{{ route('absensi.role') }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-wrapper me-3">
+                                        <i class="bi bi-people"></i>
+                                    </div>
+                                    <span>Kelola Karyawan</span>
+                                </div>
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </nav>
