@@ -271,4 +271,16 @@ This project is open source and available under the [MIT License](LICENSE).
 ![Rekap Denda](docs/images/rekap_denda.jpg)
 
 ### 📑 Absensi Manual
-![Rekap Denda](docs/images/absensi_manual.png)
+![Absensi Manual](docs/images/absensi_manual.png)
+
+### 📑 Setting Denda Staff
+![Setting Denda Staff](docs/images/setting_denda_staff_1.png)
+
+### 📑 Setting Denda Staff
+![Setting Denda Staff](docs/images/setting_denda_staff_2.png)
+
+### 📑 Setting Denda Karyawan
+![Setting Denda Karyawan](docs/images/setting_denda_karyawan_1.png)
+
+### 📑 Setting Denda Karyawan
+![Setting Denda Karyawan](docs/images/setting_denda_karyawan_2.png)
