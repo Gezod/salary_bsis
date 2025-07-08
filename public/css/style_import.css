@@ -60,7 +60,8 @@
 
         .navbar {
             background: linear-gradient(90deg, var(--card-bg) 0%, #334155 100%) !important;
-            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); /* Safari support */
+            backdrop-filter: blur(10px);         /* Modern browsers */
             border-bottom: 1px solid var(--border-color);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         }
@@ -70,7 +71,8 @@
             border: 1px solid var(--border-color);
             border-radius: 1rem;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); /* Safari support */
+            backdrop-filter: blur(10px);         /* Modern browsers */
         }
 
         .form-control {
@@ -134,7 +136,8 @@
             border-radius: 1rem;
             padding: 1rem;
             margin-bottom: 2rem;
-            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); /* Safari support */
+            backdrop-filter: blur(10px);         /* Modern browsers */
         }
 
         .page-title {
