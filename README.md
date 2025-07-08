@@ -284,3 +284,15 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ### 📑 Setting Denda Karyawan
 ![Setting Denda Karyawan](docs/images/setting_denda_karyawan_2.png)
+
+### 📑 Overview Lembur Staff & Karyawan
+![Overview Lembur Staff & Karyawan](docs/images/overview_lembur.png)
+
+### 📑 Data Lembur Staff & Karyawan
+![Data Lembur Staff & Karyawan](docs/images/data_lembur.png)
+
+### 📑 Setting Lembur Staff & Karyawan
+![Setting Lembur Staff & Karyawan](docs/images/setting_lembur.png)
+
+### 📑 Rekap Lembur Staff & Karyawan
+![Rekap Lembur Staff & Karyawan](docs/images/rekap_lembur.png)
