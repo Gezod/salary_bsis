@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-  <link href="{{ asset('css/style_index.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/style_index.css') }}" rel="stylesheet">
 
     <div class="container-fluid min-vh-100 px-0">
         <div class="row g-0">
@@ -78,6 +78,16 @@
                                         <i class="bi bi-people"></i>
                                     </div>
                                     <span>Kelola Karyawan</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('overtime.overview') }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-wrapper me-3">
+                                        <i class="bi bi-clock"></i>
+                                    </div>
+                                    <span>Sistem Lembur</span>
                                 </div>
                             </a>
                         </li>

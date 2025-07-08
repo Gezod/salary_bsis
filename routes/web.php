@@ -6,6 +6,7 @@ use App\Http\Controllers\PresensiController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\Api\EmployeeController;
+use App\Http\Controllers\OvertimeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -55,5 +56,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/absensi/role/{id}/edit', [AttendanceController::class, 'roleEdit'])->name('absensi.role.edit');
     Route::put('/absensi/role/{id}', [AttendanceController::class, 'roleUpdate'])->name('absensi.role.update');
     Route::delete('/absensi/role/{id}', [AttendanceController::class, 'roleDestroy'])->name('absensi.role.destroy');
+
+    // Overtime Management Routes
+    Route::get('/overtime', [OvertimeController::class, 'overview'])->name('overtime.overview');
+    Route::get('/overtime/records', [OvertimeController::class, 'index'])->name('overtime.index');
+    Route::get('/overtime/settings', [OvertimeController::class, 'settings'])->name('overtime.settings');
+    Route::put('/overtime/settings', [OvertimeController::class, 'updateSettings'])->name('overtime.settings.update');
+    Route::get('/overtime/recap', [OvertimeController::class, 'recap'])->name('overtime.recap');
+    Route::get('/overtime/recalculate', [OvertimeController::class, 'recalculateAll'])->name('overtime.recalculate');
 });
 Route::get('/api/employees/search', [EmployeeController::class, 'search'])->name('api.employees.search');

@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Attendance;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use App\Services\OvertimeService;
 
 class AttendanceService
 {
@@ -110,5 +111,11 @@ class AttendanceService
         $a->break_fine = $breakFine;
         $a->absence_fine = $absenceFine;
         $a->total_fine = $lateFine + $breakFine + $absenceFine;
+
+        // Hitung lembur
+        OvertimeService::calculateOvertime($a);
+        // Simpan perubahan
+         $a->save();
     }
+
 }
