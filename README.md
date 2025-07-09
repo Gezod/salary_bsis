@@ -261,6 +261,43 @@ This project is open source and available under the [MIT License](LICENSE).
   <p>© 2025 BSIS Attendance System. All rights reserved.</p>
 </div>
 
+### 🗓️ Daily Attendance
+![Absensi Harian](docs/images/absensi_harian.jpg)
+
+### 📥 Import Excel
+![Import Excel](docs/images/import_excel.jpg)
+
+### 📑 Rekap Denda
+![Rekap Denda](docs/images/rekap_denda.jpg)
+
+### 📑 Absensi Manual
+![Absensi Manual](docs/images/absensi_manual.png)
+
+### 📑 Setting Denda Staff
+![Setting Denda Staff](docs/images/setting_denda_staff_1.png)
+
+### 📑 Setting Denda Staff
+![Setting Denda Staff](docs/images/setting_denda_staff_2.png)
+
+### 📑 Setting Denda Karyawan
+![Setting Denda Karyawan](docs/images/setting_denda_karyawan_1.png)
+
+### 📑 Setting Denda Karyawan
+![Setting Denda Karyawan](docs/images/setting_denda_karyawan_2.png)
+
+### 📑 Overview Lembur Staff & Karyawan
+![Overview Lembur Staff & Karyawan](docs/images/overview_lembur.png)
+
+### 📑 Data Lembur Staff & Karyawan
+![Data Lembur Staff & Karyawan](docs/images/data_lembur.png)
+
+### 📑 Setting Lembur Staff & Karyawan
+![Setting Lembur Staff & Karyawan](docs/images/setting_lembur.png)
+
+### 📑 Rekap Lembur Staff & Karyawan
+![Rekap Lembur Staff & Karyawan](docs/images/rekap_lembur.png)
+
+
 ## 🗃️ Database Management
 
 ### Update Employee Departments
@@ -316,38 +353,3 @@ foreach ($staff as $nama) {
 }
 
 
-### 🗓️ Daily Attendance
-![Absensi Harian](docs/images/absensi_harian.jpg)
-
-### 📥 Import Excel
-![Import Excel](docs/images/import_excel.jpg)
-
-### 📑 Rekap Denda
-![Rekap Denda](docs/images/rekap_denda.jpg)
-
-### 📑 Absensi Manual
-![Absensi Manual](docs/images/absensi_manual.png)
-
-### 📑 Setting Denda Staff
-![Setting Denda Staff](docs/images/setting_denda_staff_1.png)
-
-### 📑 Setting Denda Staff
-![Setting Denda Staff](docs/images/setting_denda_staff_2.png)
-
-### 📑 Setting Denda Karyawan
-![Setting Denda Karyawan](docs/images/setting_denda_karyawan_1.png)
-
-### 📑 Setting Denda Karyawan
-![Setting Denda Karyawan](docs/images/setting_denda_karyawan_2.png)
-
-### 📑 Overview Lembur Staff & Karyawan
-![Overview Lembur Staff & Karyawan](docs/images/overview_lembur.png)
-
-### 📑 Data Lembur Staff & Karyawan
-![Data Lembur Staff & Karyawan](docs/images/data_lembur.png)
-
-### 📑 Setting Lembur Staff & Karyawan
-![Setting Lembur Staff & Karyawan](docs/images/setting_lembur.png)
-
-### 📑 Rekap Lembur Staff & Karyawan
-![Rekap Lembur Staff & Karyawan](docs/images/rekap_lembur.png)
