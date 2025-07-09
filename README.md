@@ -261,6 +261,61 @@ This project is open source and available under the [MIT License](LICENSE).
   <p>© 2025 BSIS Attendance System. All rights reserved.</p>
 </div>
 
+## 🗃️ Database Management
+
+### Update Employee Departments
+
+Run the following commands in `php artisan tinker` to update employee departments:
+
+```php
+// List of karyawan
+$karyawan = [
+    'evi',
+    'endro',
+    'mirah',
+    'suhantono',
+    'gunawan',
+    'reno a',
+    'arif',
+    'rahayu',
+    'hilmi',
+    'sujono',
+    'heri',
+    'nantha',
+    'Yat',
+    'inda',
+    'hengky',
+];
+
+// List of staff
+$staff = [
+    'della silvia',
+    'neni',
+    'ana',
+    'zana',
+    'dila',
+    'hasna',
+    'ulfa',
+];
+
+// Update departemen untuk karyawan
+foreach ($karyawan as $nama) {
+    \App\Models\Employee::whereRaw('LOWER(nama) = ?', [strtolower($nama)])
+        ->update(['departemen' => 'Karyawan']);
+}
+
+// Update departemen untuk staff, dan tampilkan nama yang tidak ditemukan
+foreach ($staff as $nama) {
+    $found = \App\Models\Employee::whereRaw('LOWER(nama) = ?', [strtolower($nama)])->first();
+
+    if ($found) {
+        $found->update(['departemen' => 'Staff']);
+    } else {
+        echo "Nama tidak ditemukan: $nama\n";
+    }
+}
+
+
 ### 🗓️ Daily Attendance
 ![Absensi Harian](docs/images/absensi_harian.jpg)
 
