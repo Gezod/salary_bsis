@@ -122,35 +122,70 @@
                             <div class="card-body">
                                 <div class="row g-3">
                                     <div class="col-12">
-                                        <div class="d-flex justify-content-between align-items-center p-3 bg-primary bg-opacity-10 rounded mb-3">
-                                            <span class="text-white fw-semibold">Staff</span>
+                                        <div class="d-flex justify-content-between align-items-center p-4 bg-primary bg-opacity-15 rounded mb-3 border border-primary border-opacity-25">
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-person-badge me-2 text-primary"></i>
+                                                <span class="text-white fw-semibold">Staff</span>
+                                            </div>
                                             <div class="text-end">
                                                 <div class="text-white fw-bold">{{ $departmentStats['staff']['count'] }} orang</div>
-                                                <small class="text-muted">
+                                                <small class="text-white fw-semibold">
                                                     Rp {{ number_format($departmentStats['staff']['total_pay'], 0, ',', '.') }}
                                                 </small>
+                                                @if($departmentStats['staff']['total_minutes'] > 0)
+                                                    <div class="text-white fw-semibold">
+                                                        @php
+                                                            $hours = floor($departmentStats['staff']['total_minutes'] / 60);
+                                                            $minutes = $departmentStats['staff']['total_minutes'] % 60;
+                                                        @endphp
+                                                        {{ $hours }}j {{ $minutes }}m total
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-12">
-                                        <div class="d-flex justify-content-between align-items-center p-3 bg-success bg-opacity-10 rounded">
-                                            <span class="text-white fw-semibold">Karyawan</span>
+                                        <div class="d-flex justify-content-between align-items-center p-4 bg-success bg-opacity-15 rounded border border-success border-opacity-25">
+                                            <div class="d-flex align-items-center">
+                                                <i class="bi bi-person-check me-2 text-success"></i>
+                                                <span class="text-white fw-semibold">Karyawan</span>
+                                            </div>
                                             <div class="text-end">
                                                 <div class="text-white fw-bold">{{ $departmentStats['karyawan']['count'] }} orang</div>
-                                                <small class="text-muted">
+                                                <small class="text-white fw-semibold">
                                                     Rp {{ number_format($departmentStats['karyawan']['total_pay'], 0, ',', '.') }}
                                                 </small>
+                                                @if($departmentStats['karyawan']['total_minutes'] > 0)
+                                                    <div class="text-white fw-semibold">
+                                                        @php
+                                                            $hours = floor($departmentStats['karyawan']['total_minutes'] / 60);
+                                                            $minutes = $departmentStats['karyawan']['total_minutes'] % 60;
+                                                        @endphp
+                                                        {{ $hours }}j {{ $minutes }}m total
+                                                    </div>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
                                 </div>
+                                @if($departmentStats['staff']['count'] > 0 || $departmentStats['karyawan']['count'] > 0)
                                 <hr class="border-secondary">
                                 <div class="text-center">
-                                    <h5 class="text-white">Total Keseluruhan</h5>
-                                    <h4 class="text-success">
+                                    <h6 class="text-white mb-2">Total Keseluruhan</h6>
+                                    <h4 class="text-warning mb-1">
                                         Rp {{ number_format($departmentStats['staff']['total_pay'] + $departmentStats['karyawan']['total_pay'], 0, ',', '.') }}
                                     </h4>
+                                    <small class="text-muted">
+                                        {{ $departmentStats['staff']['count'] + $departmentStats['karyawan']['count'] }} total lembur
+                                    </small>
                                 </div>
+                                @else
+                                    <hr class="border-secondary">
+                                    <div class="text-center text-muted py-3">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        Belum ada data lembur untuk bulan ini
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -165,15 +200,17 @@
                             </div>
                             <div class="card-body">
                                 @forelse($topEmployees as $index => $data)
-                                    <div class="d-flex align-items-center justify-between mb-3 p-2 bg-dark bg-opacity-25 rounded">
+                                    <div class="d-flex align-items-center justify-content-between mb-3 p-3 bg-dark bg-opacity-25 rounded border border-secondary border-opacity-25">
                                         <div class="d-flex align-items-center">
-                                            <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center me-3"
-                                                style="width: 30px; height: 30px;">
-                                                <span class="text-dark fw-bold small">#{{ $index + 1 }}</span>
+                                            <div class="bg-gradient-warning rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm"
+                                                style="width: 32px; height: 32px;">
+                                                <span class="text-dark fw-bold" style="font-size: 12px;">#{{ $index + 1 }}</span>
                                             </div>
                                             <div>
                                                 <div class="text-white fw-semibold small">{{ $data['employee']->nama }}</div>
-                                                <small class="text-muted">{{ ucfirst($data['employee']->departemen) }}</small>
+                                                <small class="badge bg-{{ $data['employee']->departemen === 'staff' ? 'primary' : 'success' }} bg-opacity-75">
+                                                    {{ ucfirst($data['employee']->departemen) }}
+                                                </small>
                                             </div>
                                         </div>
                                         <div class="text-end">
@@ -209,7 +246,7 @@
                                 <thead>
                                     <tr>
                                         <th>Karyawan</th>
-                                        <th>Tanggal</th>
+                                        <th>Tanggal & Hari</th>
                                         <th>Durasi</th>
                                         <th>Uang Lembur</th>
                                     </tr>
@@ -231,7 +268,7 @@
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="text-white">{{ $record->tanggal->format('d M Y') }}</td>
+                                            <td class="text-white">{{ $record->formatted_date_with_day }}</td>
                                             <td class="text-white">{{ $record->formatted_duration }}</td>
                                             <td class="text-success fw-bold">{{ $record->formatted_overtime_pay }}</td>
                                         </tr>

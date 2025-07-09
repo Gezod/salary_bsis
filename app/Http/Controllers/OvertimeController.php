@@ -47,6 +47,7 @@ class OvertimeController extends Controller
         $stats = OvertimeService::getOvertimeStats();
         $recentRecords = OvertimeRecord::with('employee')
             ->orderByDesc('tanggal')
+            ->orderByDesc('id')
             ->limit(5)
             ->get();
 
@@ -82,18 +83,38 @@ class OvertimeController extends Controller
         $records = OvertimeRecord::with('employee')
             ->whereYear('tanggal', $year)
             ->whereMonth('tanggal', $mon)
+            ->whereHas('employee') // Only get records with valid employee
+            ->orderByDesc('tanggal')
+            ->orderBy('employee_id')
+            ->get();
+
+        // Calculate department stats using database queries for accuracy
+        $staffStats = OvertimeRecord::with('employee')
+            ->whereYear('tanggal', $year)
+            ->whereMonth('tanggal', $mon)
+            ->whereHas('employee', function($q) {
+                $q->where('departemen', 'staff');
+            })
+            ->get();
+
+        $karyawanStats = OvertimeRecord::with('employee')
+            ->whereYear('tanggal', $year)
+            ->whereMonth('tanggal', $mon)
+            ->whereHas('employee', function($q) {
+                $q->where('departemen', 'karyawan');
+            })
             ->get();
 
         $departmentStats = [
             'staff' => [
-                'count' => $records->where('employee.departemen', 'staff')->count(),
-                'total_pay' => $records->where('employee.departemen', 'staff')->sum('overtime_pay'),
-                'total_minutes' => $records->where('employee.departemen', 'staff')->sum('overtime_minutes')
+                'count' => $staffStats->count(),
+                'total_pay' => $staffStats->sum('overtime_pay'),
+                'total_minutes' => $staffStats->sum('overtime_minutes')
             ],
             'karyawan' => [
-                'count' => $records->where('employee.departemen', 'karyawan')->count(),
-                'total_pay' => $records->where('employee.departemen', 'karyawan')->sum('overtime_pay'),
-                'total_minutes' => $records->where('employee.departemen', 'karyawan')->sum('overtime_minutes')
+                'count' => $karyawanStats->count(),
+                'total_pay' => $karyawanStats->sum('overtime_pay'),
+                'total_minutes' => $karyawanStats->sum('overtime_minutes')
             ]
         ];
 
@@ -106,7 +127,8 @@ class OvertimeController extends Controller
                 ];
             })
             ->sortByDesc('total_minutes')
-            ->take(5);
+            ->take(5)
+            ->values();
 
         return view('overtime.recap', compact('records', 'departmentStats', 'topEmployees', 'month'));
     }

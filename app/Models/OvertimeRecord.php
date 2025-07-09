@@ -54,4 +54,20 @@ class OvertimeRecord extends Model
     {
         return $this->expected_out ? $this->expected_out->format('H:i') : '-';
     }
+
+    public function getFormattedDateWithDayAttribute()
+    {
+        $days = [
+            'Sunday' => 'Minggu',
+            'Monday' => 'Senin',
+            'Tuesday' => 'Selasa',
+            'Wednesday' => 'Rabu',
+            'Thursday' => 'Kamis',
+            'Friday' => 'Jumat',
+            'Saturday' => 'Sabtu'
+        ];
+
+        $dayName = $days[$this->tanggal->format('l')] ?? $this->tanggal->format('l');
+        return $dayName . ', ' . $this->tanggal->format('d M Y');
+    }
 }

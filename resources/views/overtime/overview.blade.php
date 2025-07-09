@@ -167,30 +167,51 @@
                                 </h5>
                             </div>
                             <div class="card-body">
-                                <div class="row g-3">
-                                    <div class="col-6">
-                                        <div class="text-center p-3 bg-primary bg-opacity-10 rounded">
-                                            <h4 class="text-primary mb-1">{{ $stats['staff_count'] }}</h4>
-                                            <small class="text-muted">Staff Lembur</small>
+                                @if($stats['total_records'] > 0)
+                                    <div class="row g-3">
+                                        <div class="col-6">
+                                            <div class="text-center p-3 bg-primary bg-opacity-15 rounded border border-primary border-opacity-25">
+                                                <h4 class="text-light mb-1">{{ $stats['staff_count'] }}</h4>
+                                                <small class="text-white">Staff Lembur</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="text-center p-3 bg-success bg-opacity-15 rounded border border-success border-opacity-25">
+                                                <h4 class="text-light mb-1">{{ $stats['karyawan_count'] }}</h4>
+                                                <small class="text-white">Karyawan Lembur</small>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-6">
-                                        <div class="text-center p-3 bg-success bg-opacity-10 rounded">
-                                            <h4 class="text-success mb-1">{{ $stats['karyawan_count'] }}</h4>
-                                            <small class="text-muted">Karyawan Lembur</small>
+                                    <div class="mt-3 text-center">
+                                        <div class="row g-2 mb-2">
+                                            <div class="col-6">
+                                                <small class="text-primary">
+                                                    <i class="bi bi-person-badge me-1"></i>
+                                                    {{ $stats['staff_count'] }} Staff
+                                                </small>
+                                            </div>
+                                            <div class="col-6">
+                                                <small class="text-success">
+                                                    <i class="bi bi-person-check me-1"></i>
+                                                    {{ $stats['karyawan_count'] }} Karyawan
+                                                </small>
+                                            </div>
                                         </div>
+                                        <small class="text-muted">
+                                            Rata-rata lembur:
+                                            @php
+                                                $avgHours = floor($stats['avg_overtime_minutes'] / 60);
+                                                $avgMins = $stats['avg_overtime_minutes'] % 60;
+                                            @endphp
+                                            {{ $avgHours }}j {{ $avgMins }}m
+                                        </small>
                                     </div>
-                                </div>
-                                <div class="mt-3 text-center">
-                                    <small class="text-muted">
-                                        Rata-rata lembur:
-                                        @php
-                                            $avgHours = floor($stats['avg_overtime_minutes'] / 60);
-                                            $avgMins = $stats['avg_overtime_minutes'] % 60;
-                                        @endphp
-                                        {{ $avgHours }}j {{ $avgMins }}m
-                                    </small>
-                                </div>
+                                @else
+                                    <div class="text-center text-muted py-4">
+                                        <i class="bi bi-people display-6 d-block mb-2"></i>
+                                        <p class="mb-0">Belum ada data statistik departemen</p>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -205,7 +226,7 @@
                             </div>
                             <div class="card-body">
                                 @forelse($recentRecords as $record)
-                                    <div class="d-flex align-items-center justify-between mb-3 p-2 bg-dark bg-opacity-25 rounded">
+                                    <div class="d-flex align-items-center justify-content-between mb-3 p-3 bg-dark bg-opacity-25 rounded">
                                         <div class="d-flex align-items-center">
                                             <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3"
                                                 style="width: 35px; height: 35px;">
@@ -215,7 +236,7 @@
                                             </div>
                                             <div>
                                                 <div class="text-white fw-semibold small">{{ $record->employee->nama }}</div>
-                                                <small class="text-muted">{{ $record->tanggal->format('d M Y') }}</small>
+                                                <small class="text-muted">{{ $record->formatted_date_with_day }}</small>
                                             </div>
                                         </div>
                                         <div class="text-end">

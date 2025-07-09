@@ -109,17 +109,19 @@
                         <h1 class="page-title mb-2">Data Lembur</h1>
                         <p class="text-muted mb-0">Kelola dan pantau lembur karyawan secara real-time</p>
                     </div>
-                    <div class="d-flex gap-2">
+                    <div class="d-flex flex-column align-items-end gap-2">
                         <div class="stats-card">
                             <div class="fw-bold text-white fs-4">{{ $records->total() }}</div>
                             <small class="text-muted">Total Records</small>
                         </div>
-                        <a href="{{ route('overtime.recalculate') }}" class="btn btn-warning">
-                            <i class="bi bi-arrow-clockwise me-2"></i>Hitung Ulang
-                        </a>
-                        <div class="text-muted small mt-2">
-                            <i class="bi bi-info-circle me-1"></i>
-                            Jam pulang: Sen-Kam & Sab = 16:30, Jumat = 16:00
+                        <div class="d-flex gap-2 align-items-center">
+                            <a href="{{ route('overtime.recalculate') }}" class="btn btn-warning btn-sm shadow-sm">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Hitung Ulang Semua
+                            </a>
+                        </div>
+                        <div class="alert alert-info py-2 px-3 mb-0 small">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Jam Pulang:</strong> Senin-Kamis & Sabtu = 16:30 | Jumat = 16:00
                         </div>
                     </div>
                 </div>
@@ -163,7 +165,7 @@
                             <thead>
                                 <tr>
                                     <th><i class="bi bi-person me-2"></i>Karyawan</th>
-                                    <th><i class="bi bi-calendar me-2"></i>Tanggal</th>
+                                    <th><i class="bi bi-calendar me-2"></i>Tanggal & Hari</th>
                                     <th><i class="bi bi-clock me-2"></i>Jam Pulang</th>
                                     <th><i class="bi bi-clock-history me-2"></i>Durasi Lembur</th>
                                     <th><i class="bi bi-currency-dollar me-2"></i>Uang Lembur</th>
@@ -187,7 +189,7 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="text-white">{{ $record->tanggal->format('d M Y') }}</td>
+                                        <td class="text-white">{{ $record->formatted_date_with_day }}</td>
                                         <td class="text-white">{{ $record->formatted_scan4 }}</td>
                                         <td class="text-white">{{ $record->formatted_duration }}</td>
                                         <td class="text-success fw-bold">{{ $record->formatted_overtime_pay }}</td>

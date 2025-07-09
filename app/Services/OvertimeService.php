@@ -75,7 +75,8 @@ class OvertimeService
 
     public static function getOvertimeStats($startDate = null, $endDate = null)
     {
-        $query = OvertimeRecord::with('employee');
+        // Get all records with valid employees
+        $query = OvertimeRecord::with('employee')->whereHas('employee');
 
         if ($startDate) {
             $query->whereDate('tanggal', '>=', $startDate);
@@ -87,12 +88,36 @@ class OvertimeService
 
         $records = $query->get();
 
+        // Use separate queries for more accurate counting
+        $staffQuery = OvertimeRecord::with('employee')
+            ->whereHas('employee', function($q) {
+                $q->where('departemen', 'staff');
+            });
+
+        $karyawanQuery = OvertimeRecord::with('employee')
+            ->whereHas('employee', function($q) {
+                $q->where('departemen', 'karyawan');
+            });
+
+        if ($startDate) {
+            $staffQuery->whereDate('tanggal', '>=', $startDate);
+            $karyawanQuery->whereDate('tanggal', '>=', $startDate);
+        }
+
+        if ($endDate) {
+            $staffQuery->whereDate('tanggal', '<=', $endDate);
+            $karyawanQuery->whereDate('tanggal', '<=', $endDate);
+        }
+
+        $staffCount = $staffQuery->count();
+        $karyawanCount = $karyawanQuery->count();
+
         return [
             'total_records' => $records->count(),
             'total_minutes' => $records->sum('overtime_minutes'),
             'total_pay' => $records->sum('overtime_pay'),
-            'staff_count' => $records->where('employee.departemen', 'staff')->count(),
-            'karyawan_count' => $records->where('employee.departemen', 'karyawan')->count(),
+            'staff_count' => $staffCount,
+            'karyawan_count' => $karyawanCount,
             'avg_overtime_minutes' => $records->count() > 0 ? round($records->avg('overtime_minutes')) : 0
         ];
     }
