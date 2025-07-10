@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-  <link href="{{ asset('css/style_import.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/style_import.css') }}" rel="stylesheet">
 
     <div class="container-fluid min-vh-100 px-0">
         <div class="row g-0">
@@ -81,10 +81,11 @@
                                 </div>
                             </a>
                         </li>
-                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('overtime.overview') }}">
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('overtime.*') ? 'active-link' : '' }}"
+                                href="{{ route('overtime.overview') }}">
                                 <div class="d-flex align-items-center">
-                                    <div class="icon-wrapper me-3">
+                                    <div class="overtime-icon-wrapper me-3"> <!-- Ganti class disini -->
                                         <i class="bi bi-clock"></i>
                                     </div>
                                     <span>Sistem Lembur</span>
@@ -174,8 +175,8 @@
                                 </div>
                                 <h6 class="text-white mb-2">Drag & Drop file Excel di sini</h6>
                                 <p class="text-muted mb-3">atau klik untuk memilih file</p>
-                                <input type="file" name="file" id="file" class="form-control" accept=".xlsx,.xls"
-                                    required style="display: none;">
+                                <input type="file" name="file" id="file" class="form-control"
+                                    accept=".xlsx,.xls" required style="display: none;">
                                 <button type="button" class="btn btn-outline-info"
                                     onclick="document.getElementById('file').click()">
                                     <i class="bi bi-folder2-open me-2"></i>Pilih File

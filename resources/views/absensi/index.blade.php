@@ -82,9 +82,10 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('overtime.overview') }}">
+                            <a class="nav-link {{ request()->routeIs('overtime.*') ? 'active-link' : '' }}"
+                                href="{{ route('overtime.overview') }}">
                                 <div class="d-flex align-items-center">
-                                    <div class="icon-wrapper me-3">
+                                    <div class="overtime-icon-wrapper me-3"> <!-- Ganti class disini -->
                                         <i class="bi bi-clock"></i>
                                     </div>
                                     <span>Sistem Lembur</span>

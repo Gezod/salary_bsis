@@ -22,7 +22,7 @@
                                 <div class="icon-wrapper me-3">
                                     <i class="bi bi-speedometer2"></i>
                                 </div>
-                                <span>Overview</span>
+                                <span class="menu-text">Overview</span>
                             </div>
                         </a>
                     </li>
@@ -33,7 +33,7 @@
                                 <div class="icon-wrapper me-3">
                                     <i class="bi bi-file-earmark-text"></i>
                                 </div>
-                                <span>Data Lembur</span>
+                                <span class="menu-text">Data Lembur</span>
                             </div>
                         </a>
                     </li>
@@ -44,7 +44,7 @@
                                 <div class="icon-wrapper me-3">
                                     <i class="bi bi-gear"></i>
                                 </div>
-                                <span>Pengaturan</span>
+                                <span class="menu-text">Pengaturan</span>
                             </div>
                         </a>
                     </li>
@@ -55,20 +55,21 @@
                                 <div class="icon-wrapper me-3">
                                     <i class="bi bi-calendar-check"></i>
                                 </div>
-                                <span>Rekap</span>
+                                <span class="menu-text">Rekap</span>
                             </div>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('absensi.index') }}">
-                            <div class="d-flex align-items-center">
-                                <div class="icon-wrapper me-3">
-                                    <i class="bi bi-arrow-left"></i>
+                            <a class="nav-link {{ request()->routeIs('absensi.*') ? 'active-link' : '' }}"
+                                href="{{ route('absensi.index') }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="overtime-icon-wrapper me-3"> <!-- Ganti class disini -->
+                                        <i class="bi bi-arrow-bar-left"></i>
+                                    </div>
+                                    <span>Kembali ke Absensi</span>
                                 </div>
-                                <span>Kembali ke Absensi</span>
-                            </div>
-                        </a>
-                    </li>
+                            </a>
+                        </li>
                 </ul>
             </div>
         </nav>
