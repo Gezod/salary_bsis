@@ -307,49 +307,39 @@ Run the following commands in `php artisan tinker` to update employee department
 ```php
 // List of karyawan
 $karyawan = [
-    'evi',
-    'endro',
-    'mirah',
-    'suhantono',
-    'gunawan',
-    'reno a',
-    'arif',
-    'rahayu',
-    'hilmi',
-    'sujono',
-    'heri',
-    'nantha',
-    'Yat',
-    'inda',
-    'hengky',
+    'evi', 'endro', 'mirah', 'suhantono', 'gunawan', 'reno a', 'arif', 
+    'rahayu', 'hilmi', 'sujono', 'heri', 'nantha', 'Yat', 'inda', 'hengky'
 ];
 
-// List of staff
 $staff = [
-    'della silvia',
-    'neni',
-    'ana',
-    'zana',
-    'dila',
-    'hasna',
-    'ulfa',
+    'della silvia', 'neni', 'ana', 'zana', 'dila', 'hasna', 'ulfa'
 ];
 
-// Update departemen untuk karyawan
+// Update karyawan
 foreach ($karyawan as $nama) {
-    \App\Models\Employee::whereRaw('LOWER(nama) = ?', [strtolower($nama)])
+    $normalized = strtolower(trim($nama));
+    \App\Models\Employee::whereRaw('LOWER(TRIM(nama)) = ?', [$normalized])
         ->update(['departemen' => 'Karyawan']);
 }
 
-// Update departemen untuk staff, dan tampilkan nama yang tidak ditemukan
+// Update staff and track missing names
+$missingStaff = [];
 foreach ($staff as $nama) {
-    $found = \App\Models\Employee::whereRaw('LOWER(nama) = ?', [strtolower($nama)])->first();
+    $normalized = strtolower(trim($nama));
+    $found = \App\Models\Employee::whereRaw('LOWER(TRIM(nama)) = ?', [$normalized])->first();
 
     if ($found) {
         $found->update(['departemen' => 'Staff']);
     } else {
-        echo "Nama tidak ditemukan: $nama\n";
+        $missingStaff[] = $nama;
     }
 }
 
+// Output results
+if (!empty($missingStaff)) {
+    echo "Staff not found in database:\n";
+    print_r($missingStaff);
+} else {
+    echo "All staff updated successfully!";
+}
 
