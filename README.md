@@ -300,6 +300,14 @@ This project is open source and available under the [MIT License](LICENSE).
 ### 📑 Rekap Lembur Staff & Karyawan
 ![Rekap Lembur Staff & Karyawan](docs/images/rekap_lembur.png)
 
+### 📑 Data Payroll Staff & Karyawan
+![Data Payroll Staff & Karyawan](docs/images/data_payroll.jpg)
+
+### 📑 Setting Data Payroll Staff & Karyawan
+![Setting Data Payroll Staff & Karyawan](docs/images/data_payroll_setting.jpg)
+
+### 📑 Data Payroll Based On ID with Name
+![Data Payroll Based On ID with Name](docs/images/data_payroll_based_id_name.jpg)
 
 🔧 PHP Extension Activation Guide (XAMPP)
 Required Extensions
@@ -311,15 +319,15 @@ A. Configuration Steps
 1. Activate ZIP Extension
 Open php.ini at: C:\xampp\php\php.ini
 
-2. Find this line (around line 930):
+1. Find this line (around line 930):
 ;extension=zip
 
-3. Remove the semicolon (;) to make it:
+1. Remove the semicolon (;) to make it:
 extension=zip
 
-4. Save the file
+1. Save the file
    
-5. Restart Apache via XAMPP Control Panel
+2. Restart Apache via XAMPP Control Panel
 
 B. Configuration Steps
 1. Activate Image Extension
