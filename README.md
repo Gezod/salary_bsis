@@ -343,3 +343,56 @@ if (!empty($missingStaff)) {
     echo "All staff updated successfully!";
 }
 
+# Panduan Mengaktifkan Ekstensi PHP di XAMPP
+
+## 🔧 Ekstensi yang Diperlukan
+- `zip` (untuk kompresi file)
+- `gd` (untuk pengolahan gambar)
+
+## 📝 Langkah-Langkah Konfigurasi
+
+### 1. Mengaktifkan Ekstensi ZIP
+1. Buka file `php.ini` di: C:\xampp\php\php.ini
+2. Cari baris berikut (sekitar line 930):
+```ini
+;extension=zip
+```ini
+3. Hapus tanda titik koma (;) sehingga menjadi:
+```ini
+extension=zip
+```ini
+4. Simpan file
+5. Restart Apache melalui XAMPP Control Panel
+
+### 2. Mengaktifkan Ekstensi ZIP
+1. Buka file `php.ini` di: C:\xampp\php\php.ini
+2. Cari baris berikut (sekitar line 927):
+```ini
+;extension=gd
+```ini
+3. Hapus tanda titik koma (;) sehingga menjadi:
+```ini
+extension=gd
+```ini
+4. Simpan file
+5. Restart Apache kembali
+
+✔️ Verifikasi
+Buat file info.php di folder htdocs dengan isi:
+<?php phpinfo(); ?>
+Akses melalui browser:
+http://localhost/info.php
+Cari:
+
+"zip" (harus muncul di daftar ekstensi aktif)
+
+"gd" (harus menunjukkan support aktif)
+
+⚠️ Pemecahan Masalah
+Jika ekstensi tidak muncul:
+1. Pastikan file DLL ada di:
+C:\xampp\php\ext\php_zip.dll
+C:\xampp\php\ext\php_gd2.dll
+2. Periksa error log Apache:
+C:\xampp\apache\logs\error.log
+3. Pastikan tidak ada duplikasi baris extension= di php.ini

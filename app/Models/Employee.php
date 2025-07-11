@@ -15,51 +15,37 @@ class Employee extends Model
         'nama',
         'jabatan',
         'departemen',
-        'kantor'
+        'kantor',
+        'daily_salary'
     ];
 
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'daily_salary' => 'integer'
     ];
 
-    // Relationship with Attendance
+    /**
+     * Relationship with Attendance records
+     */
     public function attendances()
     {
         return $this->hasMany(Attendance::class);
     }
 
-    // Scope for searching employees
-    public function scopeSearch($query, $search)
+    /**
+     * Relationship with Payroll records
+     */
+    public function payrolls()
     {
-        return $query->where(function($q) use ($search) {
-            $q->where('nama', 'like', "%{$search}%")
-              ->orWhere('nip', 'like', "%{$search}%")
-              ->orWhere('pin', 'like', "%{$search}%");
-        });
+        return $this->hasMany(Payroll::class);
     }
 
-    // Scope for filtering by department
-    public function scopeByDepartment($query, $department)
+    /**
+     * Relationship with Overtime records
+     */
+    public function overtimeRecords()
     {
-        return $query->where('departemen', $department);
-    }
-
-    // Get role display name
-    public function getRoleDisplayAttribute()
-    {
-        return ucfirst($this->departemen);
-    }
-
-    // Check if employee is staff
-    public function isStaff()
-    {
-        return $this->departemen === 'staff';
-    }
-
-    // Check if employee is karyawan
-    public function isKaryawan()
-    {
-        return $this->departemen === 'karyawan';
+        return $this->hasMany(OvertimeRecord::class);
     }
 }
