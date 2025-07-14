@@ -14,31 +14,32 @@ class AttendanceController extends Controller
 {
     public function index(Request $r)
     {
-        $query = Attendance::with('employee')
-            ->orderByDesc('tanggal')
-            ->orderBy(Employee::select('nama')
-                ->whereColumn('employees.id', 'attendances.employee_id'))
+        $query = Attendance::query()
+            ->join('employees', 'employees.id', '=', 'attendances.employee_id')
+            ->with('employee') // tetap perlu untuk relationship
+            ->orderByDesc('attendances.tanggal')
+            ->orderBy('employees.nama')
+            ->select('attendances.*') // penting: agar tetap return model Attendance
             ->when($r->filled('date'), function ($q) use ($r) {
-                $q->whereDate('tanggal', Carbon::parse($r->input('date')));
+                $q->whereDate('attendances.tanggal', Carbon::parse($r->input('date')));
             })
             ->when($r->filled('employee'), function ($q) use ($r) {
-                $q->whereHas('employee', fn($e) =>
-                $e->where('nama', 'like', '%' . $r->employee . '%'));
+                $q->where('employees.nama', 'like', '%' . $r->employee . '%');
             });
 
         $rows = $query->paginate(50)->withQueryString();
 
-        // Tambahkan evaluasi otomatis
+        // Evaluasi otomatis jika belum ada total_fine
         foreach ($rows as $a) {
-            // Jalankan ulang evaluasi jika belum ada total_fine
             if (is_null($a->total_fine) || $a->total_fine === 0) {
                 AttendanceService::evaluate($a);
-                $a->refresh(); // Pastikan nilainya diperbarui
+                $a->refresh();
             }
         }
 
         return view('absensi.index', compact('rows'));
     }
+
 
     public function recap(Request $r)
     {
@@ -84,7 +85,7 @@ class AttendanceController extends Controller
 
         return redirect()->back()->with('success', 'Semua absensi berhasil dievaluasi ulang.');
     }
-     public function manual()
+    public function manual()
     {
         return view('absensi.manual');
     }
@@ -147,7 +148,7 @@ class AttendanceController extends Controller
         return redirect()->route('absensi.manual')
             ->with('success', 'Data absensi berhasil ditambahkan dan dievaluasi.');
     }
-     public function denda()
+    public function denda()
     {
         $penalties = config('penalties');
         return view('absensi.denda', compact('penalties'));
@@ -181,8 +182,8 @@ class AttendanceController extends Controller
                         [16, 30, (int)$request->input('staff.late.1.2')],
                         [31, 45, (int)$request->input('staff.late.2.2')],
                         [46, 60, (int)$request->input('staff.late.3.2')],
-                        ['>', 60, function($m) use ($request) {
-                            return (int)$request->input('staff.late_base') + ($m - 60);
+                        ['>', 60, function ($m) use ($request) {
+                            return (int)$request->input('karyawan.late_base') + ($m - 60);
                         }]
                     ],
                     'late_break' => (int)$request->input('staff.late_break'),
@@ -197,7 +198,7 @@ class AttendanceController extends Controller
                         [16, 30, (int)$request->input('karyawan.late.1.2')],
                         [31, 45, (int)$request->input('karyawan.late.2.2')],
                         [46, 60, (int)$request->input('karyawan.late.3.2')],
-                        ['>', 60, function($m) use ($request) {
+                        ['>', 60, function ($m) use ($request) {
                             return (int)$request->input('karyawan.late_base') + ($m - 60);
                         }]
                     ],
@@ -218,12 +219,11 @@ class AttendanceController extends Controller
 
             // Clear config cache
             if (function_exists('config_clear')) {
-               Artisan::call('config:clear');
+                Artisan::call('config:clear');
             }
 
             return redirect()->route('absensi.denda')
                 ->with('success', 'Pengaturan denda berhasil diperbarui!');
-
         } catch (\Exception $e) {
             return redirect()->route('absensi.denda')
                 ->with('error', 'Gagal memperbarui pengaturan denda: ' . $e->getMessage());
@@ -238,10 +238,10 @@ class AttendanceController extends Controller
         // Search functionality - menggunakan logic yang sama dengan API
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('nama', 'like', "%{$search}%")
-                  ->orWhere('nip', 'like', "%{$search}%")
-                  ->orWhere('pin', 'like', "%{$search}%");
+                    ->orWhere('nip', 'like', "%{$search}%")
+                    ->orWhere('pin', 'like', "%{$search}%");
             });
         }
 
@@ -350,8 +350,7 @@ class AttendanceController extends Controller
                 if (isset($value[0]) && $value[0] === '>') {
                     // Special handling for closure
                     $baseValue = $indent === 2 ?
-                        ($key === 'staff' ? 12000 : 10000) :
-                        (strpos(json_encode($array), '"staff"') !== false ? 12000 : 10000);
+                        ($key === 'staff' ? 12000 : 10000) : (strpos(json_encode($array), '"staff"') !== false ? 12000 : 10000);
                     $result .= "['>', 60, fn(\$m) => {$baseValue} + (\$m - 60)]";
                 } else {
                     $result .= $this->arrayToPhpString($value, $indent + 1);

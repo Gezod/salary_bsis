@@ -35,14 +35,16 @@ class OvertimeRecord extends Model
 
     public function getFormattedOvertimePayAttribute()
     {
-        return 'Rp ' . number_format($this->overtime_pay, 0, ',', '.');
+        $pay = (int) ($this->overtime_pay ?? 0);
+        return 'Rp ' . number_format($pay, 0, ',', '.');
     }
 
     public function getFormattedDurationAttribute()
     {
-        $hours = floor($this->overtime_minutes / 60);
-        $minutes = $this->overtime_minutes % 60;
-        return "{$hours}j {$minutes}m";
+        $minutes = (int) ($this->overtime_minutes ?? 0);
+    $hours = floor($minutes / 60);
+    $mins = $minutes % 60;
+    return "{$hours}j {$mins}m";
     }
 
     public function getFormattedScan4Attribute()

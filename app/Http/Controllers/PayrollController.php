@@ -70,7 +70,7 @@ class PayrollController extends Controller
     public function updatePayment(Request $request, $id)
     {
         $request->validate([
-            'payment_method' => 'required|in:cash,transfer',
+            'payment_method' => 'required|in:cash,bca,mandiri,bri,bni,cimb,danamon,permata,btn,bjb,mega,maybank,ocbc,panin,uob,hsbc,citibank,standard_chartered,commonwealth,dbs,bank_jatim,bank_jateng,bank_dki,bank_kalbar,bank_kalsel,bank_kaltim,bank_lampung,bank_riau,bank_sumsel,bank_sumut,bank_sulsel,bank_sulut,bank_papua,bank_maluku,bank_ntb,bank_ntt,bank_bengkulu,bank_jambi,bank_aceh',
             'payment_date' => 'required|date',
             'payment_proof' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'notes' => 'nullable|string|max:500'
@@ -165,5 +165,40 @@ class PayrollController extends Controller
         $filename = 'payroll_report_' . now()->format('Y_m_d_H_i_s') . '.pdf';
 
         return $pdf->download($filename);
+    }
+
+    public function downloadIndividualPdf($id)
+    {
+        $payroll = Payroll::with('employee')->findOrFail($id);
+
+        // Only allow download if payroll is paid
+        if ($payroll->status !== 'paid') {
+            return redirect()->back()->with('error', 'Slip gaji hanya bisa didownload setelah pembayaran selesai.');
+        }
+
+        $pdf = Pdf::loadView('payroll.individual-pdf', compact('payroll'))
+            ->setPaper('a4', 'portrait');
+
+        $filename = 'slip_gaji_' . str_replace(' ', '_', strtolower($payroll->employee->nama)) . '_' . $payroll->month_name . '.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    public function updateEmployeeBankDetails(Request $request)
+    {
+        $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'bank_name' => 'required|string',
+            'account_number' => 'required|string|max:50'
+        ]);
+
+        $employee = Employee::findOrFail($request->employee_id);
+        $employee->update([
+            'bank_name' => $request->bank_name,
+            'account_number' => $request->account_number
+        ]);
+
+        return redirect()->back()
+            ->with('success', "Data bank {$employee->nama} berhasil diperbarui!");
     }
 }

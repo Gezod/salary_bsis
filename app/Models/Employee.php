@@ -16,6 +16,9 @@ class Employee extends Model
         'jabatan',
         'departemen',
         'kantor',
+        'daily_salary',
+        'bank_name',
+        'account_number',
         'daily_salary'
     ];
 
@@ -25,25 +28,19 @@ class Employee extends Model
         'daily_salary' => 'integer'
     ];
 
-    /**
-     * Relationship with Attendance records
-     */
+    // Relationship with Attendance
     public function attendances()
     {
         return $this->hasMany(Attendance::class);
     }
 
-    /**
-     * Relationship with Payroll records
-     */
+    // Relationship with Payroll
     public function payrolls()
     {
         return $this->hasMany(Payroll::class);
     }
 
-    /**
-     * Relationship with Overtime records
-     */
+    // Relationship with Overtime Records
     public function overtimeRecords()
     {
         return $this->hasMany(OvertimeRecord::class);

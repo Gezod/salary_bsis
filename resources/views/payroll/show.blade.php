@@ -83,6 +83,11 @@
                         <p class="text-muted mb-0">Payroll {{ $payroll->month_name }}</p>
                     </div>
                     <div class="d-flex gap-2">
+                        @if($payroll->status === 'paid')
+                            <a href="{{ route('payroll.download.individual', $payroll->id) }}" class="btn btn-success">
+                                <i class="bi bi-download me-2"></i>Download Slip Gaji
+                            </a>
+                        @endif
                         <a href="{{ route('payroll.recalculate', $payroll->id) }}" class="btn btn-warning">
                             <i class="bi bi-arrow-clockwise me-2"></i>Hitung Ulang
                         </a>
@@ -228,10 +233,53 @@
                                         <div class="row g-3">
                                             <div class="col-md-3">
                                                 <label class="form-label text-white">Metode Pembayaran</label>
-                                                <select name="payment_method" class="form-control" required>
+                                                <select name="payment_method" class="form-control" required id="paymentMethod">
                                                     <option value="">Pilih Metode</option>
                                                     <option value="cash">Cash</option>
-                                                    <option value="transfer">Transfer</option>
+                                                    <optgroup label="Bank Nasional">
+                                                        <option value="bca">BCA</option>
+                                                        <option value="mandiri">Bank Mandiri</option>
+                                                        <option value="bri">BRI</option>
+                                                        <option value="bni">BNI</option>
+                                                        <option value="cimb">CIMB Niaga</option>
+                                                        <option value="danamon">Bank Danamon</option>
+                                                        <option value="permata">Bank Permata</option>
+                                                        <option value="btn">BTN</option>
+                                                        <option value="mega">Bank Mega</option>
+                                                        <option value="maybank">Maybank</option>
+                                                        <option value="ocbc">OCBC NISP</option>
+                                                        <option value="panin">Panin Bank</option>
+                                                    </optgroup>
+                                                    <optgroup label="Bank Asing">
+                                                        <option value="uob">UOB</option>
+                                                        <option value="hsbc">HSBC</option>
+                                                        <option value="citibank">Citibank</option>
+                                                        <option value="standard_chartered">Standard Chartered</option>
+                                                        <option value="commonwealth">Commonwealth Bank</option>
+                                                        <option value="dbs">DBS</option>
+                                                    </optgroup>
+                                                    <optgroup label="Bank Daerah">
+                                                        <option value="bjb">BJB</option>
+                                                        <option value="bank_jatim">Bank Jatim</option>
+                                                        <option value="bank_jateng">Bank Jateng</option>
+                                                        <option value="bank_dki">Bank DKI</option>
+                                                        <option value="bank_kalbar">Bank Kalbar</option>
+                                                        <option value="bank_kalsel">Bank Kalsel</option>
+                                                        <option value="bank_kaltim">Bank Kaltim</option>
+                                                        <option value="bank_lampung">Bank Lampung</option>
+                                                        <option value="bank_riau">Bank Riau Kepri</option>
+                                                        <option value="bank_sumsel">Bank Sumsel Babel</option>
+                                                        <option value="bank_sumut">Bank Sumut</option>
+                                                        <option value="bank_sulsel">Bank Sulselbar</option>
+                                                        <option value="bank_sulut">Bank SulutGo</option>
+                                                        <option value="bank_papua">Bank Papua</option>
+                                                        <option value="bank_maluku">Bank Maluku Malut</option>
+                                                        <option value="bank_ntb">Bank NTB Syariah</option>
+                                                        <option value="bank_ntt">Bank NTT</option>
+                                                        <option value="bank_bengkulu">Bank Bengkulu</option>
+                                                        <option value="bank_jambi">Bank Jambi</option>
+                                                        <option value="bank_aceh">Bank Aceh Syariah</option>
+                                                    </optgroup>
                                                 </select>
                                             </div>
                                             <div class="col-md-3">

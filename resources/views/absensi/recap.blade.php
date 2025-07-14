@@ -91,6 +91,17 @@
                                 </div>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('payroll.*') ? 'active-link' : '' }}"
+                                href="{{ route('payroll.index') }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-wrapper me-3">
+                                        <i class="bi bi-cash-stack"></i>
+                                    </div>
+                                    <span>Sistem Payroll</span>
+                                </div>
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </nav>

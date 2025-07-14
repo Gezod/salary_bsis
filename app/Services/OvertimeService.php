@@ -63,7 +63,7 @@ class OvertimeService
             'overtime_minutes' => $overtimeMinutes
         ]);
 
-        Log::info("Overtime calculated for {$employee->nama}: {$overtimeMinutes} minutes, Rp {$overtimePay}", [
+        Log::info("Overtime calculated for " . ($employee->nama ?? 'Unknown') . ": {$overtimeMinutes} minutes, Rp {$overtimePay}", [
             'employee_id' => $employee->id,
             'date' => $attendance->tanggal->format('Y-m-d'),
             'expected_out' => $expectedOut->format('H:i'),

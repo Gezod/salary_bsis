@@ -93,7 +93,7 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <h5 class="card-title mb-0 text-white">
-                            <i class="bi bi-cash me-2"></i>Update Gaji Karyawan
+                            <i class="bi bi-cash me-2"></i>Update Gaji & Data Bank Karyawan
                         </h5>
                     </div>
                     <div class="card-body">
@@ -102,7 +102,7 @@
                             <div class="row g-3">
                                 <div class="col-md-6">
                                     <label class="form-label text-white">Pilih Karyawan</label>
-                                    <select name="employee_id" class="form-control" required>
+                                    <select name="employee_id" class="form-control" required id="employeeSelect">
                                         <option value="">Pilih Karyawan</option>
                                         @foreach($employees as $employee)
                                             <option value="{{ $employee->id }}">
@@ -118,6 +118,60 @@
                                 <div class="col-md-2 d-flex align-items-end">
                                     <button type="submit" class="btn btn-primary w-100">
                                         <i class="bi bi-check-lg me-2"></i>Update
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <hr class="border-secondary my-4">
+
+                        <form method="POST" action="{{ route('payroll.update.bank') }}">
+                            @csrf
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label text-white">Pilih Karyawan</label>
+                                    <select name="employee_id" class="form-control" required>
+                                        <option value="">Pilih Karyawan</option>
+                                        @foreach($employees as $employee)
+                                            <option value="{{ $employee->id }}">
+                                                {{ $employee->nama }} - {{ ucfirst($employee->departemen) }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label text-white">Nama Bank</label>
+                                    <select name="bank_name" class="form-control" required>
+                                        <option value="">Pilih Bank</option>
+                                        <optgroup label="Bank Nasional">
+                                            <option value="BCA">BCA</option>
+                                            <option value="Bank Mandiri">Bank Mandiri</option>
+                                            <option value="BRI">BRI</option>
+                                            <option value="BNI">BNI</option>
+                                            <option value="CIMB Niaga">CIMB Niaga</option>
+                                            <option value="Bank Danamon">Bank Danamon</option>
+                                            <option value="Bank Permata">Bank Permata</option>
+                                            <option value="BTN">BTN</option>
+                                            <option value="Bank Mega">Bank Mega</option>
+                                            <option value="Maybank">Maybank</option>
+                                            <option value="OCBC NISP">OCBC NISP</option>
+                                            <option value="Panin Bank">Panin Bank</option>
+                                        </optgroup>
+                                        <optgroup label="Bank Daerah">
+                                            <option value="BJB">BJB</option>
+                                            <option value="Bank Jatim">Bank Jatim</option>
+                                            <option value="Bank Jateng">Bank Jateng</option>
+                                            <option value="Bank DKI">Bank DKI</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label text-white">Nomor Rekening</label>
+                                    <input type="text" name="account_number" class="form-control" placeholder="1234567890" required>
+                                </div>
+                                <div class="col-md-2 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-success w-100">
+                                        <i class="bi bi-bank me-2"></i>Update Bank
                                     </button>
                                 </div>
                             </div>
@@ -141,6 +195,7 @@
                                     <th><i class="bi bi-briefcase me-2"></i>Jabatan</th>
                                     <th><i class="bi bi-cash me-2"></i>Gaji Harian</th>
                                     <th><i class="bi bi-calendar me-2"></i>Gaji Bulanan (Est.)</th>
+                                    <th><i class="bi bi-bank me-2"></i>Data Bank</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -179,6 +234,16 @@
                                                 Rp {{ number_format($monthlyEstimate, 0, ',', '.') }}
                                             @else
                                                 <span class="text-muted">-</span>
+                                            @endif
+                                        </td>
+                                        <td class="text-white">
+                                            @if($employee->bank_name && $employee->account_number)
+                                                <div class="small">
+                                                    <strong>{{ $employee->bank_name }}</strong><br>
+                                                    <span class="text-muted">{{ $employee->account_number }}</span>
+                                                </div>
+                                            @else
+                                                <span class="text-muted">Belum diset</span>
                                             @endif
                                         </td>
                                     </tr>
