@@ -390,3 +390,56 @@ if (!empty($missingStaff)) {
 }
 
 
+## 🗃️ Database Management
+### Update Jabatan Employee (Contoh)
+use App\Models\Employee;
+
+// Jabatan untuk masing-masing orang
+$jabatanData = [
+    'della silvia' => 'Customer Service',
+    'zana' => 'Manajer Dept. Pemasaran',
+    'neni' => 'Manajer Dept. HRD & Keuangan',
+    'ana' => 'Teller',
+
+    // Bankeling
+    'evi' => 'Bankeling',
+    'endro' => 'Bankeling',
+    'mirah' => 'Bankeling',
+    'suhantono' => 'Bankeling',
+    'gunawan' => 'Bankeling',
+    'reno a' => 'Bankeling',
+    'arif' => 'Bankeling',
+
+    // Produksi
+    'rahayu' => 'Produksi',
+    'hilmi' => 'Produksi',
+    'sujono' => 'Produksi',
+    'heri' => 'Produksi',
+    'nantha' => 'Produksi',
+    'yat' => 'Produksi',
+    'inda' => 'Produksi',
+    'hengky' => 'Produksi',
+];
+
+$missing = [];
+
+foreach ($jabatanData as $nama => $jabatan) {
+    $normalized = strtolower(trim($nama));
+
+    $employee = Employee::whereRaw('LOWER(TRIM(nama)) = ?', [$normalized])->first();
+
+    if ($employee) {
+        $employee->update(['jabatan' => $jabatan]);
+    } else {
+        $missing[] = $nama;
+    }
+}
+
+// Output hasil
+if (!empty($missing)) {
+    echo "Nama berikut tidak ditemukan di database:\n";
+    print_r($missing);
+} else {
+    echo "Semua jabatan berhasil diperbarui!\n";
+}
+

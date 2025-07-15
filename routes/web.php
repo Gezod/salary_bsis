@@ -43,6 +43,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/denda', [AttendanceController::class, 'denda'])->name('absensi.denda');
         Route::put('/denda', [AttendanceController::class, 'dendaUpdate'])->name('absensi.denda.update');
 
+        // Leave Routes
+        Route::get('/leave', [AttendanceController::class, 'leaveIndex'])->name('absensi.leave.index');
+        Route::get('/leave/create', [AttendanceController::class, 'leaveCreate'])->name('absensi.leave.create');
+        Route::post('/leave', [AttendanceController::class, 'leaveStore'])->name('absensi.leave.store');
+
+        // Work Time Change Routes
+        Route::get('/work-time-change', [AttendanceController::class, 'workTimeChangeIndex'])->name('absensi.work_time_change.index');
+        Route::get('/work-time-change/create', [AttendanceController::class, 'workTimeChangeCreate'])->name('absensi.work_time_change.create');
+        Route::post('/work-time-change', [AttendanceController::class, 'workTimeChangeStore'])->name('absensi.work_time_change.store');
+
         // Role Management
         Route::get('/role', [AttendanceController::class, 'role'])->name('absensi.role');
         Route::post('/role', [AttendanceController::class, 'roleStore'])->name('absensi.role.store');

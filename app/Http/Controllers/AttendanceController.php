@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Attendance;
 use App\Models\Employee;
+use App\Models\Leave;
+use App\Models\WorkTimeChange;
 use Carbon\Carbon;
 use App\Services\AttendanceService;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Storage;
 
 class AttendanceController extends Controller
 {
@@ -16,10 +19,10 @@ class AttendanceController extends Controller
     {
         $query = Attendance::query()
             ->join('employees', 'employees.id', '=', 'attendances.employee_id')
-            ->with('employee') // tetap perlu untuk relationship
-            ->orderByDesc('attendances.tanggal')
+            ->with('employee')
+            ->orderBy('attendances.tanggal')
             ->orderBy('employees.nama')
-            ->select('attendances.*') // penting: agar tetap return model Attendance
+            ->select('attendances.*')
             ->when($r->filled('date'), function ($q) use ($r) {
                 $q->whereDate('attendances.tanggal', Carbon::parse($r->input('date')));
             })
@@ -39,7 +42,6 @@ class AttendanceController extends Controller
 
         return view('absensi.index', compact('rows'));
     }
-
 
     public function recap(Request $r)
     {
@@ -85,6 +87,7 @@ class AttendanceController extends Controller
 
         return redirect()->back()->with('success', 'Semua absensi berhasil dievaluasi ulang.');
     }
+
     public function manual()
     {
         return view('absensi.manual');
@@ -133,6 +136,7 @@ class AttendanceController extends Controller
             'overtime_minutes' => $request->input('overtime_minutes', 0),
             'excess_break_minutes' => 0,
             'invalid_break' => false,
+            'is_half_day' => false,
             'late_fine' => 0,
             'break_fine' => 0,
             'absence_fine' => 0,
@@ -148,6 +152,96 @@ class AttendanceController extends Controller
         return redirect()->route('absensi.manual')
             ->with('success', 'Data absensi berhasil ditambahkan dan dievaluasi.');
     }
+
+    // Leave Management
+    public function leaveIndex()
+    {
+        $leaves = Leave::with('employee')->orderByDesc('created_at')->paginate(20);
+        return view('absensi.leave.index', compact('leaves'));
+    }
+
+    public function leaveCreate()
+    {
+        $employees = Employee::orderBy('nama')->get();
+        return view('absensi.leave.create', compact('employees'));
+    }
+
+    public function leaveStore(Request $request)
+    {
+        $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'alasan_izin' => 'required|string',
+            'bukti_foto' => 'nullable|image|max:2048',
+            'tanggal_izin' => 'required|date'
+        ]);
+
+        $employee = Employee::findOrFail($request->employee_id);
+
+        $bukti_foto = null;
+        if ($request->hasFile('bukti_foto')) {
+            $bukti_foto = $request->file('bukti_foto')->store('leave_photos', 'public');
+        }
+
+        Leave::create([
+            'employee_id' => $request->employee_id,
+            'nama' => $employee->nama,
+            'departemen' => $employee->departemen,
+            'jabatan' => $employee->jabatan,
+            'alasan_izin' => $request->alasan_izin,
+            'bukti_foto' => $bukti_foto,
+            'tanggal_izin' => $request->tanggal_izin,
+            'status' => 'approved'
+        ]);
+
+        return redirect()->route('absensi.leave.index')
+            ->with('success', 'Data izin berhasil ditambahkan.');
+    }
+
+    // Work Time Change Management
+    public function workTimeChangeIndex()
+    {
+        $workTimeChanges = WorkTimeChange::with(['employee', 'leave'])
+            ->orderByDesc('created_at')
+            ->paginate(20);
+        return view('absensi.work_time_change.index', compact('workTimeChanges'));
+    }
+
+    public function workTimeChangeCreate()
+    {
+        $leaves = Leave::with('employee')->where('status', 'approved')->get();
+        return view('absensi.work_time_change.create', compact('leaves'));
+    }
+
+    public function workTimeChangeStore(Request $request)
+    {
+        $request->validate([
+            'leave_id' => 'required|exists:leaves,id',
+            'tanggal' => 'required|date',
+            'jam_masuk_baru' => 'nullable|date_format:H:i',
+            'jam_pulang_baru' => 'nullable|date_format:H:i',
+            'jam_istirahat_mulai' => 'nullable|date_format:H:i',
+            'jam_istirahat_selesai' => 'nullable|date_format:H:i',
+            'keterangan' => 'nullable|string'
+        ]);
+
+        $leave = Leave::findOrFail($request->leave_id);
+
+        WorkTimeChange::create([
+            'leave_id' => $request->leave_id,
+            'employee_id' => $leave->employee_id,
+            'tanggal' => $request->tanggal,
+            'jam_masuk_baru' => $request->jam_masuk_baru,
+            'jam_pulang_baru' => $request->jam_pulang_baru,
+            'jam_istirahat_mulai' => $request->jam_istirahat_mulai,
+            'jam_istirahat_selesai' => $request->jam_istirahat_selesai,
+            'keterangan' => $request->keterangan,
+            'status' => 'approved'
+        ]);
+
+        return redirect()->route('absensi.work_time_change.index')
+            ->with('success', 'Pergantian jam kerja berhasil ditambahkan.');
+    }
+
     public function denda()
     {
         $penalties = config('penalties');
@@ -257,7 +351,13 @@ class AttendanceController extends Controller
 
         $employees = $query->orderBy('nama')->paginate(20)->withQueryString();
 
-        return view('absensi.role', compact('employees'));
+        // Check for contract expiring soon notifications
+        $expiringContracts = Employee::whereNotNull('tanggal_end_kontrak')
+            ->whereRaw('tanggal_end_kontrak <= DATE_ADD(CURDATE(), INTERVAL 7 DAY)')
+            ->whereRaw('tanggal_end_kontrak >= CURDATE()')
+            ->count();
+
+        return view('absensi.role', compact('employees', 'expiringContracts'));
     }
 
     public function roleStore(Request $request)
@@ -269,6 +369,8 @@ class AttendanceController extends Controller
             'jabatan' => 'required|string|max:100',
             'departemen' => 'required|in:staff,karyawan',
             'kantor' => 'required|string|max:100',
+            'tanggal_start_kontrak' => 'nullable|date',
+            'tanggal_end_kontrak' => 'nullable|date|after:tanggal_start_kontrak',
         ]);
 
         Employee::create([
@@ -278,6 +380,8 @@ class AttendanceController extends Controller
             'jabatan' => $request->jabatan,
             'departemen' => $request->departemen,
             'kantor' => $request->kantor,
+            'tanggal_start_kontrak' => $request->tanggal_start_kontrak,
+            'tanggal_end_kontrak' => $request->tanggal_end_kontrak,
         ]);
 
         return redirect()->route('absensi.role')
@@ -305,6 +409,8 @@ class AttendanceController extends Controller
             'jabatan' => 'required|string|max:100',
             'departemen' => 'required|in:staff,karyawan',
             'kantor' => 'required|string|max:100',
+            'tanggal_start_kontrak' => 'nullable|date',
+            'tanggal_end_kontrak' => 'nullable|date|after:tanggal_start_kontrak',
         ]);
 
         $employee->update([
@@ -314,6 +420,8 @@ class AttendanceController extends Controller
             'jabatan' => $request->jabatan,
             'departemen' => $request->departemen,
             'kantor' => $request->kantor,
+            'tanggal_start_kontrak' => $request->tanggal_start_kontrak,
+            'tanggal_end_kontrak' => $request->tanggal_end_kontrak,
         ]);
 
         return redirect()->route('absensi.role')

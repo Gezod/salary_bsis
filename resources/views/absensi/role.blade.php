@@ -12,6 +12,14 @@
                         <img src="{{ asset('images/Logo-Bank-Sampah-Surabaya-bank-sampah-induk-surabaya-v2 (1).png') }}"
                             alt="Bank Sampah" class="img-fluid sidebar-logo mb-3">
                         <small class="text-muted">Sistem Absensi</small>
+
+                        {{-- Contract expiring notification --}}
+                        @if (isset($expiringContracts) && $expiringContracts > 0)
+                            <div class="contract-notification">
+                                <i class="bi bi-exclamation-triangle text-warning"></i>
+                                <small class="text-warning">{{ $expiringContracts }} kontrak akan berakhir</small>
+                            </div>
+                        @endif
                     </div>
 
                     <ul class="nav flex-column">
@@ -49,6 +57,28 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('absensi.leave.*') ? 'active-link' : '' }}"
+                                href="{{ route('absensi.leave.index') }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-wrapper me-3">
+                                        <i class="bi bi-file-earmark-medical"></i>
+                                    </div>
+                                    <span>Rekap Manual Izin</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('absensi.work_time_change.*') ? 'active-link' : '' }}"
+                                href="{{ route('absensi.work_time_change.index') }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-wrapper me-3">
+                                        <i class="bi bi-clock-history"></i>
+                                    </div>
+                                    <span>Pergantian Jam Kerja</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('absensi.manual') ? 'active-link' : '' }}"
                                 href="{{ route('absensi.manual') }}">
                                 <div class="d-flex align-items-center">
@@ -76,6 +106,9 @@
                                 <div class="d-flex align-items-center">
                                     <div class="icon-wrapper me-3">
                                         <i class="bi bi-people"></i>
+                                        @if (isset($expiringContracts) && $expiringContracts > 0)
+                                            <span class="notification-badge">{{ $expiringContracts }}</span>
+                                        @endif
                                     </div>
                                     <span>Kelola Karyawan</span>
                                 </div>
@@ -85,7 +118,7 @@
                             <a class="nav-link {{ request()->routeIs('overtime.*') ? 'active-link' : '' }}"
                                 href="{{ route('overtime.overview') }}">
                                 <div class="d-flex align-items-center">
-                                    <div class="overtime-icon-wrapper me-3"> <!-- Ganti class disini -->
+                                    <div class="overtime-icon-wrapper me-3">
                                         <i class="bi bi-clock"></i>
                                     </div>
                                     <span>Sistem Lembur</span>
@@ -137,6 +170,18 @@
                 </nav>
 
                 <div class="py-4 animate-fade-in">
+                    {{-- Contract Expiring Alert --}}
+                    @if (isset($expiringContracts) && $expiringContracts > 0)
+                        <div class="alert alert-warning d-flex align-items-center mb-4">
+                            <i class="bi bi-exclamation-triangle-fill me-3 fs-5"></i>
+                            <div>
+                                <strong>Peringatan!</strong> Ada {{ $expiringContracts }} karyawan yang kontraknya akan
+                                berakhir dalam 7 hari ke depan.
+                                Silakan periksa dan perpanjang kontrak jika diperlukan.
+                            </div>
+                        </div>
+                    @endif
+
                     {{-- Page Header --}}
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
@@ -148,14 +193,15 @@
                                 <div class="fw-bold text-white fs-4">{{ $employees->total() }}</div>
                                 <small class="text-muted">Total Karyawan</small>
                             </div>
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#addEmployeeModal">
                                 <i class="bi bi-person-plus me-2"></i>Tambah Karyawan
                             </button>
                         </div>
                     </div>
 
                     {{-- Notifications --}}
-                    @if(session('success'))
+                    @if (session('success'))
                         <div class="alert alert-success d-flex align-items-center">
                             <i class="bi bi-check-circle-fill me-3 fs-5"></i>
                             <div>
@@ -164,13 +210,13 @@
                         </div>
                     @endif
 
-                    @if($errors->any())
+                    @if ($errors->any())
                         <div class="alert alert-danger d-flex align-items-center">
                             <i class="bi bi-exclamation-triangle-fill me-3 fs-5"></i>
                             <div>
                                 <strong>Error!</strong>
                                 <ul class="mb-0 mt-2">
-                                    @foreach($errors->all() as $error)
+                                    @foreach ($errors->all() as $error)
                                         <li>{{ $error }}</li>
                                     @endforeach
                                 </ul>
@@ -188,20 +234,22 @@
                             <div class="col-md-3">
                                 <label class="form-label text-muted small">Nama/NIP/PIN</label>
                                 <input type="text" name="search" value="{{ request('search') }}"
-                                       class="form-control" placeholder="Cari nama, NIP, atau PIN...">
+                                    class="form-control" placeholder="Cari nama, NIP, atau PIN...">
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label text-muted small">Departemen</label>
                                 <select name="departemen" class="form-control">
                                     <option value="">Semua Departemen</option>
-                                    <option value="staff" {{ request('departemen') == 'staff' ? 'selected' : '' }}>Staff</option>
-                                    <option value="karyawan" {{ request('departemen') == 'karyawan' ? 'selected' : '' }}>Karyawan</option>
+                                    <option value="staff" {{ request('departemen') == 'staff' ? 'selected' : '' }}>Staff
+                                    </option>
+                                    <option value="karyawan" {{ request('departemen') == 'karyawan' ? 'selected' : '' }}>
+                                        Karyawan</option>
                                 </select>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label text-muted small">Jabatan</label>
                                 <input type="text" name="jabatan" value="{{ request('jabatan') }}"
-                                       class="form-control" placeholder="Filter berdasarkan jabatan...">
+                                    class="form-control" placeholder="Filter berdasarkan jabatan...">
                             </div>
                             <div class="col-md-3 d-flex align-items-end">
                                 <button type="submit" class="btn btn-primary w-100">
@@ -222,13 +270,13 @@
                                         <th><i class="bi bi-briefcase me-2"></i>Jabatan</th>
                                         <th><i class="bi bi-building me-2"></i>Departemen</th>
                                         <th><i class="bi bi-geo-alt me-2"></i>Kantor</th>
-                                        <th><i class="bi bi-calendar me-2"></i>Bergabung</th>
+                                        <th><i class="bi bi-calendar-range me-2"></i>Kontrak</th>
                                         <th><i class="bi bi-gear me-2"></i>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @forelse ($employees as $employee)
-                                        <tr>
+                                        <tr class="{{ $employee->isContractExpiringSoon() ? 'table-danger' : '' }}">
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3"
@@ -238,38 +286,56 @@
                                                         </span>
                                                     </div>
                                                     <div>
-                                                        <div class="text-white fw-semibold">{{ $employee->nama ?? '-' }}</div>
-                                                        <small class="text-muted">ID: {{ $employee->id }}</small>
+                                                        <div class="{{ $employee->isContractExpiringSoon() ? 'text-dark' : 'text-white' }} fw-semibold">{{ $employee->nama ?? '-' }}
+                                                        </div>
+                                                        <small class=" {{ $employee->isContractExpiringSoon() ? 'text-dark' : 'text-muted ' }} fw-bold ">ID: {{ $employee->id }}</small>
+                                                        @if ($employee->isContractExpiringSoon())
+                                                            <small class="text-danger d-block">
+                                                                <i class="bi bi-exclamation-triangle"></i>
+                                                                Kontrak berakhir {{ $employee->contract_days_remaining }}
+                                                                hari lagi
+                                                            </small>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </td>
                                             <td>
                                                 <div class="text-white">
-                                                    <div><strong>PIN:</strong> {{ $employee->pin ?? '-' }}</div>
-                                                    <div><strong>NIP:</strong> {{ $employee->nip ?? '-' }}</div>
+                                                    <div class="{{ $employee->isContractExpiringSoon() ? 'text-dark' : 'text-white' }}"><strong>PIN:</strong> {{ $employee->pin ?? '-' }}</div>
+                                                    <div class="{{ $employee->isContractExpiringSoon() ? 'text-dark' : 'text-white' }}"><strong>NIP:</strong> {{ $employee->nip ?? '-' }}</div>
                                                 </div>
                                             </td>
                                             <td>
                                                 <span class="badge bg-info">{{ $employee->jabatan ?? '-' }}</span>
                                             </td>
                                             <td>
-                                                <span class="badge {{ $employee->departemen == 'staff' ? 'bg-success' : 'bg-warning' }}">
+                                                <span
+                                                    class="badge {{ $employee->departemen == 'staff' ? 'bg-success' : 'bg-warning' }}">
                                                     {{ ucfirst($employee->departemen ?? '-') }}
                                                 </span>
                                             </td>
                                             <td class="text-white">{{ $employee->kantor ?? '-' }}</td>
                                             <td class="text-white">
-                                                {{ $employee->created_at ? $employee->created_at->format('d M Y') : '-' }}
+                                                @if ($employee->tanggal_start_kontrak && $employee->tanggal_end_kontrak)
+                                                    <div class="small">
+                                                        <div><strong>Mulai:</strong>
+                                                            {{ $employee->tanggal_start_kontrak->format('d M Y') }}</div>
+                                                        <div><strong>Berakhir:</strong>
+                                                            {{ $employee->tanggal_end_kontrak->format('d M Y') }}</div>
+                                                    </div>
+                                                @else
+                                                    <div class="text-muted">-</div>
+                                                @endif
                                             </td>
                                             <td>
                                                 <div class="d-flex gap-2">
                                                     <button type="button" class="btn btn-sm btn-outline-info"
-                                                            onclick="editEmployee({{ $employee->id }})"
-                                                            data-bs-toggle="modal" data-bs-target="#editEmployeeModal">
+                                                        onclick="editEmployee({{ $employee->id }})"
+                                                        data-bs-toggle="modal" data-bs-target="#editEmployeeModal">
                                                         <i class="bi bi-pencil"></i>
                                                     </button>
                                                     <button type="button" class="btn btn-sm btn-outline-danger"
-                                                            onclick="deleteEmployee({{ $employee->id }}, '{{ $employee->nama }}')">
+                                                        onclick="deleteEmployee({{ $employee->id }}, '{{ $employee->nama }}')">
                                                         <i class="bi bi-trash"></i>
                                                     </button>
                                                 </div>
@@ -303,14 +369,16 @@
     </div>
 
     {{-- Add Employee Modal --}}
-    <div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
+    <div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content" style="background: var(--card-bg); border: 1px solid var(--border-color);">
                 <div class="modal-header" style="border-bottom: 1px solid var(--border-color);">
                     <h5 class="modal-title text-white" id="addEmployeeModalLabel">
                         <i class="bi bi-person-plus me-2"></i>Tambah Karyawan Baru
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <form method="POST" action="{{ route('absensi.role.store') }}">
                     @csrf
@@ -344,6 +412,14 @@
                                 <label class="form-label text-white">Kantor</label>
                                 <input type="text" name="kantor" class="form-control" required>
                             </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-white">Tanggal Mulai Kontrak</label>
+                                <input type="date" name="tanggal_start_kontrak" class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-white">Tanggal Berakhir Kontrak</label>
+                                <input type="date" name="tanggal_end_kontrak" class="form-control">
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
@@ -358,14 +434,16 @@
     </div>
 
     {{-- Edit Employee Modal --}}
-    <div class="modal fade" id="editEmployeeModal" tabindex="-1" aria-labelledby="editEmployeeModalLabel" aria-hidden="true">
+    <div class="modal fade" id="editEmployeeModal" tabindex="-1" aria-labelledby="editEmployeeModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content" style="background: var(--card-bg); border: 1px solid var(--border-color);">
                 <div class="modal-header" style="border-bottom: 1px solid var(--border-color);">
                     <h5 class="modal-title text-white" id="editEmployeeModalLabel">
                         <i class="bi bi-pencil me-2"></i>Edit Data Karyawan
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <form method="POST" id="editEmployeeForm">
                     @csrf
@@ -400,6 +478,16 @@
                                 <label class="form-label text-white">Kantor</label>
                                 <input type="text" name="kantor" id="edit_kantor" class="form-control" required>
                             </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-white">Tanggal Mulai Kontrak</label>
+                                <input type="date" name="tanggal_start_kontrak" id="edit_tanggal_start_kontrak"
+                                    class="form-control">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-white">Tanggal Berakhir Kontrak</label>
+                                <input type="date" name="tanggal_end_kontrak" id="edit_tanggal_end_kontrak"
+                                    class="form-control">
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
@@ -431,12 +519,14 @@
             document.body.appendChild(sidebarOverlay);
 
             // Toggle sidebar
-            sidebarToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('show');
-                sidebarOverlay.classList.toggle('show');
-            });
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                    sidebarOverlay.classList.toggle('show');
+                });
+            }
 
-            // Tutup sidebar ketika overlay diklik
+            // Close sidebar when overlay is clicked
             sidebarOverlay.addEventListener('click', function() {
                 sidebar.classList.remove('show');
                 this.classList.remove('show');
@@ -456,6 +546,9 @@
                         document.getElementById('edit_jabatan').value = employee.jabatan || '';
                         document.getElementById('edit_departemen').value = employee.departemen || '';
                         document.getElementById('edit_kantor').value = employee.kantor || '';
+                        document.getElementById('edit_tanggal_start_kontrak').value = employee.tanggal_start_kontrak ||
+                            '';
+                        document.getElementById('edit_tanggal_end_kontrak').value = employee.tanggal_end_kontrak || '';
 
                         document.getElementById('editEmployeeForm').action = `/absensi/role/${id}`;
                     }
@@ -468,7 +561,9 @@
 
         // Delete Employee Function
         function deleteEmployee(id, nama) {
-            if (confirm(`Apakah Anda yakin ingin menghapus karyawan "${nama}"?\n\nPerhatian: Semua data absensi terkait akan ikut terhapus!`)) {
+            if (confirm(
+                    `Apakah Anda yakin ingin menghapus karyawan "${nama}"?\n\nPerhatian: Semua data absensi terkait akan ikut terhapus!`
+                )) {
                 const form = document.getElementById('deleteEmployeeForm');
                 form.action = `/absensi/role/${id}`;
                 form.submit();
@@ -477,11 +572,65 @@
     </script>
 
     <style>
+        /* Untuk teks hitam pada baris table-danger */
+        .table-dark tr.table-danger td {
+            color: #000 !important;
+            /* Warna teks hitam */
+        }
+
+        /* Untuk teks secondary (class text-muted) */
+        .table-dark tr.table-danger .text-muted {
+            color: #555 !important;
+            /* Warna abu-abu gelap */
+        }
+
+        /* Untuk badge agar tetap terlihat */
+        .table-dark tr.table-danger .badge {
+            color: #fff !important;
+        }
+
+        /* Untuk border dan background */
+        .table-dark tr.table-danger {
+            background-color: rgba(255, 82, 82, 0.2) !important;
+            border-left: 3px solid #ff5252 !important;
+        }
+
+        .contract-notification {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .table-danger {
+            background-color: rgb(255, 82, 82) !important;
+            border-left: 3px solid #ff5252 !important;
+        }
+
         .modal-content {
             border-radius: 1rem;
         }
 
-        .modal-header, .modal-footer {
+        .modal-header,
+        .modal-footer {
             background: rgba(255, 255, 255, 0.05);
         }
 
@@ -506,6 +655,12 @@
             background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
             border: 1px solid rgba(239, 68, 68, 0.3);
             color: #ef4444;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1));
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #f59e0b;
         }
     </style>
 @endsection

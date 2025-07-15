@@ -103,6 +103,28 @@
                                 </div>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('absensi.leave.*') ? 'active-link' : '' }}"
+                                href="{{ route('absensi.leave.index') }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-wrapper me-3">
+                                        <i class="bi bi-file-earmark-text"></i>
+                                    </div>
+                                    <span>Rekap Manual Izin</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('absensi.work_time_change.*') ? 'active-link' : '' }}"
+                                href="{{ route('absensi.work_time_change.index') }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-wrapper me-3">
+                                        <i class="bi bi-clock-history"></i>
+                                    </div>
+                                    <span>Pergantian Jam Kerja</span>
+                                </div>
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </nav>
