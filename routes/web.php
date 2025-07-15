@@ -36,6 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [AttendanceController::class, 'index'])->name('absensi.index');
         Route::get('/import', [ImportController::class, 'create'])->name('absensi.import.form');
         Route::post('/import', [ImportController::class, 'store'])->name('absensi.import');
+        Route::delete('/destroy', [AttendanceController::class, 'destroy'])->name('destroyAbsensi');
         Route::get('/rekap', [AttendanceController::class, 'recap'])->name('absensi.recap');
         Route::get('/evaluate-all', [AttendanceController::class, 'reevaluateAll']);
         Route::get('/manual', [AttendanceController::class, 'manual'])->name('absensi.manual');

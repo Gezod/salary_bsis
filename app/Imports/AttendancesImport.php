@@ -8,9 +8,9 @@ use App\Services\AttendanceService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
-use Maatwebsite\Excel\Concerns\ToCollection;
+// use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithStartRow;
-
+use Maatwebsite\Excel\Concerns\ToCollection;
 class AttendancesImport implements ToCollection, WithStartRow
 {
     public function startRow(): int

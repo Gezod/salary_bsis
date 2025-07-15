@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\OvertimeRecord;
+use App\Models\OvertimeSetting;
+use App\Models\Payroll;
 use Illuminate\Http\Request;
 use App\Models\Attendance;
 use App\Models\Employee;
@@ -12,7 +15,7 @@ use App\Services\AttendanceService;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Support\Facades\DB;
 class AttendanceController extends Controller
 {
     public function index(Request $r)
@@ -73,6 +76,20 @@ class AttendanceController extends Controller
         // Implementation for import functionality
         return redirect()->route('absensi.import')
             ->with('success', 'Data berhasil diimport.');
+    }
+
+    public function destroy(){
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        Attendance::truncate();
+        OvertimeRecord::truncate();
+        OvertimeSetting::truncate();
+        Payroll::truncate();
+        Employee::truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+    
+        // Implementation for destroy functionality
+        return redirect()->route('absensi.index')
+            ->with('success', 'Data absensi berhasil dihapus.');
     }
 
     public function reevaluateAll()

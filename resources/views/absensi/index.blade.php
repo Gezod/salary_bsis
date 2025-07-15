@@ -172,40 +172,42 @@
                     </div>
 
                     {{-- Enhanced Filter Section --}}
+
                     <div class="filter-section">
                         <h5 class="text-white mb-3 d-flex align-items-center">
                             <i class="bi bi-funnel me-2 text-primary"></i>
                             Filter Data
                         </h5>
-                        <form method="GET" class="row g-3">
-                            <div class="col-md-3">
-                                <label class="form-label text-muted small">Tanggal</label>
-                                <input type="date" name="date" value="{{ request('date') }}" class="form-control">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label text-muted small">Nama Karyawan</label>
-                                <input type="text" name="employee" value="{{ request('employee') }}"
-                                    class="form-control" placeholder="Cari nama karyawan...">
-                            </div>
-                            {{-- <div class="col-md-3">
-                                <label class="form-label text-muted small">Departemen</label>
-                                <select name="department" class="form-control">
-                                    <option value="">Semua Departemen</option>
-                                    <option value="IT" {{ request('department') == 'IT' ? 'selected' : '' }}>IT
-                                    </option>
-                                    <option value="HR" {{ request('department') == 'HR' ? 'selected' : '' }}>HR
-                                    </option>
-                                    <option value="Finance" {{ request('department') == 'Finance' ? 'selected' : '' }}>
-                                        Finance</option>
-                                </select>
-                            </div> --}}
-                            <div class="col-md-2 d-flex align-items-end">
-                                <button type="submit" class="btn btn-primary w-100">
-                                    <i class="bi bi-search me-2"></i>Filter
+
+                        <div class="row g-3 align-items-end">
+                            <form method="GET" class="col-md-12 d-flex flex-wrap gap-3 justify-items-center">
+                                <div class="col-md-4">
+                                    <label class="form-label text-muted small">Tanggal</label>
+                                    <input type="date" name="date" value="{{ request('date') }}" class="form-control">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label text-muted small">Nama Karyawan</label>
+                                    <input type="text" name="employee" value="{{ request('employee') }}"
+                                        class="form-control" placeholder="Cari nama karyawan...">
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn btn-primary w-100" style="margin-top: 33px;">
+                                        <i class="bi bi-search me-2"></i>Filter
+                                    </button>
+                                </div>
+                            </form>
+
+                            <form method="POST" action="{{ route('destroyAbsensi') }}" class="col-md-4">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger w-100 mt-4">
+                                    <i class="bi bi-trash me-2"></i>Hapus seluruh data
                                 </button>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
+
+
 
                     {{-- Enhanced Table --}}
                     <div class="card">
@@ -320,7 +322,7 @@
     {{-- Add Google Fonts --}}
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const sidebar = document.querySelector('.sidebar');
             const sidebarToggle = document.getElementById('sidebarToggle');
             const sidebarOverlay = document.createElement('div');
@@ -328,13 +330,13 @@
             document.body.appendChild(sidebarOverlay);
 
             // Toggle sidebar
-            sidebarToggle.addEventListener('click', function() {
+            sidebarToggle.addEventListener('click', function () {
                 sidebar.classList.toggle('show');
                 sidebarOverlay.classList.toggle('show');
             });
 
             // Tutup sidebar ketika overlay diklik
-            sidebarOverlay.addEventListener('click', function() {
+            sidebarOverlay.addEventListener('click', function () {
                 sidebar.classList.remove('show');
                 this.classList.remove('show');
             });
