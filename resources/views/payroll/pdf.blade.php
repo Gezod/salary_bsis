@@ -112,6 +112,7 @@
                 <th>Kehadiran</th>
                 <th class="text-right">Gaji Pokok</th>
                 <th class="text-right">Lembur</th>
+                <th class="text-right">Uang Makan</th>
                 <th class="text-right">Denda</th>
                 <th class="text-right">Total Gaji</th>
                 <th class="text-center">Status</th>
@@ -127,13 +128,14 @@
                 <td class="text-center">{{ $payroll->present_days }}/{{ $payroll->working_days }}</td>
                 <td class="text-right">Rp {{ number_format($payroll->basic_salary, 0, ',', '.') }}</td>
                 <td class="text-right">Rp {{ number_format($payroll->overtime_pay, 0, ',', '.') }}</td>
+                <td class="text-right">Rp {{ number_format($payroll->meal_allowance, 0, ',', '.') }}</td>
                 <td class="text-right">Rp {{ number_format($payroll->total_fines, 0, ',', '.') }}</td>
                 <td class="text-right"><strong>Rp {{ number_format($payroll->net_salary, 0, ',', '.') }}</strong></td>
                 <td class="text-center">{{ ucfirst($payroll->status) }}</td>
             </tr>
             @empty
             <tr>
-                <td colspan="10" class="text-center">Tidak ada data payroll</td>
+                <td colspan="11" class="text-center">Tidak ada data payroll</td>
             </tr>
             @endforelse
         </tbody>
@@ -153,6 +155,10 @@
         <div class="summary-row">
             <span>Total Lembur:</span>
             <span>Rp {{ number_format($payrolls->sum('overtime_pay'), 0, ',', '.') }}</span>
+        </div>
+        <div class="summary-row">
+            <span>Total Uang Makan:</span>
+            <span>Rp {{ number_format($payrolls->sum('meal_allowance'), 0, ',', '.') }}</span>
         </div>
         <div class="summary-row">
             <span>Total Denda:</span>

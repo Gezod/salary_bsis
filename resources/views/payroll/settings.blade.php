@@ -78,8 +78,8 @@
             <div class="py-4 animate-fade-in">
                 {{-- Page Header --}}
                 <div class="mb-4">
-                    <h1 class="page-title mb-2">Pengaturan Gaji Harian</h1>
-                    <p class="text-muted mb-0">Kelola gaji harian untuk setiap karyawan</p>
+                    <h1 class="page-title mb-2">Pengaturan Gaji Harian & Uang Makan</h1>
+                    <p class="text-muted mb-0">Kelola gaji harian dan uang makan untuk setiap karyawan</p>
                 </div>
 
                 @if(session('success'))
@@ -93,14 +93,14 @@
                 <div class="card mb-4">
                     <div class="card-header">
                         <h5 class="card-title mb-0 text-white">
-                            <i class="bi bi-cash me-2"></i>Update Gaji & Data Bank Karyawan
+                            <i class="bi bi-cash me-2"></i>Update Gaji Harian & Uang Makan
                         </h5>
                     </div>
                     <div class="card-body">
                         <form method="POST" action="{{ route('payroll.update.salary') }}">
                             @csrf
                             <div class="row g-3">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <label class="form-label text-white">Pilih Karyawan</label>
                                     <select name="employee_id" class="form-control" required id="employeeSelect">
                                         <option value="">Pilih Karyawan</option>
@@ -111,9 +111,13 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <label class="form-label text-white">Gaji Harian (Rp)</label>
                                     <input type="number" name="daily_salary" class="form-control" min="0" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label text-white">Uang Makan (Rp)</label>
+                                    <input type="number" name="meal_allowance" class="form-control" min="0" required>
                                 </div>
                                 <div class="col-md-2 d-flex align-items-end">
                                     <button type="submit" class="btn btn-primary w-100">
@@ -194,6 +198,7 @@
                                     <th><i class="bi bi-building me-2"></i>Departemen</th>
                                     <th><i class="bi bi-briefcase me-2"></i>Jabatan</th>
                                     <th><i class="bi bi-cash me-2"></i>Gaji Harian</th>
+                                    <th><i class="bi bi-cup-hot me-2"></i>Uang Makan</th>
                                     <th><i class="bi bi-calendar me-2"></i>Gaji Bulanan (Est.)</th>
                                     <th><i class="bi bi-bank me-2"></i>Data Bank</th>
                                 </tr>
@@ -226,12 +231,23 @@
                                                 <span class="text-muted">Belum diset</span>
                                             @endif
                                         </td>
+                                        <td class="text-info">
+                                            @if($employee->meal_allowance)
+                                                Rp {{ number_format($employee->meal_allowance, 0, ',', '.') }}
+                                            @else
+                                                <span class="text-muted">Belum diset</span>
+                                            @endif
+                                        </td>
                                         <td class="text-white">
                                             @if($employee->daily_salary)
                                                 @php
-                                                    $monthlyEstimate = $employee->daily_salary * 26; // Estimasi 26 hari kerja
+                                                    $monthlyEstimate = ($employee->daily_salary + ($employee->meal_allowance ?? 0)) * 26; // Estimasi 26 hari kerja
                                                 @endphp
                                                 Rp {{ number_format($monthlyEstimate, 0, ',', '.') }}
+                                                <small class="text-muted d-block">
+                                                    (Gaji: {{ number_format($employee->daily_salary * 26, 0, ',', '.') }} +
+                                                    Makan: {{ number_format(($employee->meal_allowance ?? 0) * 26, 0, ',', '.') }})
+                                                </small>
                                             @else
                                                 <span class="text-muted">-</span>
                                             @endif

@@ -42,6 +42,9 @@ class PayrollService
         $dailySalary = $employee->daily_salary ?? 0;
         $basicSalary = $presentDays * $dailySalary;
 
+        // Calculate meal allowance
+        $mealAllowance = $presentDays * ($employee->meal_allowance ?? 0);
+
         // Calculate total fines
         $totalFines = $attendances->sum('total_fine');
 
@@ -52,7 +55,7 @@ class PayrollService
             ->sum('overtime_pay');
 
         // Calculate gross and net salary
-        $grossSalary = $basicSalary + $overtimePay;
+        $grossSalary = $basicSalary + $overtimePay + $mealAllowance;
         $netSalary = $grossSalary - $totalFines;
 
         return [
@@ -63,6 +66,7 @@ class PayrollService
             'present_days' => $presentDays,
             'basic_salary' => $basicSalary,
             'overtime_pay' => $overtimePay,
+            'meal_allowance' => $mealAllowance,
             'total_fines' => $totalFines,
             'gross_salary' => $grossSalary,
             'net_salary' => $netSalary,

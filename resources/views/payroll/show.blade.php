@@ -134,6 +134,8 @@
                                     <div class="col-6 text-white">{{ $payroll->employee->kantor }}</div>
                                     <div class="col-6 text-muted">Gaji Harian:</div>
                                     <div class="col-6 text-white">Rp {{ number_format($payroll->employee->daily_salary ?? 0, 0, ',', '.') }}</div>
+                                    <div class="col-6 text-muted">Uang Makan:</div>
+                                    <div class="col-6 text-info">Rp {{ number_format($payroll->employee->meal_allowance ?? 0, 0, ',', '.') }}</div>
                                 </div>
                             </div>
                         </div>
@@ -165,6 +167,8 @@
                                             <div class="col-6 text-white">{{ $payroll->formatted_basic_salary }}</div>
                                             <div class="col-6 text-muted">Lembur:</div>
                                             <div class="col-6 text-success">{{ $payroll->formatted_overtime_pay }}</div>
+                                            <div class="col-6 text-muted">Uang Makan:</div>
+                                            <div class="col-6 text-info">{{ $payroll->formatted_meal_allowance }}</div>
                                             <div class="col-6 text-muted">Denda:</div>
                                             <div class="col-6 text-warning">{{ $payroll->formatted_total_fines }}</div>
                                         </div>
@@ -204,7 +208,7 @@
                                             <label class="text-muted small">Metode Pembayaran</label>
                                             <div>
                                                 <span class="badge {{ $payroll->payment_method_badge }}">
-                                                    {{ ucfirst($payroll->payment_method) }}
+                                                    {{ ucfirst(str_replace('_', ' ', $payroll->payment_method)) }}
                                                 </span>
                                             </div>
                                         </div>
@@ -250,35 +254,11 @@
                                                         <option value="ocbc">OCBC NISP</option>
                                                         <option value="panin">Panin Bank</option>
                                                     </optgroup>
-                                                    <optgroup label="Bank Asing">
-                                                        <option value="uob">UOB</option>
-                                                        <option value="hsbc">HSBC</option>
-                                                        <option value="citibank">Citibank</option>
-                                                        <option value="standard_chartered">Standard Chartered</option>
-                                                        <option value="commonwealth">Commonwealth Bank</option>
-                                                        <option value="dbs">DBS</option>
-                                                    </optgroup>
                                                     <optgroup label="Bank Daerah">
                                                         <option value="bjb">BJB</option>
                                                         <option value="bank_jatim">Bank Jatim</option>
                                                         <option value="bank_jateng">Bank Jateng</option>
                                                         <option value="bank_dki">Bank DKI</option>
-                                                        <option value="bank_kalbar">Bank Kalbar</option>
-                                                        <option value="bank_kalsel">Bank Kalsel</option>
-                                                        <option value="bank_kaltim">Bank Kaltim</option>
-                                                        <option value="bank_lampung">Bank Lampung</option>
-                                                        <option value="bank_riau">Bank Riau Kepri</option>
-                                                        <option value="bank_sumsel">Bank Sumsel Babel</option>
-                                                        <option value="bank_sumut">Bank Sumut</option>
-                                                        <option value="bank_sulsel">Bank Sulselbar</option>
-                                                        <option value="bank_sulut">Bank SulutGo</option>
-                                                        <option value="bank_papua">Bank Papua</option>
-                                                        <option value="bank_maluku">Bank Maluku Malut</option>
-                                                        <option value="bank_ntb">Bank NTB Syariah</option>
-                                                        <option value="bank_ntt">Bank NTT</option>
-                                                        <option value="bank_bengkulu">Bank Bengkulu</option>
-                                                        <option value="bank_jambi">Bank Jambi</option>
-                                                        <option value="bank_aceh">Bank Aceh Syariah</option>
                                                     </optgroup>
                                                 </select>
                                             </div>

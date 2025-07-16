@@ -38,6 +38,17 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('absensi.late-recap') ? 'active-link' : '' }}"
+                                href="{{ route('absensi.late-recap') }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-wrapper me-3">
+                                        <i class="bi bi-clock-history"></i>
+                                    </div>
+                                    <span>Rekap Keterlambatan</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('absensi.import') ? 'active-link' : '' }}"
                                 href="{{ route('absensi.import') }}">
                                 <div class="d-flex align-items-center">
@@ -45,6 +56,28 @@
                                         <i class="bi bi-upload"></i>
                                     </div>
                                     <span>Import Absensi</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('absensi.leave.*') ? 'active-link' : '' }}"
+                                href="{{ route('absensi.leave.index') }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-wrapper me-3">
+                                        <i class="bi bi-file-earmark-medical"></i>
+                                    </div>
+                                    <span>Rekap Manual Izin</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('absensi.work_time_change.*') ? 'active-link' : '' }}"
+                                href="{{ route('absensi.work_time_change.index') }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-wrapper me-3">
+                                        <i class="bi bi-clock-history"></i>
+                                    </div>
+                                    <span>Pergantian Jam Kerja</span>
                                 </div>
                             </a>
                         </li>
@@ -85,7 +118,7 @@
                             <a class="nav-link {{ request()->routeIs('overtime.*') ? 'active-link' : '' }}"
                                 href="{{ route('overtime.overview') }}">
                                 <div class="d-flex align-items-center">
-                                    <div class="overtime-icon-wrapper me-3"> <!-- Ganti class disini -->
+                                    <div class="overtime-icon-wrapper me-3">
                                         <i class="bi bi-clock"></i>
                                     </div>
                                     <span>Sistem Lembur</span>
@@ -100,28 +133,6 @@
                                         <i class="bi bi-cash-stack"></i>
                                     </div>
                                     <span>Sistem Payroll</span>
-                                </div>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('absensi.leave.*') ? 'active-link' : '' }}"
-                                href="{{ route('absensi.leave.index') }}">
-                                <div class="d-flex align-items-center">
-                                    <div class="icon-wrapper me-3">
-                                        <i class="bi bi-file-earmark-text"></i>
-                                    </div>
-                                    <span>Rekap Manual Izin</span>
-                                </div>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('absensi.work_time_change.*') ? 'active-link' : '' }}"
-                                href="{{ route('absensi.work_time_change.index') }}">
-                                <div class="d-flex align-items-center">
-                                    <div class="icon-wrapper me-3">
-                                        <i class="bi bi-clock-history"></i>
-                                    </div>
-                                    <span>Pergantian Jam Kerja</span>
                                 </div>
                             </a>
                         </li>

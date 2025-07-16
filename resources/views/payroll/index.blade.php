@@ -156,6 +156,7 @@
                                     <th><i class="bi bi-calendar-check me-2"></i>Kehadiran</th>
                                     <th><i class="bi bi-cash me-2"></i>Gaji Pokok</th>
                                     <th><i class="bi bi-clock me-2"></i>Lembur</th>
+                                    <th><i class="bi bi-cup-hot me-2"></i>Uang Makan</th>
                                     <th><i class="bi bi-exclamation-triangle me-2"></i>Denda</th>
                                     <th><i class="bi bi-currency-dollar me-2"></i>Total</th>
                                     <th><i class="bi bi-check-circle me-2"></i>Status</th>
@@ -183,6 +184,7 @@
                                         <td class="text-white">{{ $payroll->present_days }}/{{ $payroll->working_days }} hari</td>
                                         <td class="text-white">{{ $payroll->formatted_basic_salary }}</td>
                                         <td class="text-success">{{ $payroll->formatted_overtime_pay }}</td>
+                                        <td class="text-info">{{ $payroll->formatted_meal_allowance }}</td>
                                         <td class="text-warning">{{ $payroll->formatted_total_fines }}</td>
                                         <td class="text-white fw-bold">{{ $payroll->formatted_net_salary }}</td>
                                         <td>
@@ -203,7 +205,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="9" class="text-center py-5">
+                                        <td colspan="10" class="text-center py-5">
                                             <div class="text-muted">
                                                 <i class="bi bi-inbox display-4 d-block mb-3"></i>
                                                 <h5>Tidak ada data</h5>

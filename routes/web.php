@@ -36,8 +36,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [AttendanceController::class, 'index'])->name('absensi.index');
         Route::get('/import', [ImportController::class, 'create'])->name('absensi.import.form');
         Route::post('/import', [ImportController::class, 'store'])->name('absensi.import');
-        Route::delete('/destroy', [AttendanceController::class, 'destroy'])->name('destroyAbsensi');
         Route::get('/rekap', [AttendanceController::class, 'recap'])->name('absensi.recap');
+        Route::get('/late-recap', [AttendanceController::class, 'lateRecap'])->name('absensi.late-recap');
+        Route::get('/late-recap', [AttendanceController::class, 'lateRecap'])->name('absensi.late-recap');
+        Route::delete('/destroy', [AttendanceController::class, 'destroy'])->name('destroyAbsensi');
         Route::get('/evaluate-all', [AttendanceController::class, 'reevaluateAll']);
         Route::get('/manual', [AttendanceController::class, 'manual'])->name('absensi.manual');
         Route::post('/manual', [AttendanceController::class, 'manualStore'])->name('absensi.manual.store');
@@ -74,18 +76,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Payroll Routes
     Route::prefix('payroll')->group(function () {
-        Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll.index');
-        Route::post('/payroll/generate', [PayrollController::class, 'generate'])->name('payroll.generate');
-        Route::get('/payroll/{id}', [PayrollController::class, 'show'])->name('payroll.show');
-        Route::put('/payroll/{id}/payment', [PayrollController::class, 'updatePayment'])->name('payroll.update.payment');
-        Route::get('/payroll/{id}/recalculate', [PayrollController::class, 'recalculate'])->name('payroll.recalculate');
-        Route::get('/payroll/{id}/download', [PayrollController::class, 'downloadIndividualPdf'])->name('payroll.download.individual');
-        Route::get('/payroll/settings/salary', [PayrollController::class, 'settings'])->name('payroll.settings');
-        Route::post('/payroll/settings/salary', [PayrollController::class, 'updateSalary'])->name('payroll.update.salary');
-        Route::post('/payroll/settings/bank', [PayrollController::class, 'updateEmployeeBankDetails'])->name('payroll.update.bank');
-        Route::get('/payroll/export/pdf', [PayrollController::class, 'exportPdf'])->name('payroll.export.pdf');
+        Route::get('/', [PayrollController::class, 'index'])->name('payroll.index');
+        Route::post('/generate', [PayrollController::class, 'generate'])->name('payroll.generate');
+        Route::get('/{id}', [PayrollController::class, 'show'])->name('payroll.show');
+        Route::put('/{id}/payment', [PayrollController::class, 'updatePayment'])->name('payroll.update.payment');
+        Route::get('/{id}/recalculate', [PayrollController::class, 'recalculate'])->name('payroll.recalculate');
+        Route::get('/{id}/download', [PayrollController::class, 'downloadIndividualPdf'])->name('payroll.download.individual');
+        Route::get('/settings/salary', [PayrollController::class, 'settings'])->name('payroll.settings');
+        Route::post('/settings/salary', [PayrollController::class, 'updateSalary'])->name('payroll.update.salary');
+        Route::post('/settings/bank', [PayrollController::class, 'updateEmployeeBankDetails'])->name('payroll.update.bank');
+        Route::get('/export/pdf', [PayrollController::class, 'exportPdf'])->name('payroll.export.pdf');
     });
 });
+
+    // Late Recap Route
+    Route::get('/absensi/late-recap', [AttendanceController::class, 'lateRecap'])->name('absensi.late-recap');
 
 // API Routes
 Route::get('/api/employees/search', [EmployeeController::class, 'search'])->name('api.employees.search');

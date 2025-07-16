@@ -18,6 +18,7 @@ class Payroll extends Model
         'present_days',
         'basic_salary',
         'overtime_pay',
+        'meal_allowance',
         'total_fines',
         'gross_salary',
         'net_salary',
@@ -32,6 +33,7 @@ class Payroll extends Model
         'payment_date' => 'date',
         'basic_salary' => 'integer',
         'overtime_pay' => 'integer',
+        'meal_allowance' => 'integer',
         'total_fines' => 'integer',
         'gross_salary' => 'integer',
         'net_salary' => 'integer',
@@ -52,6 +54,11 @@ class Payroll extends Model
     public function getFormattedOvertimePayAttribute()
     {
         return 'Rp ' . number_format($this->overtime_pay, 0, ',', '.');
+    }
+
+    public function getFormattedMealAllowanceAttribute()
+    {
+        return 'Rp ' . number_format($this->meal_allowance, 0, ',', '.');
     }
 
     public function getFormattedTotalFinesAttribute()

@@ -22,7 +22,7 @@
                         @endif
                     </div>
 
-                    <ul class="nav flex-column">
+                     <ul class="nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('absensi.index') ? 'active-link' : '' }}"
                                 href="{{ route('absensi.index') }}">
@@ -42,6 +42,17 @@
                                         <i class="bi bi-file-earmark-text"></i>
                                     </div>
                                     <span>Rekap Denda</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('absensi.late-recap') ? 'active-link' : '' }}"
+                                href="{{ route('absensi.late-recap') }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-wrapper me-3">
+                                        <i class="bi bi-clock-history"></i>
+                                    </div>
+                                    <span>Rekap Keterlambatan</span>
                                 </div>
                             </a>
                         </li>
@@ -106,9 +117,6 @@
                                 <div class="d-flex align-items-center">
                                     <div class="icon-wrapper me-3">
                                         <i class="bi bi-people"></i>
-                                        @if (isset($expiringContracts) && $expiringContracts > 0)
-                                            <span class="notification-badge">{{ $expiringContracts }}</span>
-                                        @endif
                                     </div>
                                     <span>Kelola Karyawan</span>
                                 </div>

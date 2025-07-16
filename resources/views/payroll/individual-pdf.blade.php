@@ -174,6 +174,12 @@
             <td class="label">Gaji Harian</td>
             <td>Rp {{ number_format($payroll->employee->daily_salary ?? 0, 0, ',', '.') }}</td>
         </tr>
+        <tr>
+            <td class="label">Uang Makan</td>
+            <td>Rp {{ number_format($payroll->employee->meal_allowance ?? 0, 0, ',', '.') }}/hari</td>
+            <td class="label">Hari Hadir</td>
+            <td>{{ $payroll->present_days }} dari {{ $payroll->working_days }} hari</td>
+        </tr>
     </table>
 
     <table class="salary-table">
@@ -194,6 +200,11 @@
                 <td>Uang Lembur</td>
                 <td>Lembur bulan {{ \Carbon\Carbon::create($payroll->year, $payroll->month, 1)->translatedFormat('F Y') }}</td>
                 <td class="amount">Rp {{ number_format($payroll->overtime_pay, 0, ',', '.') }}</td>
+            </tr>
+            <tr>
+                <td>Uang Makan</td>
+                <td>{{ $payroll->present_days }} hari hadir × Rp {{ number_format($payroll->employee->meal_allowance ?? 0, 0, ',', '.') }}</td>
+                <td class="amount">Rp {{ number_format($payroll->meal_allowance, 0, ',', '.') }}</td>
             </tr>
             <tr class="total-row">
                 <td colspan="2"><strong>TOTAL PENDAPATAN</strong></td>

@@ -17,54 +17,38 @@ class Employee extends Model
         'jabatan',
         'departemen',
         'kantor',
-        'daily_salary',
-        'bank_name',
-        'account_number',
         'role',
         'tanggal_start_kontrak',
-        'tanggal_end_kontrak'
+        'tanggal_end_kontrak',
+        'daily_salary',
+        'meal_allowance',
+        'meal_allowance',
+        'bank_name',
+        'account_number'
     ];
 
     protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'daily_salary' => 'integer',
         'tanggal_start_kontrak' => 'date',
         'tanggal_end_kontrak' => 'date'
     ];
 
-    // Relasi ke tabel attendance
     public function attendances()
     {
         return $this->hasMany(Attendance::class);
     }
 
-    // Relasi ke tabel payroll
-    public function payrolls()
-    {
-        return $this->hasMany(Payroll::class);
-    }
-
-    // Relasi ke tabel lembur
-    public function overtimeRecords()
-    {
-        return $this->hasMany(OvertimeRecord::class);
-    }
-
-    // Relasi ke tabel cuti
     public function leaves()
     {
         return $this->hasMany(Leave::class);
     }
 
-    // Relasi ke tabel perubahan jam kerja
     public function workTimeChanges()
     {
         return $this->hasMany(WorkTimeChange::class);
     }
 
     /**
-     * Cek apakah kontrak akan segera berakhir (dalam 7 hari)
+     * Check if contract is expiring soon (within 7 days)
      */
     public function isContractExpiringSoon()
     {
@@ -77,7 +61,7 @@ class Employee extends Model
     }
 
     /**
-     * Dapatkan sisa hari kontrak sebagai atribut
+     * Get contract days remaining as attribute
      */
     public function getContractDaysRemainingAttribute()
     {
@@ -89,7 +73,7 @@ class Employee extends Model
     }
 
     /**
-     * Format periode kontrak
+     * Get formatted contract period
      */
     public function getContractPeriodAttribute()
     {
@@ -101,12 +85,12 @@ class Employee extends Model
     }
 
     /**
-     * Cek apakah kontrak sedang aktif
+     * Check if contract is active
      */
     public function isContractActive()
     {
         if (!$this->tanggal_start_kontrak || !$this->tanggal_end_kontrak) {
-            return true; // Dianggap aktif jika tidak ada tanggal kontrak
+            return true; // Assume active if no contract dates
         }
 
         $now = Carbon::now();
@@ -114,7 +98,7 @@ class Employee extends Model
     }
 
     /**
-     * Cek apakah kontrak sudah berakhir
+     * Check if contract has expired
      */
     public function isContractExpired()
     {
@@ -126,7 +110,7 @@ class Employee extends Model
     }
 
     /**
-     * Dapatkan status kontrak
+     * Get contract status
      */
     public function getContractStatusAttribute()
     {

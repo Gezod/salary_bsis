@@ -26,13 +26,13 @@ class PayrollController extends Controller
         }
 
         if ($request->filled('employee')) {
-            $query->whereHas('employee', function($q) use ($request) {
+            $query->whereHas('employee', function ($q) use ($request) {
                 $q->where('nama', 'like', '%' . $request->employee . '%');
             });
         }
 
         if ($request->filled('department')) {
-            $query->whereHas('employee', function($q) use ($request) {
+            $query->whereHas('employee', function ($q) use ($request) {
                 $q->where('departemen', $request->department);
             });
         }
@@ -58,7 +58,7 @@ class PayrollController extends Controller
 
         return redirect()->route('payroll.index')
             ->with('success', "Berhasil generate {$generated} data payroll untuk " .
-                   Carbon::create($year, $month, 1)->translatedFormat('F Y'));
+                Carbon::create($year, $month, 1)->translatedFormat('F Y'));
     }
 
     public function show($id)
@@ -122,34 +122,37 @@ class PayrollController extends Controller
     {
         $request->validate([
             'employee_id' => 'required|exists:employees,id',
-            'daily_salary' => 'required|integer|min:0'
+            'daily_salary' => 'required|integer|min:0',
+            'meal_allowance' => 'required|integer|min:0'
         ]);
 
         $employee = Employee::findOrFail($request->employee_id);
-        $employee->update(['daily_salary' => $request->daily_salary]);
+        $employee->update([
+            'daily_salary' => $request->daily_salary,
+            'meal_allowance' => $request->meal_allowance
+        ]);
 
         return redirect()->route('payroll.settings')
-            ->with('success', "Gaji harian {$employee->nama} berhasil diperbarui!");
+            ->with('success', "Gaji harian dan uang makan {$employee->nama} berhasil diperbarui!");
     }
 
     public function exportPdf(Request $request)
     {
         $query = Payroll::with('employee');
 
-        // Apply same filters as index
         if ($request->filled('month')) {
             [$year, $month] = explode('-', $request->month);
             $query->where('year', $year)->where('month', $month);
         }
 
         if ($request->filled('employee')) {
-            $query->whereHas('employee', function($q) use ($request) {
+            $query->whereHas('employee', function ($q) use ($request) {
                 $q->where('nama', 'like', '%' . $request->employee . '%');
             });
         }
 
         if ($request->filled('department')) {
-            $query->whereHas('employee', function($q) use ($request) {
+            $query->whereHas('employee', function ($q) use ($request) {
                 $q->where('departemen', $request->department);
             });
         }
@@ -171,7 +174,6 @@ class PayrollController extends Controller
     {
         $payroll = Payroll::with('employee')->findOrFail($id);
 
-        // Only allow download if payroll is paid
         if ($payroll->status !== 'paid') {
             return redirect()->back()->with('error', 'Slip gaji hanya bisa didownload setelah pembayaran selesai.');
         }
