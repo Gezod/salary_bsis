@@ -443,3 +443,100 @@ if (!empty($missing)) {
     echo "Semua jabatan berhasil diperbarui!\n";
 }
 
+##Versi Lengkap Tinker
+use App\Models\Employee;
+
+// Daftar nama karyawan & staff
+$karyawan = ['evi', 'endro', 'mirah', 'suhantono', 'gunawan', 'reno a', 'arif', 'rahayu', 'hilmi', 'sujono', 'heri', 'nantha', 'Yat', 'inda', 'hengky'];
+$staff = ['della silvia', 'neni', 'ana', 'zana', 'dila', 'hasna', 'ulfa'];
+
+// Bank acak
+$banks = [
+    'BCA', 'Bank Mandiri', 'BRI', 'BNI', 'CIMB Niaga', 'Bank Danamon', 'Bank Permata', 'BTN',
+    'Bank Mega', 'Maybank', 'OCBC NISP', 'Panin Bank', 'BJB', 'Bank Jatim', 'Bank Jateng', 'Bank DKI'
+];
+
+// 1. Update Departemen, Gaji, Uang Makan, dan Bank untuk Karyawan
+foreach ($karyawan as $nama) {
+    $normalized = strtolower(trim($nama));
+    $employee = Employee::whereRaw('LOWER(TRIM(nama)) = ?', [$normalized])->first();
+
+    if ($employee) {
+        $employee->update([
+            'departemen' => 'Karyawan',
+            'daily_salary' => 125000,
+            'meal_allowance' => 10000,
+            'bank_name' => $banks[array_rand($banks)],
+            'account_number' => rand(1000000000, 9999999999)
+        ]);
+    } else {
+        echo "❌ Karyawan tidak ditemukan: $nama\n";
+    }
+}
+
+// 2. Update Departemen, Gaji, Uang Makan, dan Bank untuk Staff
+foreach ($staff as $nama) {
+    $normalized = strtolower(trim($nama));
+    $employee = Employee::whereRaw('LOWER(TRIM(nama)) = ?', [$normalized])->first();
+
+    if ($employee) {
+        $employee->update([
+            'departemen' => 'Staff',
+            'daily_salary' => 150000,
+            'meal_allowance' => 10000,
+            'bank_name' => $banks[array_rand($banks)],
+            'account_number' => rand(1000000000, 9999999999)
+        ]);
+    } else {
+        echo "❌ Staff tidak ditemukan: $nama\n";
+    }
+}
+
+// 3. Update Jabatan
+$jabatanData = [
+    'della silvia' => 'Customer Service',
+    'zana' => 'Manajer Dept. Pemasaran',
+    'neni' => 'Manajer Dept. HRD & Keuangan',
+    'ana' => 'Teller',
+
+    // Bankeling
+    'evi' => 'Bankeling',
+    'endro' => 'Bankeling',
+    'mirah' => 'Bankeling',
+    'suhantono' => 'Bankeling',
+    'gunawan' => 'Bankeling',
+    'reno a' => 'Bankeling',
+    'arif' => 'Bankeling',
+
+    // Produksi
+    'rahayu' => 'Produksi',
+    'hilmi' => 'Produksi',
+    'sujono' => 'Produksi',
+    'heri' => 'Produksi',
+    'nantha' => 'Produksi',
+    'yat' => 'Produksi',
+    'inda' => 'Produksi',
+    'hengky' => 'Produksi',
+];
+
+$missingJabatan = [];
+
+foreach ($jabatanData as $nama => $jabatan) {
+    $normalized = strtolower(trim($nama));
+    $employee = Employee::whereRaw('LOWER(TRIM(nama)) = ?', [$normalized])->first();
+
+    if ($employee) {
+        $employee->update(['jabatan' => $jabatan]);
+    } else {
+        $missingJabatan[] = $nama;
+    }
+}
+
+// 4. Hasil
+if (!empty($missingJabatan)) {
+    echo "❌ Jabatan tidak ditemukan untuk:\n";
+    print_r($missingJabatan);
+} else {
+    echo "✅ Semua data berhasil diperbarui!\n";
+}
+
