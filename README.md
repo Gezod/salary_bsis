@@ -85,53 +85,40 @@ A comprehensive, production-ready attendance management system featuring a moder
    npm run build
    ```
 
-### Laravel Backend Setup
+## 📥 Installation
 
-1. **Web Routes** - Add to `routes/web.php`:
-   ```php
-   Route::post('/attendance', [AttendanceController::class, 'store']);
-   ```
-
-2. **Controller Implementation**:
-   ```php
-   public function store(Request $request)
-   {
-       $validated = $request->validate([
-           'full_name' => 'required|string|max:255',
-           'employee_id' => 'required|string|max:50',
-           'department' => 'required|string',
-           'attendance_type' => 'required|in:clock-in,clock-out',
-           'date' => 'required|date',
-           'time' => 'required',
-           'location' => 'required|string|max:255',
-           'notes' => 'nullable|string|max:1000',
-       ]);
-
-       Attendance::create($validated);
-
-       return response()->json([
-           'success' => true,
-           'message' => 'Attendance recorded successfully!'
-       ]);
-   }
-   ```
-
-3. **Database Migration**:
-   ```php
-   Schema::create('attendances', function (Blueprint $table) {
-       $table->id();
-       $table->string('full_name');
-       $table->string('employee_id');
-       $table->string('department');
-       $table->enum('attendance_type', ['clock-in', 'clock-out']);
-       $table->date('date');
-       $table->time('time');
-       $table->string('location');
-       $table->text('notes')->nullable();
-       $table->timestamps();
-   });
-   ```
-
+### 1. Clone the Repository
+```bash
+git clone https://github.com/Gezod/salary_bsis.git
+cd salary_bsis
+```
+### 2. Install PHP Dependencies
+```bash
+composer install
+```
+### 3. Configure Environment
+Edit .env and set your database credentials:
+```bash
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=salary_bsis
+DB_USERNAME=root
+DB_PASSWORD=your_password
+```
+### 4. Migrate Database
+```bash
+php artisan migrate --seed
+```
+### 5. Link Storage (for uploaded files)
+```bash
+php artisan storage:link
+```
+### 5. Start the Server
+```bash
+php artisan serve
+```
+Visit: http://localhost:8000
 ## 📁 Project Structure
 
 ```
