@@ -104,7 +104,7 @@ DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=salary_bsis
 DB_USERNAME=root
-DB_PASSWORD=your_password
+DB_PASSWORD=
 ```
 ### 4. Migrate Database
 ```bash
@@ -114,7 +114,7 @@ php artisan migrate --seed
 ```bash
 php artisan storage:link
 ```
-### 5. Start the Server
+### 6. Start the Server
 ```bash
 php artisan serve
 ```
