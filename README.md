@@ -136,13 +136,37 @@ A comprehensive, production-ready attendance management system featuring a moder
 
 ```
 resources/views/
-├── auth/                   # Authentication pages
-│   ├── login.blade.php     # Premium login interface
-│   └── register.blade.php  # Enhanced registration form
-└── absensi/               # Attendance management
-    ├── index.blade.php     # Daily attendance view
-    ├── recap.blade.php     # Penalty reports
-    └── import.blade.php    # Excel import system
+├── auth/                            # Authentication pages
+│   ├── login.blade.php              # Premium login interface
+│   └── register.blade.php           # Enhanced registration form
+├── layouts/
+│   └── app.blade.php                # Main application layout template (header, sidebar, etc.)
+├── absensi/                         # Attendance management
+│   ├── index.blade.php              # Daily attendance view
+│   ├── recap.blade.php              # Penalty reports
+│   ├── import.blade.php             # Excel import system for attendance data
+│   ├── denda.blade.php              # View and manage individual employee penalties
+│   ├── late-recap.blade.php         # Recap of late arrivals and frequency
+│   ├── manual.blade.php             # Manual entry of attendance for special cases
+│   ├── role.blade.php               # Role-based attendance access control
+│   └── leave/
+│       ├── create.blade.php         # Form to submit a leave request
+│       └── index.blade.php          # List and status of leave requests
+│   └── work_time_change/
+│       ├── create.blade.php         # Form to request work hour changes
+│       └── index.blade.php          # List of all work time change requests
+├── overtime/                        # Overtime management
+│   ├── index.blade.php              # Overview of overtime entries
+│   ├── overview.blade.php           # Monthly summary and statistics of overtime
+│   ├── recap.blade.php              # Recap and analysis of overtime by employee
+│   └── settings.blade.php           # Overtime policy settings and configurations
+└── payroll/                         # Payroll system
+    ├── index.blade.php              # Payroll records overview
+    ├── individual-pdf.blade.php     # Printable individual salary slip (PDF)
+    ├── pdf.blade.php                # Printable full payroll report (PDF)
+    ├── settings.blade.php           # Salary and bank account settings per employee
+    └── show.blade.php               # Detailed payroll view for a specific employee
+
 ```
 
 ## 🎨 Design Features
