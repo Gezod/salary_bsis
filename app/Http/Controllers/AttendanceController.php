@@ -12,6 +12,10 @@ use App\Services\AttendanceService;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+use App\Models\OvertimeRecord;
+use App\Models\OvertimeSetting;
+use App\Models\Payroll;
 
 class AttendanceController extends Controller
 {
@@ -195,6 +199,20 @@ class AttendanceController extends Controller
 
         return redirect()->route('absensi.manual')
             ->with('success', 'Data absensi berhasil ditambahkan dan dievaluasi.');
+    }
+
+    public function destroy(){
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        Attendance::truncate();
+        OvertimeRecord::truncate();
+        OvertimeSetting::truncate();
+        Payroll::truncate();
+        Employee::truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+        // Implementation for destroy functionality
+        return redirect()->route('absensi.index')
+            ->with('success', 'Data absensi berhasil dihapus.');
     }
 
     // Leave Management
