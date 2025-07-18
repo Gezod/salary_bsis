@@ -54,6 +54,46 @@ A comprehensive, production-ready attendance management system featuring a moder
 - **Laravel 10.10** - Designed for seamless Laravel API integration
 - **Vite 5.4.2** - Lightning-fast build tool and development server
 
+## 🔄 Logika Evaluasi
+
+### ✅ Full Harian
+- **Keterlambatan:**  
+  Dikenai denda sesuai dengan rentang waktu keterlambatan berdasarkan tabel denda internal.
+  
+- **Pelanggaran Istirahat:**  
+  Denda berlaku jika durasi istirahat melebihi ketentuan.
+  
+- **Absen Masuk/Pulang Tidak Ada:**  
+  Jika salah satu atau kedua absen tidak tercatat, karyawan dikenai denda.
+
+- **Lembur:**  
+  Jika karyawan pulang lebih dari jam normal, sistem menghitung durasi lembur secara otomatis.
+
+### 🕘 Setengah Hari (Shift 1 atau Shift 2)
+- Tidak dikenai denda dalam kondisi apa pun.
+- Hanya mencatat durasi jam kerja.
+- Sistem akan memberikan badge khusus.
+
+---
+
+## 📊 Tampilan Enhanced di Tabel Absensi
+
+### ➕ Kolom Tambahan:
+| Kolom         | Deskripsi                                                                 |
+|---------------|---------------------------------------------------------------------------|
+| `Status`      | Menunjukkan jenis kerja: Full Harian atau Setengah Hari (Shift 1/2)       |
+| `Lembur`      | Durasi lembur jika ada (format HH:MM)                                     |
+| `Denda`       | Jumlah total denda beserta deskripsi pelanggaran                          |
+
+### 🏅 Badge System:
+| Warna Badge   | Arti                                                                 |
+|---------------|----------------------------------------------------------------------|
+| 🔵 Biru        | Setengah Hari                                                       |
+| 🟢 Hijau       | Full Harian dengan kehadiran dan jam kerja normal                    |
+| 🟡 Kuning      | Full Harian dengan keterlambatan atau pelanggaran ringan             |
+| 🔴 Merah       | Tidak hadir atau pelanggaran berat (tanpa absen masuk/pulang)        |
+
+---
 
 ## 🚀 Quick Start
 
@@ -551,3 +591,13 @@ if (!empty($missingJabatan)) {
     echo "✅ Semua data berhasil diperbarui!\n";
 }
 
+##Update Bank
+DB::statement("ALTER TABLE payrolls MODIFY payment_method ENUM(
+.   'cash', 'transfer', 'bca', 'mandiri', 'bri', 'bni', 'cimb', 'danamon',
+.   'permata', 'btn', 'bjb', 'mega', 'maybank', 'ocbc', 'panin', 'uob',
+.   'hsbc', 'citibank', 'standard_chartered', 'commonwealth', 'dbs',
+.   'bank_jatim', 'bank_jateng', 'bank_dki', 'bank_kalbar', 'bank_kalsel',
+.   'bank_kaltim', 'bank_lampung', 'bank_riau', 'bank_sumsel', 'bank_sumut',
+.   'bank_sulsel', 'bank_sulut', 'bank_papua', 'bank_maluku', 'bank_ntb',
+.   'bank_ntt', 'bank_bengkulu', 'bank_jambi', 'bank_aceh'
+. ) NULL;");

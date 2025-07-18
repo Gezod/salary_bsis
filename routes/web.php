@@ -38,11 +38,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/import', [ImportController::class, 'store'])->name('absensi.import');
         Route::get('/rekap', [AttendanceController::class, 'recap'])->name('absensi.recap');
         Route::get('/late-recap', [AttendanceController::class, 'lateRecap'])->name('absensi.late-recap');
-        Route::get('/late-recap', [AttendanceController::class, 'lateRecap'])->name('absensi.late-recap');
         Route::delete('/destroy', [AttendanceController::class, 'destroy'])->name('destroyAbsensi');
         Route::get('/evaluate-all', [AttendanceController::class, 'reevaluateAll']);
         Route::get('/manual', [AttendanceController::class, 'manual'])->name('absensi.manual');
         Route::post('/manual', [AttendanceController::class, 'manualStore'])->name('absensi.manual.store');
+
+        // Half Day Manual Routes
+        Route::get('/half-day-manual', [AttendanceController::class, 'halfDayManual'])->name('absensi.half-day-manual');
+        Route::post('/half-day-manual', [AttendanceController::class, 'halfDayManualStore'])->name('absensi.half-day-manual.store');
+
         Route::get('/denda', [AttendanceController::class, 'denda'])->name('absensi.denda');
         Route::put('/denda', [AttendanceController::class, 'dendaUpdate'])->name('absensi.denda.update');
 
@@ -88,9 +92,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/export/pdf', [PayrollController::class, 'exportPdf'])->name('payroll.export.pdf');
     });
 });
-
-    // Late Recap Route
-    Route::get('/absensi/late-recap', [AttendanceController::class, 'lateRecap'])->name('absensi.late-recap');
 
 // API Routes
 Route::get('/api/employees/search', [EmployeeController::class, 'search'])->name('api.employees.search');

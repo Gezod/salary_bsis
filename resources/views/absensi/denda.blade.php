@@ -110,7 +110,7 @@
                                     <div class="icon-wrapper me-3">
                                         <i class="bi bi-people"></i>
                                     </div>
-                                    <span>Kelola Karyawan</span>
+                                    <span>Kelola karyawan</span>
                                 </div>
                             </a>
                         </li>
@@ -212,10 +212,10 @@
                     <div class="mb-4">
                         <div class="d-flex">
                             <div class="role-tab active" data-role="staff">
-                                <i class="bi bi-person-badge me-2"></i>Staff
+                                <i class="bi bi-person-badge me-2"></i>staff
                             </div>
                             <div class="role-tab" data-role="karyawan">
-                                <i class="bi bi-people me-2"></i>Karyawan
+                                <i class="bi bi-people me-2"></i>karyawan
                             </div>
                         </div>
                     </div>
@@ -225,11 +225,11 @@
                         @csrf
                         @method('PUT')
 
-                        {{-- Staff Tab Content --}}
+                        {{-- staff Tab Content --}}
                         <div class="tab-content" id="staff-content">
                             <h5 class="text-white mb-4 d-flex align-items-center">
                                 <i class="bi bi-person-badge me-2 text-primary"></i>
-                                Pengaturan Denda Staff
+                                Pengaturan Denda staff
                             </h5>
 
                             {{-- Late Penalties --}}
@@ -368,11 +368,11 @@
                             </div>
                         </div>
 
-                        {{-- Karyawan Tab Content --}}
+                        {{-- karyawan Tab Content --}}
                         <div class="tab-content" id="karyawan-content" style="display: none;">
                             <h5 class="text-white mb-4 d-flex align-items-center">
                                 <i class="bi bi-people me-2 text-primary"></i>
-                                Pengaturan Denda Karyawan
+                                Pengaturan Denda karyawan
                             </h5>
 
                             {{-- Late Penalties --}}

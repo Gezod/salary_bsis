@@ -97,7 +97,7 @@ class PayrollController extends Controller
             $path = $file->storeAs('payment_proofs', $filename, 'public');
             $data['payment_proof'] = $path;
         }
-
+        
         $payroll->update($data);
 
         return redirect()->route('payroll.show', $id)

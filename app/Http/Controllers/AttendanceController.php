@@ -12,6 +12,7 @@ use App\Services\AttendanceService;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Models\OvertimeRecord;
 use App\Models\OvertimeSetting;
@@ -55,7 +56,6 @@ class AttendanceController extends Controller
         }
 
         [$year, $mon] = explode('-', $month);
-
         $data = Attendance::with('employee')
             ->selectRaw('employee_id, SUM(total_fine) as fine')
             ->whereYear('tanggal', $year)
@@ -111,6 +111,7 @@ class AttendanceController extends Controller
 
         return view('absensi.late-recap', compact('lateData', 'departmentStats', 'month'));
     }
+
     public function import()
     {
         return view('absensi.import');
@@ -126,7 +127,6 @@ class AttendanceController extends Controller
     public function reevaluateAll()
     {
         $attendances = \App\Models\Attendance::with('employee')->get();
-
         foreach ($attendances as $attendance) {
             if ($attendance instanceof \App\Models\Attendance && $attendance->employee) {
                 \App\Services\AttendanceService::evaluate($attendance);
@@ -201,18 +201,72 @@ class AttendanceController extends Controller
             ->with('success', 'Data absensi berhasil ditambahkan dan dievaluasi.');
     }
 
-    public function destroy(){
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        Attendance::truncate();
-        OvertimeRecord::truncate();
-        OvertimeSetting::truncate();
-        Payroll::truncate();
-        Employee::truncate();
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+    // Half Day Manual Entry
+    public function halfDayManual()
+    {
+        return view('absensi.half-day-manual');
+    }
 
-        // Implementation for destroy functionality
-        return redirect()->route('absensi.index')
-            ->with('success', 'Data absensi berhasil dihapus.');
+    public function halfDayManualStore(Request $request)
+    {
+        $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'tanggal' => 'required|date',
+            'half_day_type' => 'required|in:shift_1,shift_2',
+            'scan1' => 'required|date_format:H:i',
+            'scan2' => 'required|date_format:H:i',
+            'scan3' => 'nullable|date_format:H:i',
+            'scan4' => 'nullable|date_format:H:i',
+            'half_day_notes' => 'nullable|string|max:500',
+        ]);
+
+        // Check if attendance already exists for this employee and date
+        $existingAttendance = Attendance::where('employee_id', $request->employee_id)
+            ->whereDate('tanggal', $request->tanggal)
+            ->first();
+
+        if ($existingAttendance) {
+            return back()->withErrors(['tanggal' => 'Data absensi untuk karyawan ini pada tanggal tersebut sudah ada.']);
+        }
+
+        $tanggal = Carbon::parse($request->tanggal);
+
+        // Prepare scan data
+        $scanData = [];
+        foreach (['scan1', 'scan2', 'scan3', 'scan4'] as $scan) {
+            if ($request->filled($scan)) {
+                $scanData[$scan] = $tanggal->copy()->setTimeFromTimeString($request->input($scan));
+            }
+        }
+
+        // Create attendance record
+        $attendance = Attendance::create([
+            'employee_id' => $request->employee_id,
+            'tanggal' => $tanggal,
+            'is_half_day' => true,
+            'half_day_type' => $request->half_day_type,
+            'half_day_notes' => $request->half_day_notes,
+            'late_minutes' => 0,
+            'early_leave_minutes' => 0,
+            'overtime_minutes' => 0,
+            'excess_break_minutes' => 0,
+            'invalid_break' => false,
+            'late_fine' => 0,
+            'break_fine' => 0,
+            'absence_fine' => 0,
+            'total_fine' => 0,
+            ...$scanData
+        ]);
+
+        // Log the manual half day entry
+        Log::info('Manual half day attendance created', [
+            'employee' => $attendance->employee->nama,
+            'date' => $tanggal->format('Y-m-d'),
+            'type' => $request->half_day_type,
+            'notes' => $request->half_day_notes
+        ]);
+        return redirect()->route('absensi.half-day-manual')
+            ->with('success', 'Data absensi setengah hari berhasil ditambahkan.');
     }
 
     // Leave Management
@@ -238,7 +292,6 @@ class AttendanceController extends Controller
         ]);
 
         $employee = Employee::findOrFail($request->employee_id);
-
         $bukti_foto = null;
         if ($request->hasFile('bukti_foto')) {
             $bukti_foto = $request->file('bukti_foto')->store('leave_photos', 'public');
@@ -339,7 +392,7 @@ class AttendanceController extends Controller
                         [31, 45, (int)$request->input('staff.late.2.2')],
                         [46, 60, (int)$request->input('staff.late.3.2')],
                         ['>', 60, function ($m) use ($request) {
-                            return (int)$request->input('karyawan.late_base') + ($m - 60);
+                            return (int)$request->input('staff.late_base') + ($m - 60);
                         }]
                     ],
                     'late_break' => (int)$request->input('staff.late_break'),
@@ -453,7 +506,6 @@ class AttendanceController extends Controller
     public function roleEdit($id)
     {
         $employee = Employee::findOrFail($id);
-
         return response()->json([
             'success' => true,
             'employee' => $employee
@@ -506,12 +558,11 @@ class AttendanceController extends Controller
 
     private function arrayToPhpString($array, $indent = 0)
     {
-        $spaces = str_repeat('    ', $indent);
+        $spaces = str_repeat(' ', $indent);
         $result = "[\n";
 
         foreach ($array as $key => $value) {
-            $result .= $spaces . '    ';
-
+            $result .= $spaces . ' ';
             if (is_string($key)) {
                 $result .= "'{$key}' => ";
             }
@@ -519,8 +570,7 @@ class AttendanceController extends Controller
             if (is_array($value)) {
                 if (isset($value[0]) && $value[0] === '>') {
                     // Special handling for closure
-                    $baseValue = $indent === 2 ?
-                        ($key === 'staff' ? 12000 : 10000) : (strpos(json_encode($array), '"staff"') !== false ? 12000 : 10000);
+                    $baseValue = $indent === 2 ? ($key === 'staff' ? 12000 : 10000) : (strpos(json_encode($array), '"staff"') !== false ? 12000 : 10000);
                     $result .= "['>', 60, fn(\$m) => {$baseValue} + (\$m - 60)]";
                 } else {
                     $result .= $this->arrayToPhpString($value, $indent + 1);
@@ -530,11 +580,24 @@ class AttendanceController extends Controller
             } else {
                 $result .= $value;
             }
-
             $result .= ",\n";
         }
 
         $result .= $spaces . ']';
         return $result;
+    }
+    public function destroy()
+    {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        Attendance::truncate();
+        OvertimeRecord::truncate();
+        OvertimeSetting::truncate();
+        Payroll::truncate();
+        Employee::truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+        // Implementation for destroy functionality
+        return redirect()->route('absensi.index')
+            ->with('success', 'Data absensi berhasil dihapus.');
     }
 }
