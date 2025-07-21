@@ -13,10 +13,6 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
-use App\Models\OvertimeRecord;
-use App\Models\OvertimeSetting;
-use App\Models\Payroll;
 
 class AttendanceController extends Controller
 {
@@ -249,6 +245,7 @@ class AttendanceController extends Controller
             'late_minutes' => 0,
             'early_leave_minutes' => 0,
             'overtime_minutes' => 0,
+            'overtime_status' => 'pending',
             'excess_break_minutes' => 0,
             'invalid_break' => false,
             'late_fine' => 0,
@@ -258,15 +255,115 @@ class AttendanceController extends Controller
             ...$scanData
         ]);
 
-        // Log the manual half day entry
-        Log::info('Manual half day attendance created', [
-            'employee' => $attendance->employee->nama,
-            'date' => $tanggal->format('Y-m-d'),
-            'type' => $request->half_day_type,
-            'notes' => $request->half_day_notes
-        ]);
         return redirect()->route('absensi.half-day-manual')
             ->with('success', 'Data absensi setengah hari berhasil ditambahkan.');
+    }
+
+    // CRUD Methods for Attendance
+    public function show($id)
+    {
+        $attendance = Attendance::with('employee')->findOrFail($id);
+        return response()->json([
+            'success' => true,
+            'html' => view('absensi.partials.details', compact('attendance'))->render()
+        ]);
+    }
+
+    public function edit($id)
+    {
+        $attendance = Attendance::with('employee')->findOrFail($id);
+        return response()->json([
+            'success' => true,
+            'html' => view('absensi.partials.edit', compact('attendance'))->render()
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $attendance = Attendance::findOrFail($id);
+
+        $request->validate([
+            'scan1' => 'nullable|date_format:H:i',
+            'scan2' => 'nullable|date_format:H:i',
+            'scan3' => 'nullable|date_format:H:i',
+            'scan4' => 'nullable|date_format:H:i',
+            'scan5' => 'nullable|date_format:H:i',
+            'is_half_day' => 'boolean',
+            'half_day_type' => 'nullable|in:shift_1,shift_2',
+            'half_day_notes' => 'nullable|string|max:500',
+            'overtime_status' => 'nullable|in:pending,approved,rejected',
+            'overtime_notes' => 'nullable|string|max:500',
+        ]);
+
+        $tanggal = $attendance->tanggal;
+
+        // Update scan times
+        foreach (['scan1', 'scan2', 'scan3', 'scan4', 'scan5'] as $scan) {
+            if ($request->filled($scan)) {
+                $attendance->$scan = $tanggal->copy()->setTimeFromTimeString($request->input($scan));
+            } elseif ($request->has($scan)) {
+                $attendance->$scan = null;
+            }
+        }
+
+        // Update half day info
+        $attendance->is_half_day = $request->boolean('is_half_day');
+        $attendance->half_day_type = $request->half_day_type;
+        $attendance->half_day_notes = $request->half_day_notes;
+        $attendance->overtime_status = $request->overtime_status ?? 'pending';
+        $attendance->overtime_notes = $request->overtime_notes;
+
+        $attendance->save();
+
+        // Re-evaluate attendance
+        AttendanceService::evaluate($attendance);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function updateOvertimeStatus(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:pending,approved,rejected',
+            'notes' => 'nullable|string|max:500'
+        ]);
+
+        try {
+            $attendance = Attendance::findOrFail($id);
+
+            $attendance->update([
+                'overtime_status' => $validated['status'],
+                'overtime_notes' => $validated['notes']
+            ]);
+
+            // Log untuk debugging
+            Log::info('Overtime status updated', [
+                'id' => $id,
+                'status' => $validated['status'],
+                'notes' => $validated['notes']
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status lembur berhasil diperbarui'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error updating overtime status: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui status: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getRowData($id)
+    {
+        $attendance = Attendance::with('employee')->findOrFail($id);
+
+        return response()->json([
+            'success' => true,
+            'overtime_html' => view('absensi.partials.overtime_cell', compact('attendance'))->render()
+        ]);
     }
 
     // Leave Management
@@ -585,19 +682,5 @@ class AttendanceController extends Controller
 
         $result .= $spaces . ']';
         return $result;
-    }
-    public function destroy()
-    {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        Attendance::truncate();
-        OvertimeRecord::truncate();
-        OvertimeSetting::truncate();
-        Payroll::truncate();
-        Employee::truncate();
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-
-        // Implementation for destroy functionality
-        return redirect()->route('absensi.index')
-            ->with('success', 'Data absensi berhasil dihapus.');
     }
 }

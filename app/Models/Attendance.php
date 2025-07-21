@@ -22,6 +22,8 @@ class Attendance extends Model
         'early_leave_minutes',
         'excess_break_minutes',
         'overtime_minutes',
+        'overtime_status',
+        'overtime_notes',
         'invalid_break',
         'is_half_day',
         'half_day_type',
@@ -186,11 +188,41 @@ class Attendance extends Model
             $hours = floor($this->overtime_minutes / 60);
             $minutes = $this->overtime_minutes % 60;
 
-            if ($hours > 0) {
-                return $minutes > 0 ? "{$hours}j {$minutes}m" : "{$hours} jam";
-            }
-            return "{$minutes} menit";
+            $text = $hours > 0 ? ($minutes > 0 ? "{$hours}j {$minutes}m" : "{$hours} jam") : "{$minutes} menit";
+            return $text . " ({$this->overtime_status})";
         }
         return null;
+    }
+
+    /**
+     * Get overtime status badge
+     */
+    public function getOvertimeStatusBadgeAttribute()
+    {
+        switch ($this->overtime_status) {
+            case 'approved':
+                return 'bg-success';
+            case 'rejected':
+                return 'bg-danger';
+            case 'pending':
+            default:
+                return 'bg-warning';
+        }
+    }
+
+    /**
+     * Get formatted overtime status
+     */
+    public function getFormattedOvertimeStatusAttribute()
+    {
+        switch ($this->overtime_status) {
+            case 'approved':
+                return 'Disetujui';
+            case 'rejected':
+                return 'Ditolak';
+            case 'pending':
+            default:
+                return 'Menunggu';
+        }
     }
 }

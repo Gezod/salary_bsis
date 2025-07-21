@@ -34,6 +34,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Absensi Routes
     Route::prefix('absensi')->group(function () {
         Route::get('/', [AttendanceController::class, 'index'])->name('absensi.index');
+        Route::get('/{id}/details', [AttendanceController::class, 'show'])->name('absensi.show');
+        Route::get('/{id}/edit', [AttendanceController::class, 'edit'])->name('absensi.edit');
+        Route::post('/{id}/update', [AttendanceController::class, 'update'])->name('absensi.update');
+        Route::post('/{id}/overtime-status', [AttendanceController::class, 'updateOvertimeStatus'])->name('absensi.overtime-status');
+        Route::get('/{id}/details', [AttendanceController::class, 'show'])->name('absensi.show');
+        Route::get('/{id}/edit', [AttendanceController::class, 'edit'])->name('absensi.edit');
+        Route::post('/{id}/update', [AttendanceController::class, 'update'])->name('absensi.update');
         Route::get('/import', [ImportController::class, 'create'])->name('absensi.import.form');
         Route::post('/import', [ImportController::class, 'store'])->name('absensi.import');
         Route::get('/rekap', [AttendanceController::class, 'recap'])->name('absensi.recap');
@@ -42,6 +49,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/evaluate-all', [AttendanceController::class, 'reevaluateAll']);
         Route::get('/manual', [AttendanceController::class, 'manual'])->name('absensi.manual');
         Route::post('/manual', [AttendanceController::class, 'manualStore'])->name('absensi.manual.store');
+        Route::get('/absensi/{id}/row-data', [AttendanceController::class, 'getRowData']);
+
+        // Half Day Manual Routes
+        Route::get('/half-day-manual', [AttendanceController::class, 'halfDayManual'])->name('absensi.half-day-manual');
+        Route::post('/half-day-manual', [AttendanceController::class, 'halfDayManualStore'])->name('absensi.half-day-manual.store');
 
         // Half Day Manual Routes
         Route::get('/half-day-manual', [AttendanceController::class, 'halfDayManual'])->name('absensi.half-day-manual');

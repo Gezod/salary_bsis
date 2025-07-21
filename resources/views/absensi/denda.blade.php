@@ -110,7 +110,7 @@
                                     <div class="icon-wrapper me-3">
                                         <i class="bi bi-people"></i>
                                     </div>
-                                    <span>Kelola karyawan</span>
+                                    <span>Kelola Karyawan</span>
                                 </div>
                             </a>
                         </li>
@@ -211,11 +211,11 @@
                     {{-- Role Tabs --}}
                     <div class="mb-4">
                         <div class="d-flex">
-                            <div class="role-tab active" data-role="staff">
-                                <i class="bi bi-person-badge me-2"></i>staff
+                            <div class="role-tab active" data-role="Staff">
+                                <i class="bi bi-person-badge me-2"></i>Staff
                             </div>
-                            <div class="role-tab" data-role="karyawan">
-                                <i class="bi bi-people me-2"></i>karyawan
+                            <div class="role-tab" data-role="Karyawan">
+                                <i class="bi bi-people me-2"></i>Karyawan
                             </div>
                         </div>
                     </div>
@@ -225,11 +225,11 @@
                         @csrf
                         @method('PUT')
 
-                        {{-- staff Tab Content --}}
-                        <div class="tab-content" id="staff-content">
+                        {{-- Staff Tab Content --}}
+                        <div class="tab-content" id="Staff-content">
                             <h5 class="text-white mb-4 d-flex align-items-center">
                                 <i class="bi bi-person-badge me-2 text-primary"></i>
-                                Pengaturan Denda staff
+                                Pengaturan Denda Staff
                             </h5>
 
                             {{-- Late Penalties --}}
@@ -254,8 +254,8 @@
                                                     <small>≤ 15 menit</small>
                                                 </td>
                                                 <td>
-                                                    <input type="number" name="staff[late][0][2]"
-                                                        value="{{ $penalties['staff']['late'][0][2] }}"
+                                                    <input type="number" name="Staff[late][0][2]"
+                                                        value="{{ $penalties['Staff']['late'][0][2] }}"
                                                         class="penalty-input" min="0">
                                                 </td>
                                                 <td class="text-muted">Terlambat ringan</td>
@@ -266,8 +266,8 @@
                                                     <small>≤ 30 menit</small>
                                                 </td>
                                                 <td>
-                                                    <input type="number" name="staff[late][1][2]"
-                                                        value="{{ $penalties['staff']['late'][1][2] }}"
+                                                    <input type="number" name="Staff[late][1][2]"
+                                                        value="{{ $penalties['Staff']['late'][1][2] }}"
                                                         class="penalty-input" min="0">
                                                 </td>
                                                 <td class="text-muted">Terlambat sedang</td>
@@ -278,8 +278,8 @@
                                                     <small>≤ 45 menit</small>
                                                 </td>
                                                 <td>
-                                                    <input type="number" name="staff[late][2][2]"
-                                                        value="{{ $penalties['staff']['late'][2][2] }}"
+                                                    <input type="number" name="Staff[late][2][2]"
+                                                        value="{{ $penalties['Staff']['late'][2][2] }}"
                                                         class="penalty-input" min="0">
                                                 </td>
                                                 <td class="text-muted">Terlambat berat</td>
@@ -290,8 +290,8 @@
                                                     <small>≤ 60 menit</small>
                                                 </td>
                                                 <td>
-                                                    <input type="number" name="staff[late][3][2]"
-                                                        value="{{ $penalties['staff']['late'][3][2] }}"
+                                                    <input type="number" name="Staff[late][3][2]"
+                                                        value="{{ $penalties['Staff']['late'][3][2] }}"
                                                         class="penalty-input" min="0">
                                                 </td>
                                                 <td class="text-muted">Terlambat sangat berat</td>
@@ -302,7 +302,7 @@
                                                     <small>>60 menit</small>
                                                 </td>
                                                 <td>
-                                                    <input type="number" name="staff[late_base]" value="12000"
+                                                    <input type="number" name="Staff[late_base]" value="12000"
                                                         class="penalty-input" min="0">
                                                     <small class="text-muted d-block mt-1">+ per menit</small>
                                                 </td>
@@ -324,20 +324,20 @@
                                             </h6>
                                             <div class="mb-3">
                                                 <label class="form-label small">Telat Istirahat</label>
-                                                <input type="number" name="staff[late_break]"
-                                                    value="{{ $penalties['staff']['late_break'] }}" class="form-control"
+                                                <input type="number" name="Staff[late_break]"
+                                                    value="{{ $penalties['Staff']['late_break'] }}" class="form-control"
                                                     min="0">
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label small">1x Tidak Absen Istirahat</label>
-                                                <input type="number" name="staff[absent_break_once]"
-                                                    value="{{ $penalties['staff']['absent_break_once'] }}"
+                                                <input type="number" name="Staff[absent_break_once]"
+                                                    value="{{ $penalties['Staff']['absent_break_once'] }}"
                                                     class="form-control" min="0">
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label small">2x Tidak Absen Istirahat</label>
-                                                <input type="number" name="staff[absent_twice]"
-                                                    value="{{ $penalties['staff']['absent_twice'] }}"
+                                                <input type="number" name="Staff[absent_twice]"
+                                                    value="{{ $penalties['Staff']['absent_twice'] }}"
                                                     class="form-control" min="0">
                                             </div>
                                         </div>
@@ -352,14 +352,14 @@
                                             </h6>
                                             <div class="mb-3">
                                                 <label class="form-label small">Lupa Absen Masuk</label>
-                                                <input type="number" name="staff[missing_checkin]"
-                                                    value="{{ $penalties['staff']['missing_checkin'] }}"
+                                                <input type="number" name="Staff[missing_checkin]"
+                                                    value="{{ $penalties['Staff']['missing_checkin'] }}"
                                                     class="form-control" min="0">
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label small">Lupa Absen Pulang</label>
-                                                <input type="number" name="staff[missing_checkout]"
-                                                    value="{{ $penalties['staff']['missing_checkout'] }}"
+                                                <input type="number" name="Staff[missing_checkout]"
+                                                    value="{{ $penalties['Staff']['missing_checkout'] }}"
                                                     class="form-control" min="0">
                                             </div>
                                         </div>
@@ -368,11 +368,11 @@
                             </div>
                         </div>
 
-                        {{-- karyawan Tab Content --}}
-                        <div class="tab-content" id="karyawan-content" style="display: none;">
+                        {{-- Karyawan Tab Content --}}
+                        <div class="tab-content" id="Karyawan-content" style="display: none;">
                             <h5 class="text-white mb-4 d-flex align-items-center">
                                 <i class="bi bi-people me-2 text-primary"></i>
-                                Pengaturan Denda karyawan
+                                Pengaturan Denda Karyawan
                             </h5>
 
                             {{-- Late Penalties --}}
@@ -397,8 +397,8 @@
                                                     <small>≤ 15 menit</small>
                                                 </td>
                                                 <td>
-                                                    <input type="number" name="karyawan[late][0][2]"
-                                                        value="{{ $penalties['karyawan']['late'][0][2] }}"
+                                                    <input type="number" name="Karyawan[late][0][2]"
+                                                        value="{{ $penalties['Karyawan']['late'][0][2] }}"
                                                         class="penalty-input" min="0">
                                                 </td>
                                                 <td class="text-muted">Terlambat ringan</td>
@@ -409,8 +409,8 @@
                                                     <small>≤ 30 menit</small>
                                                 </td>
                                                 <td>
-                                                    <input type="number" name="karyawan[late][1][2]"
-                                                        value="{{ $penalties['karyawan']['late'][1][2] }}"
+                                                    <input type="number" name="Karyawan[late][1][2]"
+                                                        value="{{ $penalties['Karyawan']['late'][1][2] }}"
                                                         class="penalty-input" min="0">
                                                 </td>
                                                 <td class="text-muted">Terlambat sedang</td>
@@ -421,8 +421,8 @@
                                                     <small>≤ 45 menit</small>
                                                 </td>
                                                 <td>
-                                                    <input type="number" name="karyawan[late][2][2]"
-                                                        value="{{ $penalties['karyawan']['late'][2][2] }}"
+                                                    <input type="number" name="Karyawan[late][2][2]"
+                                                        value="{{ $penalties['Karyawan']['late'][2][2] }}"
                                                         class="penalty-input" min="0">
                                                 </td>
                                                 <td class="text-muted">Terlambat berat</td>
@@ -433,8 +433,8 @@
                                                     <small>≤ 60 menit</small>
                                                 </td>
                                                 <td>
-                                                    <input type="number" name="karyawan[late][3][2]"
-                                                        value="{{ $penalties['karyawan']['late'][3][2] }}"
+                                                    <input type="number" name="Karyawan[late][3][2]"
+                                                        value="{{ $penalties['Karyawan']['late'][3][2] }}"
                                                         class="penalty-input" min="0">
                                                 </td>
                                                 <td class="text-muted">Terlambat sangat berat</td>
@@ -445,7 +445,7 @@
                                                     <small>>60 menit</small>
                                                 </td>
                                                 <td>
-                                                    <input type="number" name="karyawan[late_base]" value="10000"
+                                                    <input type="number" name="Karyawan[late_base]" value="10000"
                                                         class="penalty-input" min="0">
                                                     <small class="text-muted d-block mt-1">+ per menit</small>
                                                 </td>
@@ -467,20 +467,20 @@
                                             </h6>
                                             <div class="mb-3">
                                                 <label class="form-label small">Telat Istirahat</label>
-                                                <input type="number" name="karyawan[late_break]"
-                                                    value="{{ $penalties['karyawan']['late_break'] }}"
+                                                <input type="number" name="Karyawan[late_break]"
+                                                    value="{{ $penalties['Karyawan']['late_break'] }}"
                                                     class="form-control" min="0">
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label small">1x Tidak Absen Istirahat</label>
-                                                <input type="number" name="karyawan[absent_break_once]"
-                                                    value="{{ $penalties['karyawan']['absent_break_once'] }}"
+                                                <input type="number" name="Karyawan[absent_break_once]"
+                                                    value="{{ $penalties['Karyawan']['absent_break_once'] }}"
                                                     class="form-control" min="0">
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label small">2x Tidak Absen Istirahat</label>
-                                                <input type="number" name="karyawan[absent_twice]"
-                                                    value="{{ $penalties['karyawan']['absent_twice'] }}"
+                                                <input type="number" name="Karyawan[absent_twice]"
+                                                    value="{{ $penalties['Karyawan']['absent_twice'] }}"
                                                     class="form-control" min="0">
                                             </div>
                                         </div>
@@ -495,14 +495,14 @@
                                             </h6>
                                             <div class="mb-3">
                                                 <label class="form-label small">Lupa Absen Masuk</label>
-                                                <input type="number" name="karyawan[missing_checkin]"
-                                                    value="{{ $penalties['karyawan']['missing_checkin'] }}"
+                                                <input type="number" name="Karyawan[missing_checkin]"
+                                                    value="{{ $penalties['Karyawan']['missing_checkin'] }}"
                                                     class="form-control" min="0">
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label small">Lupa Absen Pulang</label>
-                                                <input type="number" name="karyawan[missing_checkout]"
-                                                    value="{{ $penalties['karyawan']['missing_checkout'] }}"
+                                                <input type="number" name="Karyawan[missing_checkout]"
+                                                    value="{{ $penalties['Karyawan']['missing_checkout'] }}"
                                                     class="form-control" min="0">
                                             </div>
                                         </div>
@@ -602,7 +602,7 @@
             if (confirm('Apakah Anda yakin ingin mereset semua pengaturan ke nilai default?')) {
                 // Reset to default values
                 const defaultValues = {
-                    staff: {
+                    Staff: {
                         late: [3000, 6000, 8000, 12000],
                         late_break: 1500,
                         missing_checkin: 9000,
@@ -611,7 +611,7 @@
                         absent_twice: 3000,
                         late_base: 12000
                     },
-                    karyawan: {
+                    Karyawan: {
                         late: [2000, 4000, 6000, 10000],
                         late_break: 1000,
                         missing_checkin: 6000,
@@ -622,32 +622,32 @@
                     }
                 };
 
-                // Reset staff values
+                // Reset Staff values
                 for (let i = 0; i < 4; i++) {
-                    document.querySelector(`input[name="staff[late][${i}][2]"]`).value = defaultValues.staff.late[i];
+                    document.querySelector(`input[name="Staff[late][${i}][2]"]`).value = defaultValues.Staff.late[i];
                 }
-                document.querySelector('input[name="staff[late_break]"]').value = defaultValues.staff.late_break;
-                document.querySelector('input[name="staff[missing_checkin]"]').value = defaultValues.staff.missing_checkin;
-                document.querySelector('input[name="staff[missing_checkout]"]').value = defaultValues.staff
+                document.querySelector('input[name="Staff[late_break]"]').value = defaultValues.Staff.late_break;
+                document.querySelector('input[name="Staff[missing_checkin]"]').value = defaultValues.Staff.missing_checkin;
+                document.querySelector('input[name="Staff[missing_checkout]"]').value = defaultValues.Staff
                     .missing_checkout;
-                document.querySelector('input[name="staff[absent_break_once]"]').value = defaultValues.staff
+                document.querySelector('input[name="Staff[absent_break_once]"]').value = defaultValues.Staff
                     .absent_break_once;
-                document.querySelector('input[name="staff[absent_twice]"]').value = defaultValues.staff.absent_twice;
-                document.querySelector('input[name="staff[late_base]"]').value = defaultValues.staff.late_base;
+                document.querySelector('input[name="Staff[absent_twice]"]').value = defaultValues.Staff.absent_twice;
+                document.querySelector('input[name="Staff[late_base]"]').value = defaultValues.Staff.late_base;
 
-                // Reset karyawan values
+                // Reset Karyawan values
                 for (let i = 0; i < 4; i++) {
-                    document.querySelector(`input[name="karyawan[late][${i}][2]"]`).value = defaultValues.karyawan.late[i];
+                    document.querySelector(`input[name="Karyawan[late][${i}][2]"]`).value = defaultValues.Karyawan.late[i];
                 }
-                document.querySelector('input[name="karyawan[late_break]"]').value = defaultValues.karyawan.late_break;
-                document.querySelector('input[name="karyawan[missing_checkin]"]').value = defaultValues.karyawan
+                document.querySelector('input[name="Karyawan[late_break]"]').value = defaultValues.Karyawan.late_break;
+                document.querySelector('input[name="Karyawan[missing_checkin]"]').value = defaultValues.Karyawan
                     .missing_checkin;
-                document.querySelector('input[name="karyawan[missing_checkout]"]').value = defaultValues.karyawan
+                document.querySelector('input[name="Karyawan[missing_checkout]"]').value = defaultValues.Karyawan
                     .missing_checkout;
-                document.querySelector('input[name="karyawan[absent_break_once]"]').value = defaultValues.karyawan
+                document.querySelector('input[name="Karyawan[absent_break_once]"]').value = defaultValues.Karyawan
                     .absent_break_once;
-                document.querySelector('input[name="karyawan[absent_twice]"]').value = defaultValues.karyawan.absent_twice;
-                document.querySelector('input[name="karyawan[late_base]"]').value = defaultValues.karyawan.late_base;
+                document.querySelector('input[name="Karyawan[absent_twice]"]').value = defaultValues.Karyawan.absent_twice;
+                document.querySelector('input[name="Karyawan[late_base]"]').value = defaultValues.Karyawan.late_base;
             }
         }
     </script>
