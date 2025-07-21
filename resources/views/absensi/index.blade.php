@@ -498,74 +498,89 @@
         }
 
         // Update overtime status
-        // Update overtime status
+        // Update overtime status with SweetAlert
         function updateOvertimeStatus(id, status, event) {
-            // Stop event propagation
             event.stopPropagation();
             event.preventDefault();
 
-            // Get CSRF token lebih aman
-            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
-            if (!csrfToken) {
-                console.error('CSRF token not found');
-                showToast('Terjadi kesalahan sistem. Silakan refresh halaman.', 'error');
-                return;
-            }
-
-            const confirmText = status === 'approved' ? 'menyetujui' : 'menolak';
-            if (!confirm(`Apakah Anda yakin ingin ${confirmText} lembur ini?`)) {
-                return;
-            }
-
-            // Show loading indicator
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
             const button = event.currentTarget;
             const buttonGroup = button.closest('.btn-group');
             const originalHtml = buttonGroup.innerHTML;
-            buttonGroup.innerHTML = '<div class="spinner-border spinner-border-sm text-light" role="status"></div>';
 
-            // Ask for notes
-            const notes = prompt("Masukkan catatan (opsional):") || '';
+            // Show confirmation dialog
+            Swal.fire({
+                title: status === 'approved' ? 'Setujui Lembur?' : 'Tolak Lembur?',
+                text: status === 'approved' ?
+                    'Anda akan menyetujui permohonan lembur ini' :
+                    'Anda akan menolak permohonan lembur ini',
+                icon: 'question',
+                input: 'textarea',
+                inputLabel: 'Catatan (Opsional)',
+                inputPlaceholder: 'Masukkan catatan jika diperlukan...',
+                inputAttributes: {
+                    'aria-label': 'Masukkan catatan disini'
+                },
+                showCancelButton: true,
+                confirmButtonColor: status === 'approved' ? '#28a745' : '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: status === 'approved' ? 'Ya, Setujui' : 'Ya, Tolak',
+                cancelButtonText: 'Batal',
+                showLoaderOnConfirm: true,
+                preConfirm: (notes) => {
+                    // Show loading on button
+                    buttonGroup.innerHTML =
+                        '<div class="spinner-border spinner-border-sm text-light" role="status"></div>';
 
-            fetch(`/absensi/${id}/overtime-status`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        status: status,
-                        notes: notes
-                    })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(err => {
-                            throw new Error(err.message || 'Terjadi kesalahan server');
+                    return fetch(`/absensi/${id}/overtime-status`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                status: status,
+                                notes: notes || ''
+                            })
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(response.statusText);
+                            }
+                            return response.json();
+                        })
+                        .catch(error => {
+                            buttonGroup.innerHTML = originalHtml;
+                            Swal.showValidationMessage(
+                                `Gagal memperbarui status: ${error}`
+                            );
                         });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        showToast(`Status lembur berhasil di${status === 'approved' ? 'setujui' : 'tolak'}`, 'success');
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show success message
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: `Status lembur berhasil di${status === 'approved' ? 'setujui' : 'tolak'}`,
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
 
-                        // Perbarui UI tanpa reload
-                        const row = button.closest('tr');
-                        if (row) {
-                            fetchRowData(id, row);
-                        } else {
-                            location.reload();
-                        }
+                    // Update the UI
+                    const row = button.closest('tr');
+                    if (row) {
+                        fetchRowData(id, row);
                     } else {
-                        throw new Error(data.message || 'Gagal memperbarui status');
+                        location.reload();
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showToast(error.message || 'Terjadi kesalahan', 'error');
+                } else {
+                    // Restore button if cancelled
                     buttonGroup.innerHTML = originalHtml;
-                });
+                }
+            });
         }
 
         // Fungsi untuk mengambil data terbaru row
