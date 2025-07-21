@@ -4,7 +4,7 @@ A comprehensive, production-ready attendance management system featuring a moder
 
 ![BSIS Attendance System](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3.3-purple)
-![Laravel](https://img.shields.io/badge/Laravel-10.10-red)
+![Laravel](https://img.shields.io/badge/Laravel-10.48.0-red)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6-yellow)
 [![SweetAlert2](https://img.shields.io/badge/SweetAlert2-11.x-blueviolet)](https://sweetalert2.github.io/)
 
