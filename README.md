@@ -361,6 +361,9 @@ This project is open source and available under the [MIT License](LICENSE).
 ### 📑 Overview Lembur Staff & Karyawan
 ![Overview Lembur Staff & Karyawan](docs/images/overview_lembur.png)
 
+### 📑 Kelola Karyawan & Staff
+![Kelola Karyawan & Staff](docs/images/update_kelola_karyawan.jpg)
+
 ### 📑 Data Lembur Staff & Karyawan
 ![Data Lembur Staff & Karyawan](docs/images/data_lembur.png)
 
@@ -371,7 +374,7 @@ This project is open source and available under the [MIT License](LICENSE).
 ![Rekap Lembur Staff & Karyawan](docs/images/rekap_lembur.png)
 
 ### 📑 Rekap Lembur Staff & Karyawan
-![Rekap Lembur Staff & Karyawan](docs/images/rekap_lembur.png)
+![Rekap Lembur Staff & Karyawan](docs/images/rekap.jpg)
 
 ### 📑 Data Payroll Staff & Karyawan
 ![Data Payroll Staff & Karyawan](docs/images/data_payroll.jpg)
@@ -613,7 +616,7 @@ foreach ($jabatanData as $nama => $jabatan) {
 
 // 4. Hasil
 if (!empty($missingJabatan)) {
-    echo "❌ Jabatan tidak ditemukan untuk:\n";
+    echo "❌ Jabatan tida`k` ditemukan untuk:\n";
     print_r($missingJabatan);
 } else {
     echo "✅ Semua data berhasil diperbarui!\n";
