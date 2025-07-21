@@ -80,19 +80,19 @@ A comprehensive, production-ready attendance management system featuring a moder
 ## 📊 Tampilan Enhanced di Tabel Absensi
 
 ### ➕ Kolom Tambahan:
-| Kolom         | Deskripsi                                                                 |
-|---------------|---------------------------------------------------------------------------|
-| `Status`      | Menunjukkan jenis kerja: Full Harian atau Setengah Hari (Shift 1/2)       |
-| `Lembur`      | Durasi lembur jika ada (format HH:MM)                                     |
-| `Denda`       | Jumlah total denda beserta deskripsi pelanggaran                          |
+| Kolom    | Deskripsi                                                           |
+| -------- | ------------------------------------------------------------------- |
+| `Status` | Menunjukkan jenis kerja: Full Harian atau Setengah Hari (Shift 1/2) |
+| `Lembur` | Durasi lembur jika ada (format HH:MM)                               |
+| `Denda`  | Jumlah total denda beserta deskripsi pelanggaran                    |
 
 ### 🏅 Badge System:
-| Warna Badge   | Arti                                                                 |
-|---------------|----------------------------------------------------------------------|
-| 🔵 Biru        | Setengah Hari                                                       |
-| 🟢 Hijau       | Full Harian dengan kehadiran dan jam kerja normal                    |
-| 🟡 Kuning      | Full Harian dengan keterlambatan atau pelanggaran ringan             |
-| 🔴 Merah       | Tidak hadir atau pelanggaran berat (tanpa absen masuk/pulang)        |
+| Warna Badge | Arti                                                          |
+| ----------- | ------------------------------------------------------------- |
+| 🔵 Biru      | Setengah Hari                                                 |
+| 🟢 Hijau     | Full Harian dengan kehadiran dan jam kerja normal             |
+| 🟡 Kuning    | Full Harian dengan keterlambatan atau pelanggaran ringan      |
+| 🔴 Merah     | Tidak hadir atau pelanggaran berat (tanpa absen masuk/pulang) |
 
 ---
 
@@ -314,7 +314,7 @@ This project is open source and available under the [MIT License](LICENSE).
 </div>
 
 ### 🗓️ Daily Attendance
-![Absensi Harian](docs/images/absensi_harian.jpg)
+![Absensi Harian](docs/images/updated_absensi_harian_lengkap_dengan_lembur_terlambat.jpg)
 
 ### 📥 Import Excel
 ![Import Excel](docs/images/import_excel.jpg)
@@ -322,8 +322,20 @@ This project is open source and available under the [MIT License](LICENSE).
 ### 📑 Rekap Denda
 ![Rekap Denda](docs/images/rekap_denda.jpg)
 
+### 📑 Create Izin Manual
+![Create Izin Manual](docs/images/Create%20Izin%20Manual.jpg)
+
+### 📑 Show Izin Manual
+![Show Izin Manual](docs/images/Show%20Izin%20Manual.jpg)
+
 ### 📑 Absensi Manual
 ![Absensi Manual](docs/images/absensi_manual.png)
+
+### 📑 Create Izin Manual
+![Create Izin Manual](docs/images/rekap_terlambat.jpg)
+
+### 📑 Rekap Keterlambatan Next
+![Rekap Keterlambatan Next](docs/images/rekap_terlambat_2.jpg)
 
 ### 📑 Setting Denda Staff
 ![Setting Denda Staff](docs/images/setting_denda_staff_1.png)
@@ -336,6 +348,15 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ### 📑 Setting Denda Karyawan
 ![Setting Denda Karyawan](docs/images/setting_denda_karyawan_2.png)
+
+### 📑 Create Pergantian Jam Kerja
+![Create Pergantian Jam Kerja](docs/images/create_pergantian_jam_kerja.jpg)
+
+### 📑 Show Pergantian Jam Kerja
+![Show Pergantian Jam Kerja](docs/images/show_pergantian_jam_kerja.jpg)
+
+### 📑 Absensi Setengah Hari Manual
+![Absensi Setengah Hari Manual](docs/images/absensi_setengah_hari.jpg)
 
 ### 📑 Overview Lembur Staff & Karyawan
 ![Overview Lembur Staff & Karyawan](docs/images/overview_lembur.png)
@@ -360,6 +381,12 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ### 📑 Data Payroll Based On ID with Name
 ![Data Payroll Based On ID with Name](docs/images/data_payroll_based_id_name.jpg)
+
+### 📑 Success Data Payroll Based On ID with Name
+![Success Data Payroll Based On ID with Name](docs/images/payroll_success.jpg)
+
+### 📑 Download Salary Slip Karyawan & Staff
+![Success Data Payroll Based On ID with Name](docs/images/slip%20gaji.jpg)
 
 🔧 PHP Extension Activation Guide (XAMPP)
 Required Extensions
