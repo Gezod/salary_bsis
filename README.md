@@ -6,6 +6,7 @@ A comprehensive, production-ready attendance management system featuring a moder
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3.3-purple)
 ![Laravel](https://img.shields.io/badge/Laravel-10.10-red)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6-yellow)
+[![SweetAlert2](https://img.shields.io/badge/SweetAlert2-11.x-blueviolet)](https://sweetalert2.github.io/)
 
 ## ✨ Features
 
