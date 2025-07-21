@@ -331,7 +331,7 @@ This project is open source and available under the [MIT License](LICENSE).
 ### 📑 Absensi Manual
 ![Absensi Manual](docs/images/absensi_manual.png)
 
-### 📑 Create Izin Manual
+### 📑 Rekap Keterlamabatan
 ![Create Izin Manual](docs/images/rekap_terlambat.jpg)
 
 ### 📑 Rekap Keterlambatan Next
