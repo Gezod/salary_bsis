@@ -145,13 +145,13 @@
 <body>
     <div class="header">
         <img src="{{ public_path('images/Logo-Bank-Sampah-Surabaya-bank-sampah-induk-surabaya-v2 (1).png') }}" alt="Bank Sampah Logo" class="logo">
-        <h1>BANK SAMPAH SURABAYA</h1>
-        <p>Jl. Contoh No. 123, Surabaya, Jawa Timur 60123</p>
-        <p>Telp: (031) 1234567 | Email: info@banksampahsurabaya.com</p>
+        <h1>BANK SAMPAH INDUK SURABAYA</h1>
+        <p>Jl. Raya Menur No.31-A, Manyar Sabrangan, Kec. Mulyorejo, Surabaya, Jawa Timur 60116</p>
+        <p>Telp: (0851)-0009-0858 | Email: https://banksampahinduksurabaya.id/</p>
     </div>
 
     <div class="slip-title">
-        SLIP GAJI KARYAWAN<br>
+        SLIP GAJI KARYAWAN/STAFF<br>
         <small>Periode: {{ $payroll->month_name }}</small>
     </div>
 
@@ -251,8 +251,8 @@
             <div style="text-align: center;">
                 <strong>HRD</strong>
                 <div class="signature-space"></div>
-                <div class="signature-name">Neni</div>
-                <div class="signature-title">Human Resource Development</div>
+                <div class="signature-name">Nur Ainiya Fariza, S.E.</div>
+                <div class="signature-title">Manajer Dept. HRD & Keuangan</div>
                 <div class="nip">NIP: 19850315 200801 2 001</div>
             </div>
         </div>
@@ -267,10 +267,5 @@
         </div>
     </div>
 
-    <div class="footer">
-        <p>Slip gaji ini digenerate secara otomatis pada {{ now()->format('d F Y H:i:s') }}</p>
-        <p>Bank Sampah Surabaya - Sistem Payroll Terintegrasi</p>
-        <p><em>Dokumen ini sah tanpa tanda tangan basah setelah diverifikasi secara digital</em></p>
-    </div>
 </body>
 </html>
