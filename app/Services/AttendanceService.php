@@ -342,22 +342,31 @@ class AttendanceService
      * Calculate late fine based on minutes and department
      */
     private static function calculateLateFine(int $minutes, string $department)
-    {
-        $penalties = config('penalties');
-        $latePenalties = $penalties[$department]['late'];
+{
+    $penalties = config('penalties');
 
-        foreach ($latePenalties as $range) {
-            if ($range[0] === '>') {
-                if ($minutes > $range[1]) {
-                    return is_callable($range[2]) ? $range[2]($minutes) : $range[2];
-                }
-            } else {
-                if ($minutes >= $range[0] && $minutes <= $range[1]) {
-                    return $range[2];
-                }
+    // Normalisasi nama department agar sesuai dengan format di config
+    $normalizedDepartment = ucfirst(strtolower($department));
+
+    // Cek apakah key tersedia untuk department tsb
+    if (!isset($penalties[$normalizedDepartment]['late'])) {
+        return 0; // fallback kalau key tidak ditemukan
+    }
+
+    $latePenalties = $penalties[$normalizedDepartment]['late'];
+
+    foreach ($latePenalties as $range) {
+        if ($range[0] === '>') {
+            if ($minutes > $range[1]) {
+                return is_callable($range[2]) ? $range[2]($minutes) : $range[2];
+            }
+        } else {
+            if ($minutes >= $range[0] && $minutes <= $range[1]) {
+                return $range[2];
             }
         }
-
-        return 0;
     }
+
+    return 0;
+}
 }

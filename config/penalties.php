@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'Staff' => [
+    'staff' => [
         'late' => [
             [1, 15, 3000],                   // 1–15 menit = 3000
             [16, 30, 6000],                  // 16–30 menit = 6000
@@ -16,7 +16,7 @@ return [
         'absent_twice' => 3000,             // 2x absen istirahat
     ],
 
-    'Karyawan' => [
+    'karyawan' => [
         'late' => [
             [1, 15, 2000],                   // 1–15 menit = 2000
             [16, 30, 4000],                  // 16–30 menit = 4000
