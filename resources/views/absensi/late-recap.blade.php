@@ -154,7 +154,10 @@
                             <span class="navbar-brand fw-bold text-white mb-0">Sistem Absensi</span>
                         </div>
                         <div class="ms-auto d-flex align-items-center">
-                            <div class="me-4 text-light">
+                            <div class="theme-toggle me-3" onclick="toggleTheme()">
+                                <i class="bi" id="theme-icon"></i>
+                            </div>
+                            <div class="me-4 user-info">
                                 <i class="bi bi-person-circle me-2"></i>
                                 <span class="fw-semibold">{{ Auth::user()->name }}</span>
                             </div>
@@ -174,7 +177,8 @@
                         <div>
                             <h1 class="page-title mb-2">Rekap Keterlambatan Karyawan</h1>
                             <p class="text-muted mb-0">
-                                Laporan keterlambatan bulan {{ \Carbon\Carbon::parse($month . '-01')->translatedFormat('F Y') }}
+                                Laporan keterlambatan bulan
+                                {{ \Carbon\Carbon::parse($month . '-01')->translatedFormat('F Y') }}
                             </p>
                         </div>
                         <div class="stats-card">
@@ -227,14 +231,17 @@
                                 <div class="card-body">
                                     <div class="row g-3">
                                         <div class="col-6">
-                                            <div class="text-center p-3 bg-primary bg-opacity-15 rounded border border-primary border-opacity-25">
+                                            <div
+                                                class="text-center p-3 bg-primary bg-opacity-15 rounded border border-primary border-opacity-25">
                                                 <h4 class="text-light mb-1">{{ $departmentStats['staff']['count'] }}</h4>
                                                 <small class="text-white">Staff Terlambat</small>
                                             </div>
                                         </div>
                                         <div class="col-6">
-                                            <div class="text-center p-3 bg-warning bg-opacity-15 rounded border border-warning border-opacity-25">
-                                                <h4 class="text-light mb-1">{{ $departmentStats['staff']['total_occurrences'] }}</h4>
+                                            <div
+                                                class="text-center p-3 bg-warning bg-opacity-15 rounded border border-warning border-opacity-25">
+                                                <h4 class="text-light mb-1">
+                                                    {{ $departmentStats['staff']['total_occurrences'] }}</h4>
                                                 <small class="text-white">Total Kejadian</small>
                                             </div>
                                         </div>
@@ -244,7 +251,8 @@
                                             $staffHours = floor($departmentStats['staff']['total_minutes'] / 60);
                                             $staffMins = $departmentStats['staff']['total_minutes'] % 60;
                                         @endphp
-                                        <h6 class="text-white">Total Durasi: {{ $staffHours }}j {{ $staffMins }}m</h6>
+                                        <h6 class="text-white">Total Durasi: {{ $staffHours }}j {{ $staffMins }}m
+                                        </h6>
                                     </div>
                                 </div>
                             </div>
@@ -259,14 +267,18 @@
                                 <div class="card-body">
                                     <div class="row g-3">
                                         <div class="col-6">
-                                            <div class="text-center p-3 bg-success bg-opacity-15 rounded border border-success border-opacity-25">
-                                                <h4 class="text-light mb-1">{{ $departmentStats['karyawan']['count'] }}</h4>
+                                            <div
+                                                class="text-center p-3 bg-success bg-opacity-15 rounded border border-success border-opacity-25">
+                                                <h4 class="text-light mb-1">{{ $departmentStats['karyawan']['count'] }}
+                                                </h4>
                                                 <small class="text-white">Karyawan Terlambat</small>
                                             </div>
                                         </div>
                                         <div class="col-6">
-                                            <div class="text-center p-3 bg-warning bg-opacity-15 rounded border border-warning border-opacity-25">
-                                                <h4 class="text-light mb-1">{{ $departmentStats['karyawan']['total_occurrences'] }}</h4>
+                                            <div
+                                                class="text-center p-3 bg-warning bg-opacity-15 rounded border border-warning border-opacity-25">
+                                                <h4 class="text-light mb-1">
+                                                    {{ $departmentStats['karyawan']['total_occurrences'] }}</h4>
                                                 <small class="text-white">Total Kejadian</small>
                                             </div>
                                         </div>
@@ -276,7 +288,8 @@
                                             $karyawanHours = floor($departmentStats['karyawan']['total_minutes'] / 60);
                                             $karyawanMins = $departmentStats['karyawan']['total_minutes'] % 60;
                                         @endphp
-                                        <h6 class="text-white">Total Durasi: {{ $karyawanHours }}j {{ $karyawanMins }}m</h6>
+                                        <h6 class="text-white">Total Durasi: {{ $karyawanHours }}j {{ $karyawanMins }}m
+                                        </h6>
                                     </div>
                                 </div>
                             </div>
@@ -339,7 +352,8 @@
                                                     class="badge bg-secondary">{{ ucfirst($data->employee->departemen ?? '-') }}</span>
                                             </td>
                                             <td class="text-center">
-                                                <span class="badge bg-warning text-dark">{{ $data->late_count }} kali</span>
+                                                <span class="badge bg-warning text-dark">{{ $data->late_count }}
+                                                    kali</span>
                                             </td>
                                             <td class="text-white">
                                                 @php

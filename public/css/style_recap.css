@@ -739,3 +739,11 @@ small {
 
 /* Ensure hover states work properly */
 
+/* User info styling */
+.user-info {
+    color: var(--text-primary) !important;
+}
+
+.user-info .fw-semibold {
+    color: var(--text-primary) !important;
+}
