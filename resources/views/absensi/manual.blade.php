@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-  <link href="{{ asset('css/style_manual.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/style_manual.css') }}" rel="stylesheet">
 
     <div class="container-fluid min-vh-100 px-0">
         <div class="row g-0">
@@ -14,7 +14,7 @@
                         <small class="text-muted">Sistem Absensi</small>
                     </div>
 
-                     <ul class="nav flex-column">
+                    <ul class="nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('absensi.index') ? 'active-link' : '' }}"
                                 href="{{ route('absensi.index') }}">
@@ -155,7 +155,10 @@
                             <span class="navbar-brand fw-bold text-white mb-0">Sistem Absensi</span>
                         </div>
                         <div class="ms-auto d-flex align-items-center">
-                            <div class="me-4 text-light">
+                            <div class="theme-toggle me-3" onclick="toggleTheme()">
+                                <i class="bi" id="theme-icon"></i>
+                            </div>
+                            <div class="me-4 user-info">
                                 <i class="bi bi-person-circle me-2"></i>
                                 <span class="fw-semibold">{{ Auth::user()->name }}</span>
                             </div>
@@ -185,7 +188,7 @@
                     </div>
 
                     {{-- Notifications --}}
-                    @if(session('success'))
+                    @if (session('success'))
                         <div class="alert alert-success d-flex align-items-center">
                             <i class="bi bi-check-circle-fill me-3 fs-5"></i>
                             <div>
@@ -194,13 +197,13 @@
                         </div>
                     @endif
 
-                    @if($errors->any())
+                    @if ($errors->any())
                         <div class="alert alert-danger d-flex align-items-center">
                             <i class="bi bi-exclamation-triangle-fill me-3 fs-5"></i>
                             <div>
                                 <strong>Error!</strong>
                                 <ul class="mb-0 mt-2">
-                                    @foreach($errors->all() as $error)
+                                    @foreach ($errors->all() as $error)
                                         <li>{{ $error }}</li>
                                     @endforeach
                                 </ul>
@@ -226,7 +229,7 @@
                                     </label>
                                     <div class="employee-search">
                                         <input type="text" id="employeeSearch" class="form-control"
-                                               placeholder="Ketik nama atau NIP karyawan..." autocomplete="off">
+                                            placeholder="Ketik nama atau NIP karyawan..." autocomplete="off">
                                         <div class="employee-dropdown" id="employeeDropdown"></div>
                                     </div>
                                 </div>
@@ -235,12 +238,13 @@
                                         <i class="bi bi-calendar me-2"></i>Tanggal Absensi
                                     </label>
                                     <input type="date" name="tanggal" class="form-control"
-                                           value="{{ old('tanggal', date('Y-m-d')) }}" required>
+                                        value="{{ old('tanggal', date('Y-m-d')) }}" required>
                                 </div>
                             </div>
 
                             {{-- Hidden Employee Data --}}
-                            <input type="hidden" name="employee_id" id="selectedEmployeeId" value="{{ old('employee_id') }}">
+                            <input type="hidden" name="employee_id" id="selectedEmployeeId"
+                                value="{{ old('employee_id') }}">
 
                             {{-- Employee Details Display --}}
                             <div class="row mb-4" id="employeeDetails" style="display: none;">
@@ -283,23 +287,28 @@
                                 <div class="row g-3">
                                     <div class="col-md-4 col-lg-2">
                                         <label class="form-label small">Scan 1 (Masuk)</label>
-                                        <input type="time" name="scan1" class="form-control" value="{{ old('scan1') }}">
+                                        <input type="time" name="scan1" class="form-control"
+                                            value="{{ old('scan1') }}">
                                     </div>
                                     <div class="col-md-4 col-lg-2">
                                         <label class="form-label small">Scan 2 (Istirahat)</label>
-                                        <input type="time" name="scan2" class="form-control" value="{{ old('scan2') }}">
+                                        <input type="time" name="scan2" class="form-control"
+                                            value="{{ old('scan2') }}">
                                     </div>
                                     <div class="col-md-4 col-lg-2">
                                         <label class="form-label small">Scan 3 (Kembali)</label>
-                                        <input type="time" name="scan3" class="form-control" value="{{ old('scan3') }}">
+                                        <input type="time" name="scan3" class="form-control"
+                                            value="{{ old('scan3') }}">
                                     </div>
                                     <div class="col-md-4 col-lg-2">
                                         <label class="form-label small">Scan 4 (Pulang)</label>
-                                        <input type="time" name="scan4" class="form-control" value="{{ old('scan4') }}">
+                                        <input type="time" name="scan4" class="form-control"
+                                            value="{{ old('scan4') }}">
                                     </div>
                                     <div class="col-md-4 col-lg-2">
                                         <label class="form-label small">Scan 5 (Opsional)</label>
-                                        <input type="time" name="scan5" class="form-control" value="{{ old('scan5') }}">
+                                        <input type="time" name="scan5" class="form-control"
+                                            value="{{ old('scan5') }}">
                                     </div>
                                 </div>
                             </div>
@@ -317,17 +326,17 @@
                                                 <div class="col-md-4">
                                                     <label class="form-label small">Terlambat (menit)</label>
                                                     <input type="number" name="late_minutes" class="form-control"
-                                                           value="{{ old('late_minutes', 0) }}" min="0">
+                                                        value="{{ old('late_minutes', 0) }}" min="0">
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label class="form-label small">Pulang Cepat (menit)</label>
                                                     <input type="number" name="early_leave_minutes" class="form-control"
-                                                           value="{{ old('early_leave_minutes', 0) }}" min="0">
+                                                        value="{{ old('early_leave_minutes', 0) }}" min="0">
                                                 </div>
                                                 <div class="col-md-4">
                                                     <label class="form-label small">Lembur (menit)</label>
                                                     <input type="number" name="overtime_minutes" class="form-control"
-                                                           value="{{ old('overtime_minutes', 0) }}" min="0">
+                                                        value="{{ old('overtime_minutes', 0) }}" min="0">
                                                 </div>
                                             </div>
                                         </div>
@@ -414,13 +423,15 @@
                     })
                     .catch(error => {
                         console.error('Error searching employees:', error);
-                        employeeDropdown.innerHTML = '<div class="employee-item text-danger">Error mencari karyawan</div>';
+                        employeeDropdown.innerHTML =
+                            '<div class="employee-item text-danger">Error mencari karyawan</div>';
                     });
             }
 
             function displayEmployeeResults(employees) {
                 if (employees.length === 0) {
-                    employeeDropdown.innerHTML = '<div class="employee-item text-muted">Tidak ada karyawan ditemukan</div>';
+                    employeeDropdown.innerHTML =
+                        '<div class="employee-item text-muted">Tidak ada karyawan ditemukan</div>';
                 } else {
                     employeeDropdown.innerHTML = employees.map(emp => `
                         <div class="employee-item" onclick="selectEmployee(${emp.id}, '${emp.pin || ''}', '${emp.nip || ''}', '${emp.nama || ''}', '${emp.jabatan || ''}', '${emp.departemen || ''}', '${emp.kantor || ''}')">
@@ -463,6 +474,36 @@
                     return false;
                 }
             });
+        });
+
+        // Theme toggle functionality
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        }
+
+        function updateThemeIcon(theme) {
+            const icon = document.getElementById('theme-icon');
+            if (theme === 'dark') {
+                icon.classList.remove('bi-moon');
+                icon.classList.add('bi-sun');
+            } else {
+                icon.classList.remove('bi-sun');
+                icon.classList.add('bi-moon');
+            }
+        }
+
+        // Check for saved theme preference
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+
+            // Rest of your existing DOMContentLoaded code...
         });
     </script>
 @endsection
