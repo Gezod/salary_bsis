@@ -14,7 +14,7 @@
                         <small class="text-muted">Sistem Absensi</small>
                     </div>
 
-                     <ul class="nav flex-column">
+                    <ul class="nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('absensi.index') ? 'active-link' : '' }}"
                                 href="{{ route('absensi.index') }}">
@@ -155,7 +155,10 @@
                             <span class="navbar-brand fw-bold text-white mb-0">Sistem Absensi</span>
                         </div>
                         <div class="ms-auto d-flex align-items-center">
-                            <div class="me-4 text-light">
+                            <div class="theme-toggle me-3" onclick="toggleTheme()">
+                                <i class="bi" id="theme-icon"></i>
+                            </div>
+                            <div class="user-info me-3">
                                 <i class="bi bi-person-circle me-2"></i>
                                 <span class="fw-semibold">{{ Auth::user()->name }}</span>
                             </div>
@@ -205,7 +208,7 @@
 
                     {{-- Upload Section --}}
                     <div class="upload-section">
-                        <h5 class="text-white mb-4 d-flex align-items-center">
+                        <h5 class="text-primary mb-4 d-flex align-items-center">
                             <i class="bi bi-cloud-upload me-2 text-primary"></i>
                             Upload File Excel
                         </h5>
@@ -215,9 +218,10 @@
                             @csrf
                             <div class="file-upload-area" id="fileUploadArea">
                                 <div class="upload-icon">
-                                    <i class="bi bi-file-earmark-excel text-white fs-1"></i>
+                                    <i class="bi bi-file-earmark-excel"
+                                        style="color: var(--primary-color); font-size: 3rem;"></i>
                                 </div>
-                                <h6 class="text-white mb-2">Drag & Drop file Excel di sini</h6>
+                                <h6 class="text-primary mb-2">Drag & Drop file Excel di sini</h6>
                                 <p class="text-muted mb-3">atau klik untuk memilih file</p>
                                 <input type="file" name="file" id="file" class="form-control"
                                     accept=".xlsx,.xls" required style="display: none;">
@@ -369,5 +373,50 @@
                 fileInput.click();
             }
         });
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize theme from localStorage or default to light
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+
+            // Sidebar toggle functionality
+            const sidebar = document.querySelector('.sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebarOverlay = document.createElement('div');
+            sidebarOverlay.className = 'sidebar-overlay';
+            document.body.appendChild(sidebarOverlay);
+
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                    sidebarOverlay.classList.toggle('show');
+                });
+            }
+
+            sidebarOverlay.addEventListener('click', function() {
+                sidebar.classList.remove('show');
+                this.classList.remove('show');
+            });
+        });
+
+        function toggleTheme() {
+            const currentTheme = document.body.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        }
+
+        function updateThemeIcon(theme) {
+            const icon = document.getElementById('theme-icon');
+            if (theme === 'dark') {
+                icon.className = 'bi bi-sun-fill';
+                icon.title = 'Light Mode';
+            } else {
+                icon.className = 'bi bi-moon-fill';
+                icon.title = 'Dark Mode';
+            }
+        }
     </script>
 @endsection
