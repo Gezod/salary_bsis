@@ -149,12 +149,15 @@
                         </button>
                         <div class="d-flex align-items-center">
                             <div class="icon-wrapper me-3">
-                                <i class="bi bi-file-earmark-text text-white"></i>
+                                <i class="bi bi-file-earmark-text"></i>
                             </div>
-                            <span class="navbar-brand fw-bold text-white mb-0">Sistem Absensi</span>
+                            <span class="navbar-brand fw-bold mb-0">Sistem Absensi</span>
                         </div>
                         <div class="ms-auto d-flex align-items-center">
-                            <div class="me-4 text-light">
+                            <div class="theme-toggle" onclick="toggleTheme()">
+                                <i class="bi bi-moon-fill"></i>
+                            </div>
+                            <div class="me-4 user-info">
                                 <i class="bi bi-person-circle me-2"></i>
                                 <span class="fw-semibold">{{ Auth::user()->name }}</span>
                             </div>
@@ -178,7 +181,7 @@
                             </p>
                         </div>
                         <div class="stats-card">
-                            <div class="fw-bold text-white fs-4">{{ count($data) }}</div>
+                            <div class="fw-bold fs-4 text-primary">{{ count($data) }}</div>
                             <small class="text-muted">Total Karyawan</small>
                         </div>
                     </div>
@@ -189,14 +192,14 @@
                             <div class="icon">
                                 <i class="bi bi-people-fill"></i>
                             </div>
-                            <h3 class="text-white mb-1">{{ count($data) }}</h3>
+                            <h3 class="mb-1">{{ count($data) }}</h3>
                             <p class="text-muted mb-0 small">Total Karyawan</p>
                         </div>
                         <div class="summary-card amount">
                             <div class="icon">
                                 <i class="bi bi-currency-dollar"></i>
                             </div>
-                            <h3 class="text-white mb-1">
+                            <h3 class="mb-1">
                                 Rp {{ number_format($data->sum('fine'), 0, ',', '.') }}
                             </h3>
                             <p class="text-muted mb-0 small">Total Denda</p>
@@ -205,20 +208,20 @@
                             <div class="icon">
                                 <i class="bi bi-exclamation-triangle-fill"></i>
                             </div>
-                            <h3 class="text-white mb-1">{{ $data->where('fine', '>', 0)->count() }}</h3>
+                            <h3 class="mb-1">{{ $data->where('fine', '>', 0)->count() }}</h3>
                             <p class="text-muted mb-0 small">Karyawan Terkena Denda</p>
                         </div>
                     </div>
 
                     {{-- Enhanced Filter Section --}}
                     <div class="filter-section">
-                        <h5 class="text-white mb-3 d-flex align-items-center">
+                        <h5 class="mb-3 d-flex align-items-center">
                             <i class="bi bi-funnel me-2 text-primary"></i>
                             Filter Periode
                         </h5>
                         <form method="GET" class="row g-3">
                             <div class="col-md-4">
-                                <label class="form-label text-muted small">Pilih Bulan</label>
+                                <label class="form-label small">Pilih Bulan</label>
                                 <input type="month" name="month" value="{{ $month }}" class="form-control">
                             </div>
                             <div class="col-md-2 d-flex align-items-end">
@@ -232,7 +235,7 @@
                     {{-- Enhanced Table --}}
                     <div class="card">
                         <div class="table-responsive">
-                            <table class="table table-dark table-hover mb-0">
+                            <table class="table table-hover mb-0">
                                 <thead>
                                     <tr>
                                         <th><i class="bi bi-person me-2"></i>Nama Karyawan</th>
@@ -252,7 +255,7 @@
                                                         </span>
                                                     </div>
                                                     <div>
-                                                        <div class="text-white fw-semibold">
+                                                        <div class="fw-semibold">
                                                             {{ $d->employee->nama ?? '-' }}</div>
                                                         <small class="text-muted">ID:
                                                             {{ $d->employee->id ?? '-' }}</small>
@@ -295,8 +298,19 @@
 
     {{-- Add Google Fonts --}}
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Load saved theme
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+
+            // Update toggle icon based on current theme
+            const toggleIcon = document.querySelector('.theme-toggle i');
+            if (toggleIcon) {
+                toggleIcon.className = savedTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+            }
+
             const sidebar = document.querySelector('.sidebar');
             const sidebarToggle = document.getElementById('sidebarToggle');
             const sidebarOverlay = document.createElement('div');
@@ -315,5 +329,20 @@
                 this.classList.remove('show');
             });
         });
+
+        // Theme toggle function
+        function toggleTheme() {
+            const currentTheme = document.body.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+
+            // Update toggle icon
+            const toggleIcon = document.querySelector('.theme-toggle i');
+            if (toggleIcon) {
+                toggleIcon.className = newTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+            }
+        }
     </script>
 @endsection
