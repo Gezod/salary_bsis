@@ -22,7 +22,7 @@
                         @endif
                     </div>
 
-                     <ul class="nav flex-column">
+                    <ul class="nav flex-column">
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('absensi.index') ? 'active-link' : '' }}"
                                 href="{{ route('absensi.index') }}">
@@ -163,7 +163,10 @@
                             <span class="navbar-brand fw-bold text-white mb-0">Sistem Absensi</span>
                         </div>
                         <div class="ms-auto d-flex align-items-center">
-                            <div class="me-4 text-light">
+                            <div class="theme-toggle" onclick="toggleTheme()">
+                                <i class="bi bi-moon-fill"></i>
+                            </div>
+                            <div class="me-4 user-info">
                                 <i class="bi bi-person-circle me-2"></i>
                                 <span class="fw-semibold">{{ Auth::user()->name }}</span>
                             </div>
@@ -294,9 +297,13 @@
                                                         </span>
                                                     </div>
                                                     <div>
-                                                        <div class="{{ $employee->isContractExpiringSoon() ? 'text-dark' : 'text-white' }} fw-semibold">{{ $employee->nama ?? '-' }}
+                                                        <div
+                                                            class="{{ $employee->isContractExpiringSoon() ? 'text-dark' : 'text-white' }} fw-semibold">
+                                                            {{ $employee->nama ?? '-' }}
                                                         </div>
-                                                        <small class=" {{ $employee->isContractExpiringSoon() ? 'text-dark' : 'text-muted ' }} fw-bold ">ID: {{ $employee->id }}</small>
+                                                        <small
+                                                            class=" {{ $employee->isContractExpiringSoon() ? 'text-dark' : 'text-muted ' }} fw-bold ">ID:
+                                                            {{ $employee->id }}</small>
                                                         @if ($employee->isContractExpiringSoon())
                                                             <small class="text-danger d-block">
                                                                 <i class="bi bi-exclamation-triangle"></i>
@@ -309,8 +316,12 @@
                                             </td>
                                             <td>
                                                 <div class="text-white">
-                                                    <div class="{{ $employee->isContractExpiringSoon() ? 'text-dark' : 'text-white' }}"><strong>PIN:</strong> {{ $employee->pin ?? '-' }}</div>
-                                                    <div class="{{ $employee->isContractExpiringSoon() ? 'text-dark' : 'text-white' }}"><strong>NIP:</strong> {{ $employee->nip ?? '-' }}</div>
+                                                    <div
+                                                        class="{{ $employee->isContractExpiringSoon() ? 'text-dark' : 'text-white' }}">
+                                                        <strong>PIN:</strong> {{ $employee->pin ?? '-' }}</div>
+                                                    <div
+                                                        class="{{ $employee->isContractExpiringSoon() ? 'text-dark' : 'text-white' }}">
+                                                        <strong>NIP:</strong> {{ $employee->nip ?? '-' }}</div>
                                                 </div>
                                             </td>
                                             <td>
@@ -540,6 +551,21 @@
                 this.classList.remove('show');
             });
         });
+
+        // Theme toggle function
+        function toggleTheme() {
+            const currentTheme = document.body.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+
+            // Update toggle icon
+            const toggleIcon = document.querySelector('.theme-toggle i');
+            if (toggleIcon) {
+                toggleIcon.className = newTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+            }
+        }
 
         // Edit Employee Function
         function editEmployee(id) {

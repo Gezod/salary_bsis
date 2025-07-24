@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<link href="{{ asset('css/style_denda.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/style_denda.css') }}" rel="stylesheet">
 
     <div class="container-fluid min-vh-100 px-0">
         <div class="row g-0">
@@ -155,7 +155,11 @@
                             <span class="navbar-brand fw-bold text-white mb-0">Sistem Absensi</span>
                         </div>
                         <div class="ms-auto d-flex align-items-center">
-                            <div class="me-4 text-light">
+                            <!-- Add theme toggle here -->
+                            <div class="theme-toggle me-3" onclick="toggleTheme()">
+                                <i class="bi" id="theme-icon"></i>
+                            </div>
+                            <div class="user-info me-4">
                                 <i class="bi bi-person-circle me-2"></i>
                                 <span class="fw-semibold">{{ Auth::user()->name }}</span>
                             </div>
@@ -168,6 +172,7 @@
                         </div>
                     </div>
                 </nav>
+
 
                 <div class="py-4 animate-fade-in">
                     {{-- Page Header --}}
@@ -416,7 +421,7 @@
                                                 <td class="text-muted">Terlambat sedang</td>
                                             </tr>
                                             <tr>
-                                                 <td class="time-range-cell">
+                                                <td class="time-range-cell">
                                                     31 - 45 menit
                                                     <small>≤ 45 menit</small>
                                                 </td>
@@ -428,7 +433,7 @@
                                                 <td class="text-muted">Terlambat berat</td>
                                             </tr>
                                             <tr>
-                                                 <td class="time-range-cell">
+                                                <td class="time-range-cell">
                                                     46 - 60 menit
                                                     <small>≤ 60 menit</small>
                                                 </td>
@@ -440,7 +445,7 @@
                                                 <td class="text-muted">Terlambat sangat berat</td>
                                             </tr>
                                             <tr>
-                                                 <td class="time-range-cell">
+                                                <td class="time-range-cell">
                                                     >60 menit
                                                     <small>>60 menit</small>
                                                 </td>
@@ -530,6 +535,26 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+
+            // Update icon
+            const themeIcon = document.getElementById('theme-icon');
+            themeIcon.className = newTheme === 'dark' ? 'bi-moon-fill' : 'bi-sun-fill';
+
+            // Force redraw to fix any rendering issues
+            document.body.style.display = 'none';
+            document.body.offsetHeight; // Trigger reflow
+            document.body.style.display = '';
+        }
+
+        // Enhanced theme initialization
+
         // Tambahkan di script Anda
         function formatTimeRangeCells() {
             const timeRanges = document.querySelectorAll('.time-range-cell');

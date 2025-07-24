@@ -2,12 +2,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="color-scheme" content="light dark">
     <title>BSIS Absensi</title>
 
     {{-- Custom Styles --}}
     <style>
         :root {
-            --primary-color: #3b82f6; /* blue */
+            --primary-color: #3b82f6;
+            /* blue */
             --primary-dark: #1e40af;
             --active-color: #00FFFF;
             --hover-color: #28a745;
@@ -308,9 +310,10 @@
         }
 
         .btn-close-white {
-            filter: var(--text-primary) == #ffffff ? invert(1) : invert(0);
+            filter: var(--text-primary)==#ffffff ? invert(1): invert(0);
         }
-         /* Basic theme setup - detailed styles are in style_index.css */
+
+        /* Basic theme setup - detailed styles are in style_index.css */
         body {
             transition: all 0.3s ease;
         }
@@ -335,51 +338,51 @@
 
     {{-- Your custom scripts would be loaded in child views --}}
     <script>
-    // Theme toggle functionality
-    function toggleTheme() {
-        const body = document.body;
-        const currentTheme = body.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        // Theme toggle functionality
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
 
-        body.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
 
-        // Update toggle button icon
-        const toggleIcon = document.querySelector('.theme-toggle i');
-        if (toggleIcon) {
-            toggleIcon.className = newTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+            // Update toggle button icon
+            const toggleIcon = document.querySelector('.theme-toggle i');
+            if (toggleIcon) {
+                toggleIcon.className = newTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+            }
+
+            // Update SweetAlert2 theme
+            updateSweetAlertTheme(newTheme);
         }
+
+        // Load saved theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+
+            // Update toggle icon based on current theme
+            const toggleIcon = document.querySelector('.theme-toggle i');
+            if (toggleIcon) {
+                toggleIcon.className = savedTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+            }
+
+            // Initialize SweetAlert2 theme
+            updateSweetAlertTheme(savedTheme);
+        });
 
         // Update SweetAlert2 theme
-        updateSweetAlertTheme(newTheme);
-    }
-
-    // Load saved theme on page load
-    document.addEventListener('DOMContentLoaded', function () {
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        document.body.setAttribute('data-theme', savedTheme);
-
-        // Update toggle icon based on current theme
-        const toggleIcon = document.querySelector('.theme-toggle i');
-        if (toggleIcon) {
-            toggleIcon.className = savedTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+        function updateSweetAlertTheme(theme) {
+            const isDark = theme === 'dark';
+            window.swalTheme = {
+                background: isDark ? '#1e293b' : '#ffffff',
+                color: isDark ? '#ffffff' : '#1e293b',
+                confirmButtonColor: '#3b82f6',
+                cancelButtonColor: '#6c757d'
+            };
         }
-
-        // Initialize SweetAlert2 theme
-        updateSweetAlertTheme(savedTheme);
-    });
-
-    // Update SweetAlert2 theme
-    function updateSweetAlertTheme(theme) {
-        const isDark = theme === 'dark';
-        window.swalTheme = {
-            background: isDark ? '#1e293b' : '#ffffff',
-            color: isDark ? '#ffffff' : '#1e293b',
-            confirmButtonColor: '#3b82f6',
-            cancelButtonColor: '#6c757d'
-        };
-    }
-</script>
+    </script>
 </body>
 
 

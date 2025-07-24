@@ -51,7 +51,10 @@
                             <span class="navbar-brand fw-bold text-white mb-0">Tambah Izin</span>
                         </div>
                         <div class="ms-auto d-flex align-items-center">
-                            <div class="me-4 text-light">
+                            <div class="theme-toggle me-3" onclick="toggleTheme()">
+                                <i class="bi" id="theme-icon"></i>
+                            </div>
+                            <div class="me-4 user-info">
                                 <i class="bi bi-person-circle me-2"></i>
                                 <span class="fw-semibold">{{ Auth::user()->name }}</span>
                             </div>
@@ -75,13 +78,13 @@
                     </div>
 
                     {{-- Notifications --}}
-                    @if($errors->any())
+                    @if ($errors->any())
                         <div class="alert alert-danger d-flex align-items-center">
                             <i class="bi bi-exclamation-triangle-fill me-3 fs-5"></i>
                             <div>
                                 <strong>Error!</strong>
                                 <ul class="mb-0 mt-2">
-                                    @foreach($errors->all() as $error)
+                                    @foreach ($errors->all() as $error)
                                         <li>{{ $error }}</li>
                                     @endforeach
                                 </ul>
@@ -101,8 +104,9 @@
                                     </label>
                                     <select name="employee_id" class="form-control" required>
                                         <option value="">Pilih Karyawan</option>
-                                        @foreach($employees as $employee)
-                                            <option value="{{ $employee->id }}" {{ old('employee_id') == $employee->id ? 'selected' : '' }}>
+                                        @foreach ($employees as $employee)
+                                            <option value="{{ $employee->id }}"
+                                                {{ old('employee_id') == $employee->id ? 'selected' : '' }}>
                                                 {{ $employee->nama }} - {{ $employee->departemen }}
                                             </option>
                                         @endforeach
@@ -113,7 +117,7 @@
                                         <i class="bi bi-calendar me-2"></i>Tanggal Izin
                                     </label>
                                     <input type="date" name="tanggal_izin" class="form-control"
-                                           value="{{ old('tanggal_izin', date('Y-m-d')) }}" required>
+                                        value="{{ old('tanggal_izin', date('Y-m-d')) }}" required>
                                 </div>
                             </div>
 
@@ -121,8 +125,7 @@
                                 <label class="form-label">
                                     <i class="bi bi-chat-text me-2"></i>Alasan Izin
                                 </label>
-                                <textarea name="alasan_izin" class="form-control" rows="4"
-                                          placeholder="Masukkan alasan izin..." required>{{ old('alasan_izin') }}</textarea>
+                                <textarea name="alasan_izin" class="form-control" rows="4" placeholder="Masukkan alasan izin..." required>{{ old('alasan_izin') }}</textarea>
                             </div>
 
                             <div class="mb-4">
@@ -147,4 +150,19 @@
             </main>
         </div>
     </div>
+    <script>
+        function toggleTheme() {
+            const currentTheme = document.body.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+
+            // Update toggle icon
+            const toggleIcon = document.querySelector('.theme-toggle i');
+            if (toggleIcon) {
+                toggleIcon.className = newTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+            }
+        }
+    </script>
 @endsection

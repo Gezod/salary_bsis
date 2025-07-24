@@ -61,7 +61,10 @@
                             <span class="navbar-brand fw-bold text-white mb-0">Pergantian Jam Kerja</span>
                         </div>
                         <div class="ms-auto d-flex align-items-center">
-                            <div class="me-4 text-light">
+                            <div class="theme-toggle me-3" onclick="toggleTheme()">
+                                <i class="bi" id="theme-icon"></i>
+                            </div>
+                            <div class="me-4 user-info">
                                 <i class="bi bi-person-circle me-2"></i>
                                 <span class="fw-semibold">{{ Auth::user()->name }}</span>
                             </div>
@@ -94,7 +97,7 @@
                     </div>
 
                     {{-- Notifications --}}
-                    @if(session('success'))
+                    @if (session('success'))
                         <div class="alert alert-success d-flex align-items-center">
                             <i class="bi bi-check-circle-fill me-3 fs-5"></i>
                             <div>
@@ -130,8 +133,10 @@
                                                         </span>
                                                     </div>
                                                     <div>
-                                                        <div class="text-white fw-semibold">{{ $change->employee->nama }}</div>
-                                                        <small class="text-muted">{{ $change->employee->departemen }}</small>
+                                                        <div class="text-white fw-semibold">{{ $change->employee->nama }}
+                                                        </div>
+                                                        <small
+                                                            class="text-muted">{{ $change->employee->departemen }}</small>
                                                     </div>
                                                 </div>
                                             </td>
@@ -139,8 +144,9 @@
                                             <td class="text-white">{{ $change->jam_masuk_baru ?? '-' }}</td>
                                             <td class="text-white">{{ $change->jam_pulang_baru ?? '-' }}</td>
                                             <td class="text-white">
-                                                @if($change->jam_istirahat_mulai && $change->jam_istirahat_selesai)
-                                                    {{ $change->jam_istirahat_mulai }} - {{ $change->jam_istirahat_selesai }}
+                                                @if ($change->jam_istirahat_mulai && $change->jam_istirahat_selesai)
+                                                    {{ $change->jam_istirahat_mulai }} -
+                                                    {{ $change->jam_istirahat_selesai }}
                                                 @else
                                                     -
                                                 @endif
@@ -203,5 +209,19 @@
                 this.classList.remove('show');
             });
         });
+
+        function toggleTheme() {
+            const currentTheme = document.body.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+
+            // Update toggle icon
+            const toggleIcon = document.querySelector('.theme-toggle i');
+            if (toggleIcon) {
+                toggleIcon.className = newTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+            }
+        }
     </script>
 @endsection

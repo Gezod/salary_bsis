@@ -61,7 +61,10 @@
                             <span class="navbar-brand fw-bold text-white mb-0">Tambah Pergantian Jam</span>
                         </div>
                         <div class="ms-auto d-flex align-items-center">
-                            <div class="me-4 text-light">
+                            <div class="theme-toggle me-3" onclick="toggleTheme()">
+                                <i class="bi" id="theme-icon"></i>
+                            </div>
+                            <div class="me-4 user-info">
                                 <i class="bi bi-person-circle me-2"></i>
                                 <span class="fw-semibold">{{ Auth::user()->name }}</span>
                             </div>
@@ -85,13 +88,13 @@
                     </div>
 
                     {{-- Notifications --}}
-                    @if($errors->any())
+                    @if ($errors->any())
                         <div class="alert alert-danger d-flex align-items-center">
                             <i class="bi bi-exclamation-triangle-fill me-3 fs-5"></i>
                             <div>
                                 <strong>Error!</strong>
                                 <ul class="mb-0 mt-2">
-                                    @foreach($errors->all() as $error)
+                                    @foreach ($errors->all() as $error)
                                         <li>{{ $error }}</li>
                                     @endforeach
                                 </ul>
@@ -111,9 +114,11 @@
                                     </label>
                                     <select name="leave_id" class="form-control" required>
                                         <option value="">Pilih Data Izin</option>
-                                        @foreach($leaves as $leave)
-                                            <option value="{{ $leave->id }}" {{ old('leave_id') == $leave->id ? 'selected' : '' }}>
-                                                {{ $leave->nama }} - {{ $leave->tanggal_izin->format('d M Y') }} ({{ $leave->alasan_izin }})
+                                        @foreach ($leaves as $leave)
+                                            <option value="{{ $leave->id }}"
+                                                {{ old('leave_id') == $leave->id ? 'selected' : '' }}>
+                                                {{ $leave->nama }} - {{ $leave->tanggal_izin->format('d M Y') }}
+                                                ({{ $leave->alasan_izin }})
                                             </option>
                                         @endforeach
                                     </select>
@@ -123,7 +128,7 @@
                                         <i class="bi bi-calendar me-2"></i>Tanggal Pergantian
                                     </label>
                                     <input type="date" name="tanggal" class="form-control"
-                                           value="{{ old('tanggal', date('Y-m-d')) }}" required>
+                                        value="{{ old('tanggal', date('Y-m-d')) }}" required>
                                 </div>
                             </div>
 
@@ -133,14 +138,14 @@
                                         <i class="bi bi-clock me-2"></i>Jam Masuk Baru
                                     </label>
                                     <input type="time" name="jam_masuk_baru" class="form-control"
-                                           value="{{ old('jam_masuk_baru') }}">
+                                        value="{{ old('jam_masuk_baru') }}">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">
                                         <i class="bi bi-clock me-2"></i>Jam Pulang Baru
                                     </label>
                                     <input type="time" name="jam_pulang_baru" class="form-control"
-                                           value="{{ old('jam_pulang_baru') }}">
+                                        value="{{ old('jam_pulang_baru') }}">
                                 </div>
                             </div>
 
@@ -150,14 +155,14 @@
                                         <i class="bi bi-pause-circle me-2"></i>Jam Istirahat Mulai
                                     </label>
                                     <input type="time" name="jam_istirahat_mulai" class="form-control"
-                                           value="{{ old('jam_istirahat_mulai') }}">
+                                        value="{{ old('jam_istirahat_mulai') }}">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">
                                         <i class="bi bi-play-circle me-2"></i>Jam Istirahat Selesai
                                     </label>
                                     <input type="time" name="jam_istirahat_selesai" class="form-control"
-                                           value="{{ old('jam_istirahat_selesai') }}">
+                                        value="{{ old('jam_istirahat_selesai') }}">
                                 </div>
                             </div>
 
@@ -165,15 +170,15 @@
                                 <label class="form-label">
                                     <i class="bi bi-chat-text me-2"></i>Keterangan
                                 </label>
-                                <textarea name="keterangan" class="form-control" rows="4"
-                                          placeholder="Masukkan keterangan pergantian jam...">{{ old('keterangan') }}</textarea>
+                                <textarea name="keterangan" class="form-control" rows="4" placeholder="Masukkan keterangan pergantian jam...">{{ old('keterangan') }}</textarea>
                             </div>
 
                             <div class="text-center">
                                 <button type="submit" class="btn btn-primary btn-lg">
                                     <i class="bi bi-save me-2"></i>Simpan Pergantian Jam
                                 </button>
-                                <a href="{{ route('absensi.work_time_change.index') }}" class="btn btn-outline-info btn-lg ms-3">
+                                <a href="{{ route('absensi.work_time_change.index') }}"
+                                    class="btn btn-outline-info btn-lg ms-3">
                                     <i class="bi bi-arrow-left me-2"></i>Kembali
                                 </a>
                             </div>
@@ -183,4 +188,19 @@
             </main>
         </div>
     </div>
+    <script>
+        function toggleTheme() {
+            const currentTheme = document.body.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+
+            // Update toggle icon
+            const toggleIcon = document.querySelector('.theme-toggle i');
+            if (toggleIcon) {
+                toggleIcon.className = newTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+            }
+        }
+    </script>
 @endsection

@@ -81,7 +81,10 @@
                             <span class="navbar-brand fw-bold text-white mb-0">Rekap Manual Izin</span>
                         </div>
                         <div class="ms-auto d-flex align-items-center">
-                            <div class="me-4 text-light">
+                            <div class="theme-toggle me-3" onclick="toggleTheme()">
+                                <i class="bi" id="theme-icon"></i>
+                            </div>
+                            <div class="me-4 user-info">
                                 <i class="bi bi-person-circle me-2"></i>
                                 <span class="fw-semibold">{{ Auth::user()->name }}</span>
                             </div>
@@ -114,7 +117,7 @@
                     </div>
 
                     {{-- Notifications --}}
-                    @if(session('success'))
+                    @if (session('success'))
                         <div class="alert alert-success d-flex align-items-center">
                             <i class="bi bi-check-circle-fill me-3 fs-5"></i>
                             <div>
@@ -153,7 +156,8 @@
                                                     </div>
                                                     <div>
                                                         <div class="text-white fw-semibold">{{ $leave->nama }}</div>
-                                                        <small class="text-muted">{{ $leave->employee->nip ?? '-' }}</small>
+                                                        <small
+                                                            class="text-muted">{{ $leave->employee->nip ?? '-' }}</small>
                                                     </div>
                                                 </div>
                                             </td>
@@ -168,9 +172,9 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                @if($leave->bukti_foto)
+                                                @if ($leave->bukti_foto)
                                                     <a href="{{ Storage::url($leave->bukti_foto) }}" target="_blank"
-                                                       class="btn btn-sm btn-outline-info">
+                                                        class="btn btn-sm btn-outline-info">
                                                         <i class="bi bi-eye"></i> Lihat
                                                     </a>
                                                 @else
@@ -230,5 +234,19 @@
                 this.classList.remove('show');
             });
         });
+
+        function toggleTheme() {
+            const currentTheme = document.body.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+
+            // Update toggle icon
+            const toggleIcon = document.querySelector('.theme-toggle i');
+            if (toggleIcon) {
+                toggleIcon.className = newTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+            }
+        }
     </script>
 @endsection
