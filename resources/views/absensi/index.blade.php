@@ -160,12 +160,15 @@
                         </button>
                         <div class="d-flex align-items-center">
                             <div class="icon-wrapper me-3">
-                                <i class="bi bi-speedometer2 text-white"></i>
+                                <i class="bi bi-speedometer2"></i>
                             </div>
-                            <span class="navbar-brand fw-bold text-white mb-0">Sistem Absensi</span>
+                            <span class="navbar-brand fw-bold mb-0">Sistem Absensi</span>
                         </div>
                         <div class="ms-auto d-flex align-items-center">
-                            <div class="me-4 text-light">
+                            <div class="theme-toggle" onclick="toggleTheme()">
+                                <i class="bi bi-moon-fill"></i>
+                            </div>
+                            <div class="me-4 user-info">
                                 <i class="bi bi-person-circle me-2"></i>
                                 <span class="fw-semibold">{{ Auth::user()->name }}</span>
                             </div>
@@ -184,29 +187,29 @@
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
                             <h1 class="page-title mb-2">Data Absensi Harian</h1>
-                            <p class="text-muted mb-0">Kelola dan pantau kehadiran karyawan secara real-time</p>
+                            <p class="mb-0 text-muted">Kelola dan pantau kehadiran karyawan secara real-time</p>
                         </div>
                         <div class="stats-card">
-                            <div class="fw-bold text-white fs-4">{{ $rows->total() }}</div>
+                            <div class="fw-bold fs-4 text-primary">{{ $rows->total() }}</div>
                             <small class="text-muted">Total Records</small>
                         </div>
                     </div>
 
                     {{-- Enhanced Filter Section --}}
                     <div class="filter-section">
-                        <h5 class="text-white mb-3 d-flex align-items-center">
+                        <h5 class="mb-3 d-flex align-items-center">
                             <i class="bi bi-funnel me-2 text-primary"></i>
                             Filter Data
                         </h5>
                         <div class="row g-3 align-items-end">
                             <form method="GET" class="col-md-12 d-flex flex-wrap gap-3 justify-items-center">
                                 <div class="col-md-4">
-                                    <label class="form-label text-muted small">Tanggal</label>
+                                    <label class="form-label small">Tanggal</label>
                                     <input type="date" name="date" value="{{ request('date') }}"
                                         class="form-control">
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label text-muted small">Nama Karyawan</label>
+                                    <label class="form-label small">Nama Karyawan</label>
                                     <input type="text" name="employee" value="{{ request('employee') }}"
                                         class="form-control" placeholder="Cari nama karyawan...">
                                 </div>
@@ -264,8 +267,7 @@
                                                         </span>
                                                     </div>
                                                     <div>
-                                                        <div class="text-white fw-semibold">{{ $employee->nama ?? '-' }}
-                                                        </div>
+                                                        <div class="fw-semibold">{{ $employee->nama ?? '-' }}</div>
                                                         <small class="text-muted">ID: {{ $employee->id ?? '-' }}</small>
                                                     </div>
                                                 </div>
@@ -273,7 +275,7 @@
                                             <td>
                                                 <span class="badge bg-secondary">{{ $employee->departemen ?? '-' }}</span>
                                             </td>
-                                            <td class="text-white">{{ $a->tanggal->format('d M Y') }}</td>
+                                            <td>{{ $a->tanggal->format('d M Y') }}</td>
                                             <td>
                                                 @php $detailedStatus = $a->detailed_status; @endphp
                                                 <span class="badge {{ $detailedStatus['badge'] }}">
@@ -281,7 +283,7 @@
                                                 </span>
                                                 @if ($a->is_half_day)
                                                     <small
-                                                        class="d-block text-muted mt-1">{{ $detailedStatus['penalties'] }}</small>
+                                                        class="d-block mt-1 text-muted">{{ $detailedStatus['penalties'] }}</small>
                                                 @endif
                                             </td>
                                             <td>
@@ -295,13 +297,13 @@
                                                         class="status-badge status-present">{{ $a->getFormattedScan('scan1') }}</span>
                                                 @endif
                                             </td>
-                                            <td class="text-white">{{ $a->getFormattedScan('scan2') ?: '-' }}</td>
-                                            <td class="text-white">{{ $a->getFormattedScan('scan3') ?: '-' }}</td>
+                                            <td>{{ $a->getFormattedScan('scan2') ?: '-' }}</td>
+                                            <td>{{ $a->getFormattedScan('scan3') ?: '-' }}</td>
                                             <td>
                                                 @if ($noCheckOut)
-                                                    <span class="status-badge status-absent">Belum Pulang</span>
+                                                    <span class="status-badge status-absent"> - </span>
                                                 @else
-                                                    <span class="text-white">{{ $a->getFormattedScan('scan4') }}</span>
+                                                    <span>{{ $a->getFormattedScan('scan4') }}</span>
                                                 @endif
                                             </td>
                                             <td class="text-center">
@@ -313,12 +315,12 @@
                                                         @if ($a->overtime_status === 'pending')
                                                             <div class="btn-group btn-group-sm mt-1" role="group">
                                                                 <button type="button" class="btn btn-success btn-sm"
-                                                                    onclick="updateOvertimeStatus({{ $a->id }}, 'approved', event)">
-                                                                    <i class="bi bi-check"></i>
+                                                                    onclick="updateOvertimeStatus({{ $a->id }}, 'approved')">
+                                                                    <i class="bi bi-check fs-2"></i>
                                                                 </button>
                                                                 <button type="button" class="btn btn-danger btn-sm"
-                                                                    onclick="updateOvertimeStatus({{ $a->id }}, 'rejected', event)">
-                                                                    <i class="bi bi-x"></i>
+                                                                    onclick="updateOvertimeStatus({{ $a->id }}, 'rejected')">
+                                                                    <i class="bi bi-x fs-2"></i>
                                                                 </button>
                                                             </div>
                                                         @endif
@@ -337,7 +339,7 @@
                                             </td>
                                             <td class="text-end">
                                                 @if ($a->total_fine)
-                                                    <span class="text-warning fw-bold">
+                                                    <span class="fw-bold" style="color: var(--warning-color);">
                                                         {{ $a->formatted_total_fine }}
                                                     </span>
                                                     @if (!$a->is_half_day)
@@ -359,12 +361,12 @@
                                                     <button type="button" class="btn btn-outline-info btn-sm"
                                                         onclick="showDetails({{ $a->id }})" data-bs-toggle="modal"
                                                         data-bs-target="#detailModal">
-                                                        <i class="bi bi-eye"></i>
+                                                        <i class="bi bi-eye fs-4"></i>
                                                     </button>
                                                     <button type="button" class="btn btn-outline-warning btn-sm"
                                                         onclick="editAttendance({{ $a->id }})"
                                                         data-bs-toggle="modal" data-bs-target="#editModal">
-                                                        <i class="bi bi-pencil"></i>
+                                                        <i class="bi bi-pencil fs-4"></i>
                                                     </button>
                                                 </div>
                                             </td>
@@ -374,8 +376,9 @@
                                             <td colspan="12" class="text-center py-5">
                                                 <div class="text-muted">
                                                     <i class="bi bi-inbox display-4 d-block mb-3"></i>
-                                                    <h5>Tidak ada data</h5>
-                                                    <p>Belum ada data absensi untuk filter yang dipilih</p>
+                                                    <h5 class="text-muted">Tidak ada data</h5>
+                                                    <p class="text-muted">Belum ada data absensi untuk filter yang dipilih
+                                                    </p>
                                                 </div>
                                             </td>
                                         </tr>
@@ -399,12 +402,12 @@
     {{-- Detail Modal --}}
     <div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content" style="background: var(--card-bg); border: 1px solid var(--border-color);">
-                <div class="modal-header" style="border-bottom: 1px solid var(--border-color);">
-                    <h5 class="modal-title text-white" id="detailModalLabel">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detailModalLabel">
                         <i class="bi bi-info-circle me-2"></i>Detail Absensi
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body" id="detailContent">
                     <!-- Content will be loaded here -->
@@ -416,18 +419,18 @@
     {{-- Edit Modal --}}
     <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content" style="background: var(--card-bg); border: 1px solid var(--border-color);">
-                <div class="modal-header" style="border-bottom: 1px solid var(--border-color);">
-                    <h5 class="modal-title text-white" id="editModalLabel">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">
                         <i class="bi bi-pencil me-2"></i>Edit Absensi
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form id="editAttendanceForm">
                     <div class="modal-body" id="editContent">
                         <!-- Content will be loaded here -->
                     </div>
-                    <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                    <div class="modal-footer">
                         <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Batal</button>
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-save me-2"></i>Simpan Perubahan
@@ -441,8 +444,21 @@
     {{-- Add Google Fonts --}}
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+    {{-- SweetAlert2 --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Load saved theme
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+
+            // Update toggle icon based on current theme
+            const toggleIcon = document.querySelector('.theme-toggle i');
+            if (toggleIcon) {
+                toggleIcon.className = savedTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+            }
+
             const sidebar = document.querySelector('.sidebar');
             const sidebarToggle = document.getElementById('sidebarToggle');
             const sidebarOverlay = document.createElement('div');
@@ -462,6 +478,21 @@
             });
         });
 
+        // Theme toggle function
+        function toggleTheme() {
+            const currentTheme = document.body.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+            document.body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+
+            // Update toggle icon
+            const toggleIcon = document.querySelector('.theme-toggle i');
+            if (toggleIcon) {
+                toggleIcon.className = newTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+            }
+        }
+
         // Show attendance details
         function showDetails(id) {
             fetch(`/absensi/${id}/details`)
@@ -470,12 +501,24 @@
                     if (data.success) {
                         document.getElementById('detailContent').innerHTML = data.html;
                     } else {
-                        alert('Gagal memuat detail');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'Gagal memuat detail',
+                            background: window.swalTheme?.background || '#ffffff',
+                            color: window.swalTheme?.color || '#1e293b'
+                        });
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Terjadi kesalahan');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Terjadi kesalahan',
+                        background: window.swalTheme?.background || '#ffffff',
+                        color: window.swalTheme?.color || '#1e293b'
+                    });
                 });
         }
 
@@ -488,138 +531,130 @@
                         document.getElementById('editContent').innerHTML = data.html;
                         document.getElementById('editAttendanceForm').action = `/absensi/${id}/update`;
                     } else {
-                        alert('Gagal memuat data');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'Gagal memuat data',
+                            background: window.swalTheme?.background || '#ffffff',
+                            color: window.swalTheme?.color || '#1e293b'
+                        });
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Terjadi kesalahan');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Terjadi kesalahan',
+                        background: window.swalTheme?.background || '#ffffff',
+                        color: window.swalTheme?.color || '#1e293b'
+                    });
                 });
         }
 
         // Update overtime status
-        // Update overtime status with SweetAlert
         function updateOvertimeStatus(id, status, event) {
-            event.stopPropagation();
-            event.preventDefault();
+            const confirmText = status === 'approved' ? 'menyetujui' : 'menolak';
+            const iconType = status === 'approved' ? 'question' : 'warning';
+            const confirmButtonText = status === 'approved' ? 'Ya, Setujui!' : 'Ya, Tolak!';
+            const confirmButtonColor = status === 'approved' ? '#28a745' : '#dc3545';
 
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-            const button = event.currentTarget;
-            const buttonGroup = button.closest('.btn-group');
-            const originalHtml = buttonGroup.innerHTML;
-
-            // Show confirmation dialog
             Swal.fire({
-                title: status === 'approved' ? 'Setujui Lembur?' : 'Tolak Lembur?',
-                text: status === 'approved' ?
-                    'Anda akan menyetujui permohonan lembur ini' :
-                    'Anda akan menolak permohonan lembur ini',
-                icon: 'question',
+                title: `Konfirmasi ${status === 'approved' ? 'Persetujuan' : 'Penolakan'}`,
+                text: `Apakah Anda yakin ingin ${confirmText} lembur ini?`,
+                icon: iconType,
                 input: 'textarea',
-                inputLabel: 'Catatan (Opsional)',
+                inputLabel: 'Catatan (opsional)',
                 inputPlaceholder: 'Masukkan catatan jika diperlukan...',
-                inputAttributes: {
-                    'aria-label': 'Masukkan catatan disini'
-                },
                 showCancelButton: true,
-                confirmButtonColor: status === 'approved' ? '#28a745' : '#dc3545',
+                confirmButtonColor: confirmButtonColor,
                 cancelButtonColor: '#6c757d',
-                confirmButtonText: status === 'approved' ? 'Ya, Setujui' : 'Ya, Tolak',
+                confirmButtonText: confirmButtonText,
                 cancelButtonText: 'Batal',
-                showLoaderOnConfirm: true,
-                preConfirm: (notes) => {
-                    // Show loading on button
-                    buttonGroup.innerHTML =
-                        '<div class="spinner-border spinner-border-sm text-light" role="status"></div>';
+                background: window.swalTheme?.background || '#ffffff',
+                color: window.swalTheme?.color || '#1e293b',
+                customClass: {
+                    input: 'swal2-textarea-dark'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading
+                    Swal.fire({
+                        title: 'Memproses...',
+                        text: 'Sedang mengupdate status lembur',
+                        allowOutsideClick: false,
+                        background: window.swalTheme?.background || '#ffffff',
+                        color: window.swalTheme?.color || '#1e293b',
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
 
-                    return fetch(`/absensi/${id}/overtime-status`, {
+                    fetch(`/absensi/${id}/overtime-status`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': csrfToken,
-                                'Accept': 'application/json'
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                    'content')
                             },
                             body: JSON.stringify({
                                 status: status,
-                                notes: notes || ''
+                                notes: result.value || ''
                             })
                         })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error(response.statusText);
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil!',
+                                    text: data.message,
+                                    background: window.swalTheme?.background || '#ffffff',
+                                    color: window.swalTheme?.color || '#1e293b',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error!',
+                                    text: data.message || 'Gagal mengupdate status',
+                                    background: window.swalTheme?.background || '#ffffff',
+                                    color: window.swalTheme?.color || '#1e293b'
+                                });
                             }
-                            return response.json();
                         })
                         .catch(error => {
-                            buttonGroup.innerHTML = originalHtml;
-                            Swal.showValidationMessage(
-                                `Gagal memperbarui status: ${error}`
-                            );
+                            console.error('Error:', error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: 'Terjadi kesalahan',
+                                background: window.swalTheme?.background || '#ffffff',
+                                color: window.swalTheme?.color || '#1e293b'
+                            });
                         });
-                },
-                allowOutsideClick: () => !Swal.isLoading()
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Show success message
-                    Swal.fire({
-                        title: 'Berhasil!',
-                        text: `Status lembur berhasil di${status === 'approved' ? 'setujui' : 'tolak'}`,
-                        icon: 'success',
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-
-                    // Update the UI
-                    const row = button.closest('tr');
-                    if (row) {
-                        fetchRowData(id, row);
-                    } else {
-                        location.reload();
-                    }
-                } else {
-                    // Restore button if cancelled
-                    buttonGroup.innerHTML = originalHtml;
                 }
             });
         }
 
-        // Fungsi untuk mengambil data terbaru row
-        function fetchRowData(id, row) {
-            fetch(`/absensi/${id}/row-data`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Update overtime cell
-                        const overtimeCell = row.querySelector('td:nth-child(9)');
-                        if (overtimeCell) {
-                            overtimeCell.innerHTML = data.overtime_html;
-                        }
-                    } else {
-                        throw new Error('Gagal memuat data terbaru');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    location.reload();
-                });
-        }
-
-        // Helper function for showing toast messages
-        function showToast(message, type = 'success') {
-            const background = type === 'success' ? '#28a745' : '#dc3545';
-
-            Toastify({
-                text: message,
-                duration: 3000,
-                close: true,
-                gravity: "top",
-                position: "right",
-                backgroundColor: background,
-            }).showToast();
-        }
         // Handle edit form submission
         document.getElementById('editAttendanceForm').addEventListener('submit', function(e) {
             e.preventDefault();
+
+            // Show loading
+            Swal.fire({
+                title: 'Menyimpan...',
+                text: 'Sedang menyimpan perubahan',
+                allowOutsideClick: false,
+                background: window.swalTheme?.background || '#ffffff',
+                color: window.swalTheme?.color || '#1e293b',
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
 
             const formData = new FormData(this);
             const actionUrl = this.action;
@@ -635,37 +670,50 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        location.reload();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: 'Perubahan berhasil disimpan',
+                            background: window.swalTheme?.background || '#ffffff',
+                            color: window.swalTheme?.color || '#1e293b',
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            location.reload();
+                        });
                     } else {
-                        alert('Gagal menyimpan perubahan');
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'Gagal menyimpan perubahan',
+                            background: window.swalTheme?.background || '#ffffff',
+                            color: window.swalTheme?.color || '#1e293b'
+                        });
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Terjadi kesalahan');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Terjadi kesalahan',
+                        background: window.swalTheme?.background || '#ffffff',
+                        color: window.swalTheme?.color || '#1e293b'
+                    });
                 });
         });
-
-        function updateAttendanceRow(row, id) {
-            fetch(`/absensi/${id}/row-data`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Update the overtime cell
-                        const overtimeCell = row.querySelector('td:nth-child(9)');
-                        if (overtimeCell) {
-                            overtimeCell.innerHTML = data.overtime_html;
-                        }
-
-                        // You can update other cells as needed
-                    }
-                })
-                .catch(error => {
-                    console.error('Error updating row:', error);
-                    // Fallback to full reload if partial update fails
-                    location.reload();
-                });
-        }
     </script>
 
+    <style>
+        .swal2-textarea-dark {
+            background-color: var(--bg-color) !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-primary) !important;
+            border-radius: 0.5rem;
+        }
+
+        .swal2-textarea-dark::placeholder {
+            color: var(--text-muted) !important;
+        }
+    </style>
 @endsection
