@@ -61,11 +61,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('/denda', [AttendanceController::class, 'denda'])->name('absensi.denda');
         Route::put('/denda', [AttendanceController::class, 'dendaUpdate'])->name('absensi.denda.update');
+        Route::get('/denda/individual', [AttendanceController::class, 'dendaIndividual'])->name('absensi.denda.individual');
+        Route::get('/denda/employee/{id}', [AttendanceController::class, 'dendaEmployeeDetail'])->name('absensi.denda.employee.detail');
+        Route::get('/denda/export/individual/{id}', [AttendanceController::class, 'dendaExportIndividualPdf'])->name('absensi.denda.export.individual');
+        Route::get('/denda/export/all', [AttendanceController::class, 'dendaExportAllPdf'])->name('absensi.denda.export.all');
 
         // Leave Routes
         Route::get('/leave', [AttendanceController::class, 'leaveIndex'])->name('absensi.leave.index');
         Route::get('/leave/create', [AttendanceController::class, 'leaveCreate'])->name('absensi.leave.create');
         Route::post('/leave', [AttendanceController::class, 'leaveStore'])->name('absensi.leave.store');
+        Route::post('leave/store', [AttendanceController::class, 'leaveStore'])->name('absensi.leavestore');
+        Route::post('leave/{id}/update-status', [AttendanceController::class, 'leaveUpdateStatus'])->name('absensi.update.status');
+        Route::get('/leave/{id}', [AttendanceController::class, 'leaveShow'])->name('absensi.leaveshow');
 
         // Work Time Change Routes
         Route::get('/work-time-change', [AttendanceController::class, 'workTimeChangeIndex'])->name('absensi.work_time_change.index');

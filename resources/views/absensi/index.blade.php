@@ -26,6 +26,17 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('absensi.denda.individual') ? 'active-link' : '' }}"
+                                href="{{ route('absensi.denda.individual') }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-wrapper me-3">
+                                        <i class="bi bi-file-earmark-richtext-fill"></i>
+                                    </div>
+                                    <span>Denda Individu</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('absensi.recap') ? 'active-link' : '' }}"
                                 href="{{ route('absensi.recap') }}">
                                 <div class="d-flex align-items-center">

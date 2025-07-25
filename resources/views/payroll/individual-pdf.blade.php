@@ -87,20 +87,8 @@
         }
         .signatures {
             margin-top: 40px;
-            display: table;
             width: 100%;
-        }
-        .signature-left, .signature-right {
-            display: table-cell;
-            width: 50%;
             text-align: center;
-            vertical-align: top;
-            padding: 0 20px;
-        }
-        .signature-space {
-            height: 80px;
-            border-bottom: 1px solid #333;
-            margin: 10px 0;
         }
         .signature-name {
             font-weight: bold;
@@ -246,24 +234,15 @@
         @endif
     </div>
 
-    <div class="signatures">
-        <div class="signature-left">
-            <div style="text-align: center;">
-                <strong>HRD</strong>
-                <div class="signature-space"></div>
-                <div class="signature-name">Nur Ainiya Fariza, S.E.</div>
-                <div class="signature-title">Manajer Dept. HRD & Keuangan</div>
-                <div class="nip">NIP: 19850315 200801 2 001</div>
+    <div class="signatures" style="text-align: center;">
+        <div style="display: inline-block; text-align: center;">
+            <strong>Mengetahui,</strong>
+            <div style="height: 100px; margin: 10px 0; position: relative;">
+                <img src="{{ storage_path('app/public/docs/images/ttd-fix.png') }}" alt="Tanda Tangan" style="height: 80px; object-fit: contain;">
             </div>
-        </div>
-        <div class="signature-right">
-            <div style="text-align: center;">
-                <strong>{{ ucfirst($payroll->employee->departemen) }}</strong>
-                <div class="signature-space"></div>
-                <div class="signature-name">{{ $payroll->employee->nama }}</div>
-                <div class="signature-title">{{ $payroll->employee->jabatan }}</div>
-                <div class="nip">NIP: {{ $payroll->employee->nip }}</div>
-            </div>
+            <div class="signature-name">Nur Ainiya Fariza, S.E.</div>
+            <div class="signature-title">Manajer Dept. HRD & Keuangan</div>
+            <div class="nip">NIP: 19850315 200801 2 001</div>
         </div>
     </div>
 

@@ -106,10 +106,33 @@
                             <p class="text-muted mb-0">Kelola data izin karyawan</p>
                         </div>
                         <div class="d-flex gap-2">
-                            <div class="stats-card">
-                                <div class="fw-bold text-white fs-4">{{ $leaves->total() }}</div>
-                                <small class="text-muted">Total Izin</small>
+                            {{-- Filter Status --}}
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-funnel me-2"></i>Filter Status
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="{{ route('absensi.leave.index') }}">Semua Status</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('absensi.leave.index', ['status' => 'pending']) }}">Menunggu</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('absensi.leave.index', ['status' => 'approved']) }}">Disetujui</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('absensi.leave.index', ['status' => 'rejected']) }}">Ditolak</a></li>
+                                </ul>
                             </div>
+
+                            {{-- Statistics Cards --}}
+                            <div class="stats-card bg-warning">
+                                <div class="fw-bold text-dark fs-5">{{ $stats['pending'] }}</div>
+                                <small class="text-dark">Menunggu</small>
+                            </div>
+                            <div class="stats-card bg-success">
+                                <div class="fw-bold text-white fs-5">{{ $stats['approved'] }}</div>
+                                <small class="text-light">Disetujui</small>
+                            </div>
+                            <div class="stats-card bg-danger">
+                                <div class="fw-bold text-white fs-5">{{ $stats['rejected'] }}</div>
+                                <small class="text-light">Ditolak</small>
+                            </div>
+
                             <a href="{{ route('absensi.leave.create') }}" class="btn btn-primary">
                                 <i class="bi bi-plus-circle me-2"></i>Tambah Izin
                             </a>
@@ -140,6 +163,7 @@
                                         <th><i class="bi bi-chat-text me-2"></i>Alasan Izin</th>
                                         <th><i class="bi bi-image me-2"></i>Bukti Foto</th>
                                         <th><i class="bi bi-check-circle me-2"></i>Status</th>
+                                        <th><i class="bi bi-gear me-2"></i>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -156,8 +180,7 @@
                                                     </div>
                                                     <div>
                                                         <div class="text-white fw-semibold">{{ $leave->nama }}</div>
-                                                        <small
-                                                            class="text-muted">{{ $leave->employee->nip ?? '-' }}</small>
+                                                        <small class="text-muted">{{ $leave->employee->nip ?? '-' }}</small>
                                                     </div>
                                                 </div>
                                             </td>
@@ -182,12 +205,46 @@
                                                 @endif
                                             </td>
                                             <td>
-                                                <span class="badge bg-success">{{ ucfirst($leave->status) }}</span>
+                                                @if ($leave->status === 'pending')
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="bi bi-clock me-1"></i>Menunggu
+                                                    </span>
+                                                @elseif ($leave->status === 'approved')
+                                                    <span class="badge bg-success">
+                                                        <i class="bi bi-check-circle me-1"></i>Disetujui
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-danger">
+                                                        <i class="bi bi-x-circle me-1"></i>Ditolak
+                                                    </span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <div class="d-flex gap-1">
+                                                    <button type="button" class="btn btn-sm btn-outline-info"
+                                                            onclick="viewLeave({{ $leave->id }})"
+                                                            title="Lihat Detail">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+
+                                                    @if ($leave->status === 'pending')
+                                                        <button type="button" class="btn btn-sm btn-outline-success"
+                                                                onclick="updateStatus({{ $leave->id }}, 'approved')"
+                                                                title="Setujui">
+                                                            <i class="bi bi-check"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                                                onclick="updateStatus({{ $leave->id }}, 'rejected')"
+                                                                title="Tolak">
+                                                            <i class="bi bi-x"></i>
+                                                        </button>
+                                                    @endif
+                                                </div>
                                             </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="8" class="text-center py-5">
+                                            <td colspan="9" class="text-center py-5">
                                                 <div class="text-muted">
                                                     <i class="bi bi-inbox display-4 d-block mb-3"></i>
                                                     <h5>Tidak ada data</h5>
@@ -212,29 +269,70 @@
         </div>
     </div>
 
+    {{-- Detail Modal --}}
+    <div class="modal fade" id="detailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-dark">
+                <div class="modal-header">
+                    <h5 class="modal-title text-white">
+                        <i class="bi bi-file-earmark-medical me-2"></i>Detail Izin
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="detailContent">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Status Update Modal --}}
+    <div class="modal fade" id="statusModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark">
+                <div class="modal-header">
+                    <h5 class="modal-title text-white">
+                        <i class="bi bi-check-square me-2"></i>Update Status Izin
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="statusForm">
+                        <input type="hidden" id="leaveId" name="leave_id">
+                        <input type="hidden" id="statusAction" name="status">
+
+                        <div class="alert" id="statusAlert" style="display: none;"></div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-white">Status</label>
+                            <div id="statusDisplay" class="form-control bg-secondary text-white"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="approvalNotes" class="form-label text-white">Catatan (Opsional)</label>
+                            <textarea class="form-control bg-secondary text-white border-secondary"
+                                      id="approvalNotes" name="approval_notes" rows="3"
+                                      placeholder="Masukkan catatan approval..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x me-2"></i>Batal
+                    </button>
+                    <button type="button" class="btn" id="confirmStatusBtn" onclick="confirmStatusUpdate()">
+                        <i class="bi bi-check me-2"></i>Konfirmasi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const sidebar = document.querySelector('.sidebar');
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            const sidebarOverlay = document.createElement('div');
-            sidebarOverlay.className = 'sidebar-overlay';
-            document.body.appendChild(sidebarOverlay);
-
-            // Toggle sidebar
-            if (sidebarToggle) {
-                sidebarToggle.addEventListener('click', function() {
-                    sidebar.classList.toggle('show');
-                    sidebarOverlay.classList.toggle('show');
-                });
-            }
-
-            // Close sidebar when overlay is clicked
-            sidebarOverlay.addEventListener('click', function() {
-                sidebar.classList.remove('show');
-                this.classList.remove('show');
-            });
-        });
-
         function toggleTheme() {
             const currentTheme = document.body.getAttribute('data-theme') || 'light';
             const newTheme = currentTheme === 'light' ? 'dark' : 'light';
@@ -242,11 +340,188 @@
             document.body.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
 
-            // Update toggle icon
             const toggleIcon = document.querySelector('.theme-toggle i');
             if (toggleIcon) {
                 toggleIcon.className = newTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
             }
         }
+
+        function viewLeave(id) {
+            const modal = new bootstrap.Modal(document.getElementById('detailModal'));
+
+            fetch(`/absensi/leave/${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const leave = data.leave;
+                        const statusBadge = leave.status === 'pending' ?
+                            '<span class="badge bg-warning text-dark">Menunggu</span>' :
+                            leave.status === 'approved' ?
+                            '<span class="badge bg-success">Disetujui</span>' :
+                            '<span class="badge bg-danger">Ditolak</span>';
+
+                        document.getElementById('detailContent').innerHTML = `
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label text-white fw-bold">Nama Karyawan</label>
+                                        <div class="text-white">${leave.nama}</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label text-white fw-bold">Departemen</label>
+                                        <div class="text-white">${leave.departemen}</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label text-white fw-bold">Jabatan</label>
+                                        <div class="text-white">${leave.jabatan}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label text-white fw-bold">Tanggal Izin</label>
+                                        <div class="text-white">${new Date(leave.tanggal_izin).toLocaleDateString('id-ID', {
+                                            weekday: 'long',
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric'
+                                        })}</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label text-white fw-bold">Status</label>
+                                        <div>${statusBadge}</div>
+                                    </div>
+                                    ${leave.approved_by ? `
+                                    <div class="mb-3">
+                                        <label class="form-label text-white fw-bold">Disetujui Oleh</label>
+                                        <div class="text-white">${leave.approved_by}</div>
+                                    </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-white fw-bold">Alasan Izin</label>
+                                <div class="bg-secondary p-3 rounded text-white">${leave.alasan_izin}</div>
+                            </div>
+                            ${leave.approval_notes ? `
+                            <div class="mb-3">
+                                <label class="form-label text-white fw-bold">Catatan Approval</label>
+                                <div class="bg-secondary p-3 rounded text-white">${leave.approval_notes}</div>
+                            </div>
+                            ` : ''}
+                            ${leave.bukti_foto ? `
+                            <div class="mb-3">
+                                <label class="form-label text-white fw-bold">Bukti Foto</label>
+                                <div class="mt-2">
+                                    <img src="/storage/${leave.bukti_foto}" class="img-fluid rounded" style="max-height: 300px;">
+                                </div>
+                            </div>
+                            ` : ''}
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('detailContent').innerHTML = '<div class="alert alert-danger">Gagal memuat data</div>';
+                });
+
+            modal.show();
+        }
+
+        function updateStatus(id, status) {
+            document.getElementById('leaveId').value = id;
+            document.getElementById('statusAction').value = status;
+
+            const statusText = status === 'approved' ? 'Menyetujui' : 'Menolak';
+            const statusClass = status === 'approved' ? 'btn-success' : 'btn-danger';
+            const statusIcon = status === 'approved' ? 'bi-check' : 'bi-x';
+
+            document.getElementById('statusDisplay').textContent = statusText + ' izin';
+            document.getElementById('confirmStatusBtn').className = `btn ${statusClass}`;
+            document.getElementById('confirmStatusBtn').innerHTML = `<i class="bi ${statusIcon} me-2"></i>Konfirmasi`;
+
+            const modal = new bootstrap.Modal(document.getElementById('statusModal'));
+            modal.show();
+        }
+
+        function confirmStatusUpdate() {
+            const form = document.getElementById('statusForm');
+            const formData = new FormData(form);
+            const id = document.getElementById('leaveId').value;
+            const status = document.getElementById('statusAction').value;
+
+            const submitData = {
+                status: status,
+                approval_notes: document.getElementById('approvalNotes').value
+            };
+
+            document.getElementById('confirmStatusBtn').disabled = true;
+            document.getElementById('confirmStatusBtn').innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Memproses...';
+
+            fetch(`/absensi/leave/${id}/update-status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify(submitData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Close modal and reload page
+                    bootstrap.Modal.getInstance(document.getElementById('statusModal')).hide();
+
+                    // Show success message
+                    const alertHtml = `
+                        <div class="alert alert-success d-flex align-items-center alert-dismissible fade show">
+                            <i class="bi bi-check-circle-fill me-3 fs-5"></i>
+                            <div>
+                                <strong>Berhasil!</strong> ${data.message}
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    `;
+
+                    // Add alert to page
+                    const alertContainer = document.querySelector('.animate-fade-in');
+                    alertContainer.insertAdjacentHTML('afterbegin', alertHtml);
+
+                    // Reload page after short delay
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    // Show error in modal
+                    document.getElementById('statusAlert').className = 'alert alert-danger';
+                    document.getElementById('statusAlert').textContent = data.message || 'Terjadi kesalahan';
+                    document.getElementById('statusAlert').style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('statusAlert').className = 'alert alert-danger';
+                document.getElementById('statusAlert').textContent = 'Terjadi kesalahan jaringan';
+                document.getElementById('statusAlert').style.display = 'block';
+            })
+            .finally(() => {
+                document.getElementById('confirmStatusBtn').disabled = false;
+                const status = document.getElementById('statusAction').value;
+                const statusClass = status === 'approved' ? 'btn-success' : 'btn-danger';
+                const statusIcon = status === 'approved' ? 'bi-check' : 'bi-x';
+                document.getElementById('confirmStatusBtn').className = `btn ${statusClass}`;
+                document.getElementById('confirmStatusBtn').innerHTML = `<i class="bi ${statusIcon} me-2"></i>Konfirmasi`;
+            });
+        }
+
+        // Initialize theme on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+
+            const toggleIcon = document.querySelector('.theme-toggle i');
+            if (toggleIcon) {
+                toggleIcon.className = savedTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+            }
+        });
     </script>
 @endsection

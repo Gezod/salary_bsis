@@ -367,10 +367,26 @@ class AttendanceController extends Controller
     }
 
     // Leave Management
-    public function leaveIndex()
+    public function leaveIndex(Request $request)
     {
-        $leaves = Leave::with('employee')->orderByDesc('created_at')->paginate(20);
-        return view('absensi.leave.index', compact('leaves'));
+        $query = Leave::with('employee')->orderByDesc('created_at');
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $leaves = $query->paginate(20)->withQueryString();
+
+        // Count statistics
+        $stats = [
+            'total' => Leave::count(),
+            'pending' => Leave::where('status', 'pending')->count(),
+            'approved' => Leave::where('status', 'approved')->count(),
+            'rejected' => Leave::where('status', 'rejected')->count(),
+        ];
+
+        return view('absensi.leave.index', compact('leaves', 'stats'));
     }
 
     public function leaveCreate()
@@ -402,11 +418,54 @@ class AttendanceController extends Controller
             'alasan_izin' => $request->alasan_izin,
             'bukti_foto' => $bukti_foto,
             'tanggal_izin' => $request->tanggal_izin,
-            'status' => 'approved'
+            'status' => 'pending' // Changed from 'approved' to 'pending'
         ]);
 
         return redirect()->route('absensi.leave.index')
-            ->with('success', 'Data izin berhasil ditambahkan.');
+            ->with('success', 'Data izin berhasil ditambahkan dan menunggu persetujuan.');
+    }
+
+    public function leaveUpdateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:approved,rejected',
+            'approval_notes' => 'nullable|string|max:500'
+        ]);
+
+        try {
+            $leave = Leave::findOrFail($id);
+
+            $leave->update([
+                'status' => $request->status,
+                'approval_notes' => $request->approval_notes,
+                'approved_at' => $request->status === 'approved' ? now() : null,
+                'approved_by' => auth()->user()->name ?? 'Admin'
+            ]);
+
+            $statusText = $request->status === 'approved' ? 'disetujui' : 'ditolak';
+
+            return response()->json([
+                'success' => true,
+                'message' => "Izin berhasil {$statusText}.",
+                'status' => $request->status
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error updating leave status: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui status izin.'
+            ], 500);
+        }
+    }
+
+    public function leaveShow($id)
+    {
+        $leave = Leave::with('employee')->findOrFail($id);
+        return response()->json([
+            'success' => true,
+            'leave' => $leave
+        ]);
     }
 
     // Work Time Change Management
@@ -534,6 +593,214 @@ class AttendanceController extends Controller
             return redirect()->route('absensi.denda')
                 ->with('error', 'Gagal memperbarui pengaturan denda: ' . $e->getMessage());
         }
+    }
+
+    // Individual Penalty View
+    public function dendaIndividual(Request $request)
+    {
+        $month = $request->input('month', now()->format('Y-m'));
+        if (!preg_match('/^\d{4}-\d{2}$/', $month)) {
+            abort(400, 'Format bulan tidak valid. Gunakan format YYYY-MM.');
+        }
+
+        [$year, $mon] = explode('-', $month);
+
+        // Get penalty data per employee
+        $penaltyData = Attendance::with('employee')
+            ->selectRaw('
+                employee_id,
+                COUNT(*) as total_days,
+                SUM(late_minutes) as total_late_minutes,
+                COUNT(CASE WHEN late_minutes > 0 THEN 1 END) as late_days,
+                SUM(late_fine) as total_late_fine,
+                SUM(break_fine) as total_break_fine,
+                SUM(absence_fine) as total_absence_fine,
+                SUM(total_fine) as total_penalty,
+                AVG(late_minutes) as avg_late_minutes
+            ')
+            ->whereYear('tanggal', $year)
+            ->whereMonth('tanggal', $mon)
+            ->groupBy('employee_id')
+            ->having('total_penalty', '>', 0)
+            ->orderByDesc('total_penalty')
+            ->get();
+
+        // Get department statistics
+        $departmentStats = [
+            'staff' => [
+                'total_employees' => 0,
+                'total_penalty' => 0,
+                'avg_penalty' => 0,
+                'total_late_days' => 0
+            ],
+            'karyawan' => [
+                'total_employees' => 0,
+                'total_penalty' => 0,
+                'avg_penalty' => 0,
+                'total_late_days' => 0
+            ]
+        ];
+
+        foreach ($penaltyData as $data) {
+            $dept = $data->employee->departemen;
+            if (isset($departmentStats[$dept])) {
+                $departmentStats[$dept]['total_employees']++;
+                $departmentStats[$dept]['total_penalty'] += $data->total_penalty;
+                $departmentStats[$dept]['total_late_days'] += $data->late_days;
+            }
+        }
+
+        // Calculate averages
+        foreach ($departmentStats as $dept => $stats) {
+            if ($stats['total_employees'] > 0) {
+                $departmentStats[$dept]['avg_penalty'] = $stats['total_penalty'] / $stats['total_employees'];
+            }
+        }
+
+        return view('absensi.denda-individual', compact('penaltyData', 'departmentStats', 'month'));
+    }
+
+    // Individual Employee Penalty Detail
+    public function dendaEmployeeDetail(Request $request, $employeeId)
+    {
+        $month = $request->input('month', now()->format('Y-m'));
+        if (!preg_match('/^\d{4}-\d{2}$/', $month)) {
+            abort(400, 'Format bulan tidak valid. Gunakan format YYYY-MM.');
+        }
+
+        [$year, $mon] = explode('-', $month);
+
+        $employee = Employee::findOrFail($employeeId);
+
+        // Get detailed attendance data for the employee
+        $attendanceData = Attendance::where('employee_id', $employeeId)
+            ->whereYear('tanggal', $year)
+            ->whereMonth('tanggal', $mon)
+            ->orderBy('tanggal')
+            ->get();
+
+        // Calculate summary
+        $summary = [
+            'total_days' => $attendanceData->count(),
+            'late_days' => $attendanceData->where('late_minutes', '>', 0)->count(),
+            'total_late_minutes' => $attendanceData->sum('late_minutes'),
+            'total_late_fine' => $attendanceData->sum('late_fine'),
+            'total_break_fine' => $attendanceData->sum('break_fine'),
+            'total_absence_fine' => $attendanceData->sum('absence_fine'),
+            'total_penalty' => $attendanceData->sum('total_fine'),
+            'avg_late_minutes' => $attendanceData->where('late_minutes', '>', 0)->avg('late_minutes') ?? 0
+        ];
+
+        return view('absensi.denda-employee-detail', compact('employee', 'attendanceData', 'summary', 'month'));
+    }
+
+    // Export Individual PDF
+    public function dendaExportIndividualPdf(Request $request, $employeeId)
+    {
+        $month = $request->input('month', now()->format('Y-m'));
+        if (!preg_match('/^\d{4}-\d{2}$/', $month)) {
+            abort(400, 'Format bulan tidak valid. Gunakan format YYYY-MM.');
+        }
+
+        [$year, $mon] = explode('-', $month);
+
+        $employee = Employee::findOrFail($employeeId);
+
+        // Get detailed attendance data for the employee
+        $attendanceData = Attendance::where('employee_id', $employeeId)
+            ->whereYear('tanggal', $year)
+            ->whereMonth('tanggal', $mon)
+            ->orderBy('tanggal')
+            ->get();
+
+        // Calculate summary
+        $summary = [
+            'total_days' => $attendanceData->count(),
+            'late_days' => $attendanceData->where('late_minutes', '>', 0)->count(),
+            'total_late_minutes' => $attendanceData->sum('late_minutes'),
+            'total_late_fine' => $attendanceData->sum('late_fine'),
+            'total_break_fine' => $attendanceData->sum('break_fine'),
+            'total_absence_fine' => $attendanceData->sum('absence_fine'),
+            'total_penalty' => $attendanceData->sum('total_fine'),
+            'avg_late_minutes' => $attendanceData->where('late_minutes', '>', 0)->avg('late_minutes') ?? 0
+        ];
+
+        $monthName = Carbon::createFromFormat('Y-m', $month)->format('F Y');
+
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('absensi.pdf.denda-individual', compact('employee', 'attendanceData', 'summary', 'month', 'monthName'));
+
+        return $pdf->download("Laporan_Denda_{$employee->nama}_{$month}.pdf");
+    }
+
+    // Export All Penalties PDF
+    public function dendaExportAllPdf(Request $request)
+    {
+        $month = $request->input('month', now()->format('Y-m'));
+        if (!preg_match('/^\d{4}-\d{2}$/', $month)) {
+            abort(400, 'Format bulan tidak valid. Gunakan format YYYY-MM.');
+        }
+
+        [$year, $mon] = explode('-', $month);
+
+        // Get penalty data per employee
+        $penaltyData = Attendance::with('employee')
+            ->selectRaw('
+                employee_id,
+                COUNT(*) as total_days,
+                SUM(late_minutes) as total_late_minutes,
+                COUNT(CASE WHEN late_minutes > 0 THEN 1 END) as late_days,
+                SUM(late_fine) as total_late_fine,
+                SUM(break_fine) as total_break_fine,
+                SUM(absence_fine) as total_absence_fine,
+                SUM(total_fine) as total_penalty,
+                AVG(late_minutes) as avg_late_minutes
+            ')
+            ->whereYear('tanggal', $year)
+            ->whereMonth('tanggal', $mon)
+            ->groupBy('employee_id')
+            ->having('total_penalty', '>', 0)
+            ->orderByDesc('total_penalty')
+            ->get();
+
+        // Get department statistics
+        $departmentStats = [
+            'staff' => [
+                'total_employees' => 0,
+                'total_penalty' => 0,
+                'avg_penalty' => 0,
+                'total_late_days' => 0
+            ],
+            'karyawan' => [
+                'total_employees' => 0,
+                'total_penalty' => 0,
+                'avg_penalty' => 0,
+                'total_late_days' => 0
+            ]
+        ];
+
+        foreach ($penaltyData as $data) {
+            $dept = $data->employee->departemen;
+            if (isset($departmentStats[$dept])) {
+                $departmentStats[$dept]['total_employees']++;
+                $departmentStats[$dept]['total_penalty'] += $data->total_penalty;
+                $departmentStats[$dept]['total_late_days'] += $data->late_days;
+            }
+        }
+
+        // Calculate averages
+        foreach ($departmentStats as $dept => $stats) {
+            if ($stats['total_employees'] > 0) {
+                $departmentStats[$dept]['avg_penalty'] = $stats['total_penalty'] / $stats['total_employees'];
+            }
+        }
+
+        $monthName = Carbon::createFromFormat('Y-m', $month)->format('F Y');
+
+        $pdf = app('dompdf.wrapper');
+        $pdf->loadView('absensi.pdf.denda-all', compact('penaltyData', 'departmentStats', 'month', 'monthName'));
+
+        return $pdf->download("Laporan_Denda_Semua_Karyawan_{$month}.pdf");
     }
 
     // Employee Management Methods
