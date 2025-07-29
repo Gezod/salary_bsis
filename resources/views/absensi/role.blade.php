@@ -114,11 +114,18 @@
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('absensi.role') ? 'active-link' : '' }}"
                                 href="{{ route('absensi.role') }}">
-                                <div class="d-flex align-items-center">
+                                <div class="d-flex align-items-center position-relative">
                                     <div class="icon-wrapper me-3">
                                         <i class="bi bi-people"></i>
                                     </div>
                                     <span>Kelola Karyawan</span>
+                                    @if (isset($expiringContracts) && $expiringContracts > 0)
+                                        <span
+                                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                            {{ $expiringContracts }}
+                                            <span class="visually-hidden">contracts expiring</span>
+                                        </span>
+                                    @endif
                                 </div>
                             </a>
                         </li>
@@ -318,10 +325,12 @@
                                                 <div class="text-white">
                                                     <div
                                                         class="{{ $employee->isContractExpiringSoon() ? 'text-dark' : 'text-white' }}">
-                                                        <strong>PIN:</strong> {{ $employee->pin ?? '-' }}</div>
+                                                        <strong>PIN:</strong> {{ $employee->pin ?? '-' }}
+                                                    </div>
                                                     <div
                                                         class="{{ $employee->isContractExpiringSoon() ? 'text-dark' : 'text-white' }}">
-                                                        <strong>NIP:</strong> {{ $employee->nip ?? '-' }}</div>
+                                                        <strong>NIP:</strong> {{ $employee->nip ?? '-' }}
+                                                    </div>
                                                 </div>
                                             </td>
                                             <td>
