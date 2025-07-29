@@ -43,6 +43,19 @@ class Attendance extends Model
         'scan5' => 'datetime',
         'invalid_break' => 'boolean',
         'is_half_day' => 'boolean',
+        'overtime_status' => 'string',
+    ];
+
+    protected $appends = [
+        'status_text',
+        'half_day_type_text',
+        'working_hours',
+        'status_badge',
+        'detailed_status',
+        'formatted_total_fine',
+        'overtime_text',
+        'overtime_status_badge',
+        'formatted_overtime_status'
     ];
 
     public function employee()
@@ -52,10 +65,7 @@ class Attendance extends Model
 
     public function getFormattedScan($scanField)
     {
-        if ($this->$scanField) {
-            return $this->$scanField->format('H:i');
-        }
-        return null;
+        return $this->{$scanField} ? Carbon::parse($this->{$scanField})->format('H:i') : null;
     }
 
     /**
@@ -66,7 +76,6 @@ class Attendance extends Model
         if ($this->is_half_day) {
             return $this->half_day_type_text;
         }
-
         return 'Full Harian';
     }
 
@@ -75,18 +84,13 @@ class Attendance extends Model
      */
     public function getHalfDayTypeTextAttribute()
     {
-        if (!$this->is_half_day) {
-            return null;
-        }
+        if (!$this->is_half_day) return null;
 
-        switch ($this->half_day_type) {
-            case 'shift_1':
-                return 'Setengah Hari (Shift 1)';
-            case 'shift_2':
-                return 'Setengah Hari (Shift 2)';
-            default:
-                return 'Setengah Hari';
-        }
+        return match ($this->half_day_type) {
+            'shift_1' => 'Setengah Hari (Shift 1)',
+            'shift_2' => 'Setengah Hari (Shift 2)',
+            default => 'Setengah Hari'
+        };
     }
 
     /**
@@ -94,10 +98,7 @@ class Attendance extends Model
      */
     public function getWorkingHoursAttribute()
     {
-        if ($this->is_half_day) {
-            return 4; // 4 jam untuk setengah hari
-        }
-        return 8; // Full day
+        return $this->is_half_day ? 4 : 8;
     }
 
     /**
@@ -105,18 +106,9 @@ class Attendance extends Model
      */
     public function getStatusBadgeAttribute()
     {
-        if ($this->is_half_day) {
-            return 'bg-info';
-        }
-
-        if ($this->late_minutes > 0) {
-            return 'bg-warning';
-        }
-
-        if (!$this->scan1) {
-            return 'bg-danger';
-        }
-
+        if ($this->is_half_day) return 'bg-info';
+        if ($this->late_minutes > 0) return 'bg-warning';
+        if (!$this->scan1) return 'bg-danger';
         return 'bg-success';
     }
 
@@ -165,10 +157,9 @@ class Attendance extends Model
      */
     public function getFormattedTotalFineAttribute()
     {
-        if ($this->total_fine > 0) {
-            return 'Rp ' . number_format($this->total_fine, 0, ',', '.');
-        }
-        return '-';
+        return $this->total_fine > 0
+            ? 'Rp ' . number_format($this->total_fine, 0, ',', '.')
+            : '-';
     }
 
     /**
@@ -184,14 +175,16 @@ class Attendance extends Model
      */
     public function getOvertimeTextAttribute()
     {
-        if ($this->overtime_minutes > 0) {
-            $hours = floor($this->overtime_minutes / 60);
-            $minutes = $this->overtime_minutes % 60;
+        if (!$this->hasOvertime()) return null;
 
-            $text = $hours > 0 ? ($minutes > 0 ? "{$hours}j {$minutes}m" : "{$hours} jam") : "{$minutes} menit";
-            return $text . " ({$this->overtime_status})";
-        }
-        return null;
+        $hours = floor($this->overtime_minutes / 60);
+        $minutes = $this->overtime_minutes % 60;
+
+        $text = $hours > 0
+            ? ($minutes > 0 ? "{$hours}j {$minutes}m" : "{$hours} jam")
+            : "{$minutes} menit";
+
+        return $text . " ({$this->overtime_status})";
     }
 
     /**
@@ -199,15 +192,11 @@ class Attendance extends Model
      */
     public function getOvertimeStatusBadgeAttribute()
     {
-        switch ($this->overtime_status) {
-            case 'approved':
-                return 'bg-success';
-            case 'rejected':
-                return 'bg-danger';
-            case 'pending':
-            default:
-                return 'bg-warning';
-        }
+        return match ($this->overtime_status ?? 'pending') {
+            'approved' => 'bg-success',
+            'rejected' => 'bg-danger',
+            default => 'bg-warning'
+        };
     }
 
     /**
@@ -215,14 +204,54 @@ class Attendance extends Model
      */
     public function getFormattedOvertimeStatusAttribute()
     {
-        switch ($this->overtime_status) {
-            case 'approved':
-                return 'Disetujui';
-            case 'rejected':
-                return 'Ditolak';
-            case 'pending':
-            default:
-                return 'Menunggu';
+        return match ($this->overtime_status) {
+            'approved' => 'Disetujui',
+            'rejected' => 'Ditolak',
+            default => 'Menunggu'
+        };
+    }
+
+    /**
+     * Scope for half day attendances
+     */
+    public function scopeHalfDay($query, $type = null)
+    {
+        $query->where('is_half_day', true);
+
+        if ($type) {
+            $query->where('half_day_type', $type);
         }
+
+        return $query;
+    }
+
+    /**
+     * Scope for full day attendances
+     */
+    public function scopeFullDay($query)
+    {
+        return $query->where('is_half_day', false);
+    }
+
+    /**
+     * Scope for attendances with fines
+     */
+    public function scopeWithFines($query)
+    {
+        return $query->where('total_fine', '>', 0);
+    }
+
+    /**
+     * Scope for attendances with overtime
+     */
+    public function scopeWithOvertime($query, $status = null)
+    {
+        $query->where('overtime_minutes', '>', 0);
+
+        if ($status) {
+            $query->where('overtime_status', $status);
+        }
+
+        return $query;
     }
 }

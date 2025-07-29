@@ -15,21 +15,25 @@
                 <label class="form-label text-white small">Scan 1 (Masuk)</label>
                 <input type="time" name="scan1" class="form-control"
                        value="{{ $attendance->scan1 ? $attendance->scan1->format('H:i') : '' }}">
+                <small class="text-muted">Untuk setengah hari shift 1</small>
             </div>
             <div class="col-md-3">
                 <label class="form-label text-white small">Scan 2 (Istirahat/Pulang)</label>
                 <input type="time" name="scan2" class="form-control"
                        value="{{ $attendance->scan2 ? $attendance->scan2->format('H:i') : '' }}">
+                <small class="text-muted">Untuk setengah hari shift 1</small>
             </div>
             <div class="col-md-3">
-                <label class="form-label text-white small">Scan 3 (Kembali)</label>
+                <label class="form-label text-white small">Scan 3 (Kembali/Masuk)</label>
                 <input type="time" name="scan3" class="form-control"
                        value="{{ $attendance->scan3 ? $attendance->scan3->format('H:i') : '' }}">
+                <small class="text-muted">Untuk setengah hari shift 2</small>
             </div>
             <div class="col-md-3">
                 <label class="form-label text-white small">Scan 4 (Pulang)</label>
                 <input type="time" name="scan4" class="form-control"
                        value="{{ $attendance->scan4 ? $attendance->scan4->format('H:i') : '' }}">
+                <small class="text-muted">Untuk setengah hari shift 2</small>
             </div>
         </div>
     </div>
@@ -51,12 +55,16 @@
             <select name="half_day_type" class="form-control">
                 <option value="">Pilih Shift</option>
                 <option value="shift_1" {{ $attendance->half_day_type === 'shift_1' ? 'selected' : '' }}>
-                    Shift 1 (Pagi)
+                    Shift 1 (Pagi) - Scan 1 & 2
                 </option>
                 <option value="shift_2" {{ $attendance->half_day_type === 'shift_2' ? 'selected' : '' }}>
-                    Shift 2 (Siang)
+                    Shift 2 (Siang) - Scan 3 & 4
                 </option>
             </select>
+            <small class="text-muted">
+                <strong>Shift 1:</strong> Menggunakan Scan 1 dan Scan 2 saja<br>
+                <strong>Shift 2:</strong> Menggunakan Scan 3 dan Scan 4 saja
+            </small>
         </div>
     </div>
 
@@ -79,6 +87,19 @@
         </select>
     </div>
     @endif
+
+    <div class="col-12">
+        <div class="alert alert-warning">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong>Catatan Penting:</strong>
+            <ul class="mb-0 mt-2">
+                <li><strong>Setengah Hari Shift 1:</strong> Hanya isi Scan 1 (masuk) dan Scan 2 (pulang), kosongkan Scan 3 & 4</li>
+                <li><strong>Setengah Hari Shift 2:</strong> Hanya isi Scan 3 (masuk) dan Scan 4 (pulang), kosongkan Scan 1 & 2</li>
+                <li><strong>Full Harian:</strong> Isi Scan 1 (masuk), Scan 2 (istirahat), Scan 3 (kembali), Scan 4 (pulang)</li>
+                <li><strong>Setengah hari bebas denda</strong> ketika memenuhi pola scan yang benar</li>
+            </ul>
+        </div>
+    </div>
 
     <div class="col-12">
         <h6 class="text-white mb-3">

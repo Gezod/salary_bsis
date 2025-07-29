@@ -31,7 +31,17 @@
                                     <div class="icon-wrapper me-3">
                                         <i class="bi bi-gear"></i>
                                     </div>
-                                    <span>Pengaturan Gaji</span>
+                                    <span>Pengaturan Karyawan</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('payroll.staff.settings') }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-wrapper me-3">
+                                        <i class="bi bi-people"></i>
+                                    </div>
+                                    <span>Pengaturan Staff</span>
                                 </div>
                             </a>
                         </li>
@@ -82,8 +92,8 @@
                     {{-- Page Header --}}
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
-                            <h1 class="page-title mb-2">Data Payroll Karyawan</h1>
-                            <p class="text-muted mb-0">Kelola dan pantau penggajian karyawan bulanan</p>
+                            <h1 class="page-title mb-2">Data Payroll Karyawan & Staff</h1>
+                            <p class="text-muted mb-0">Kelola dan pantau penggajian karyawan dan staff bulanan</p>
                         </div>
                         <div class="d-flex gap-2 align-items-center">
                             <div class="stats-card">
@@ -116,9 +126,9 @@
                                 <input type="month" name="month" value="{{ request('month') }}" class="form-control">
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label text-muted small">Nama Karyawan</label>
+                                <label class="form-label text-muted small">Nama Karyawan/Staff</label>
                                 <input type="text" name="employee" value="{{ request('employee') }}"
-                                    class="form-control" placeholder="Cari nama karyawan...">
+                                    class="form-control" placeholder="Cari nama...">
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label text-muted small">Departemen</label>
@@ -159,7 +169,7 @@
                             <table class="table table-dark table-hover mb-0">
                                 <thead>
                                     <tr>
-                                        <th><i class="bi bi-person me-2"></i>Karyawan</th>
+                                        <th><i class="bi bi-person me-2"></i>Karyawan/Staff</th>
                                         <th><i class="bi bi-calendar me-2"></i>Periode</th>
                                         <th><i class="bi bi-calendar-check me-2"></i>Kehadiran</th>
                                         <th><i class="bi bi-cash me-2"></i>Gaji Pokok</th>
@@ -185,18 +195,34 @@
                                                     <div>
                                                         <div class="text-white fw-semibold">{{ $payroll->employee->nama }}
                                                         </div>
-                                                        <small
-                                                            class="text-muted">{{ ucfirst($payroll->employee->departemen) }}</small>
+                                                        <small class="badge {{ $payroll->employee->departemen == 'staff' ? 'bg-info' : 'bg-secondary' }}">
+                                                            {{ ucfirst($payroll->employee->departemen) }}
+                                                        </small>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td class="text-white">{{ $payroll->month_name }}</td>
                                             <td class="text-white">
-                                                {{ $payroll->present_days }}/{{ $payroll->working_days }} hari</td>
+                                                {{ $payroll->present_days }}/{{ $payroll->working_days }} hari
+                                                @if($payroll->employee->departemen == 'staff')
+                                                    <small class="text-muted d-block">(Gaji Tetap)</small>
+                                                @endif
+                                            </td>
                                             <td class="text-white">{{ $payroll->formatted_basic_salary }}</td>
                                             <td class="text-success">{{ $payroll->formatted_overtime_pay }}</td>
-                                            <td class="text-info">{{ $payroll->formatted_meal_allowance }}</td>
-                                            <td class="text-warning">{{ $payroll->formatted_total_fines }}</td>
+                                            <td class="text-info">
+                                                {{ $payroll->formatted_meal_allowance }}
+                                                @if($payroll->employee->departemen == 'staff')
+                                                    <small class="text-muted d-block">({{ $payroll->present_days }} hari hadir)</small>
+                                                @endif
+                                            </td>
+                                            <td class="text-warning">
+                                                @if($payroll->employee->departemen == 'staff')
+                                                    <span class="text-muted">-</span>
+                                                @else
+                                                    {{ $payroll->formatted_total_fines }}
+                                                @endif
+                                            </td>
                                             <td class="text-white fw-bold">{{ $payroll->formatted_net_salary }}</td>
                                             <td>
                                                 <span class="badge {{ $payroll->status_badge }}">
@@ -261,8 +287,8 @@
                         </div>
                         <div class="alert alert-info">
                             <i class="bi bi-info-circle me-2"></i>
-                            Sistem akan menghitung payroll untuk semua karyawan berdasarkan data absensi dan lembur bulan
-                            yang dipilih.
+                            Sistem akan menghitung payroll untuk semua karyawan dan staff.
+                            <br><strong>Staff:</strong> Uang makan dihitung berdasarkan kehadiran (cuti/libur = tidak dapat uang makan).
                         </div>
                     </div>
                     <div class="modal-footer border-secondary">

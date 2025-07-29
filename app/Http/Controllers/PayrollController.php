@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Payroll;
 use App\Models\Employee;
+use App\Models\StaffPayrollSetting;
 use App\Services\PayrollService;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -97,7 +98,7 @@ class PayrollController extends Controller
             $path = $file->storeAs('payment_proofs', $filename, 'public');
             $data['payment_proof'] = $path;
         }
-        
+
         $payroll->update($data);
 
         return redirect()->route('payroll.show', $id)
@@ -112,9 +113,10 @@ class PayrollController extends Controller
             ->with('success', 'Payroll berhasil dihitung ulang!');
     }
 
+    // Pengaturan untuk Karyawan (existing)
     public function settings()
     {
-        $employees = Employee::orderBy('nama')->get();
+        $employees = Employee::where('departemen', 'karyawan')->orderBy('nama')->get();
         return view('payroll.settings', compact('employees'));
     }
 
@@ -127,6 +129,12 @@ class PayrollController extends Controller
         ]);
 
         $employee = Employee::findOrFail($request->employee_id);
+
+        // Validasi bahwa employee adalah karyawan
+        if ($employee->departemen !== 'karyawan') {
+            return redirect()->back()->with('error', 'Pengaturan ini hanya untuk karyawan!');
+        }
+
         $employee->update([
             'daily_salary' => $request->daily_salary,
             'meal_allowance' => $request->meal_allowance
@@ -134,6 +142,44 @@ class PayrollController extends Controller
 
         return redirect()->route('payroll.settings')
             ->with('success', "Gaji harian dan uang makan {$employee->nama} berhasil diperbarui!");
+    }
+
+    // Pengaturan untuk Staff (updated)
+    public function staffSettings()
+    {
+        $staffEmployees = Employee::where('departemen', 'staff')->orderBy('nama')->get();
+        $staffSettings = StaffPayrollSetting::with('employee')->get()->keyBy('employee_id');
+
+        return view('payroll.staff-settings', compact('staffEmployees', 'staffSettings'));
+    }
+
+    public function updateStaffSalary(Request $request)
+    {
+        $request->validate([
+            'employee_id' => 'required|exists:employees,id',
+            'monthly_salary' => 'required|integer|min:0',
+            'daily_meal_allowance' => 'required|integer|min:0',
+            'meal_allowance_notes' => 'nullable|string|max:500'
+        ]);
+
+        $employee = Employee::findOrFail($request->employee_id);
+
+        // Validasi bahwa employee adalah staff
+        if ($employee->departemen !== 'staff') {
+            return redirect()->back()->with('error', 'Pengaturan ini hanya untuk staff!');
+        }
+
+        StaffPayrollSetting::updateOrCreate(
+            ['employee_id' => $request->employee_id],
+            [
+                'monthly_salary' => $request->monthly_salary,
+                'daily_meal_allowance' => $request->daily_meal_allowance,
+                'meal_allowance_notes' => $request->meal_allowance_notes
+            ]
+        );
+
+        return redirect()->route('payroll.staff.settings')
+            ->with('success', "Pengaturan gaji staff {$employee->nama} berhasil diperbarui!");
     }
 
     public function exportPdf(Request $request)

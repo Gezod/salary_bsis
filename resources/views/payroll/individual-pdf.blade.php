@@ -159,12 +159,40 @@
         <tr>
             <td class="label">Kantor</td>
             <td>{{ $payroll->employee->kantor }}</td>
-            <td class="label">Gaji Harian</td>
-            <td>Rp {{ number_format($payroll->employee->daily_salary ?? 0, 0, ',', '.') }}</td>
+            <td class="label">
+                @if($payroll->employee->departemen == 'staff')
+                    Gaji Bulanan
+                @else
+                    Gaji Harian
+                @endif
+            </td>
+            <td>
+                @if($payroll->employee->departemen == 'staff')
+                    Rp {{ number_format($payroll->basic_salary, 0, ',', '.') }}
+                @else
+                    Rp {{ number_format($payroll->employee->daily_salary ?? 0, 0, ',', '.') }}
+                @endif
+            </td>
         </tr>
         <tr>
-            <td class="label">Uang Makan</td>
-            <td>Rp {{ number_format($payroll->employee->meal_allowance ?? 0, 0, ',', '.') }}/hari</td>
+            <td class="label">
+                @if($payroll->employee->departemen == 'staff')
+                    Uang Makan Harian
+                @else
+                    Uang Makan Harian
+                @endif
+            </td>
+            <td>
+                @if($payroll->employee->departemen == 'staff')
+                    @php
+                        $staffSetting = \App\Models\StaffPayrollSetting::where('employee_id', $payroll->employee->id)->first();
+                        $dailyMealAllowance = $staffSetting ? $staffSetting->daily_meal_allowance : 0;
+                    @endphp
+                    Rp {{ number_format($dailyMealAllowance, 0, ',', '.') }}/hari
+                @else
+                    Rp {{ number_format($payroll->employee->meal_allowance ?? 0, 0, ',', '.') }}/hari
+                @endif
+            </td>
             <td class="label">Hari Hadir</td>
             <td>{{ $payroll->present_days }} dari {{ $payroll->working_days }} hari</td>
         </tr>
@@ -181,7 +209,13 @@
         <tbody>
             <tr>
                 <td>Gaji Pokok</td>
-                <td>{{ $payroll->present_days }} hari hadir dari {{ $payroll->working_days }} hari kerja</td>
+                <td>
+                    @if($payroll->employee->departemen == 'staff')
+                        Gaji bulanan tetap
+                    @else
+                        {{ $payroll->present_days }} hari hadir dari {{ $payroll->working_days }} hari kerja
+                    @endif
+                </td>
                 <td class="amount">Rp {{ number_format($payroll->basic_salary, 0, ',', '.') }}</td>
             </tr>
             <tr>
@@ -191,18 +225,27 @@
             </tr>
             <tr>
                 <td>Uang Makan</td>
-                <td>{{ $payroll->present_days }} hari hadir × Rp {{ number_format($payroll->employee->meal_allowance ?? 0, 0, ',', '.') }}</td>
+                <td>
+                    @if($payroll->employee->departemen == 'staff')
+                        {{ $payroll->present_days }} hari hadir × Rp {{ number_format($dailyMealAllowance, 0, ',', '.') }}
+                        <br><small style="color: #666;">(Tidak termasuk cuti/libur)</small>
+                    @else
+                        {{ $payroll->present_days }} hari hadir × Rp {{ number_format($payroll->employee->meal_allowance ?? 0, 0, ',', '.') }}
+                    @endif
+                </td>
                 <td class="amount">Rp {{ number_format($payroll->meal_allowance, 0, ',', '.') }}</td>
             </tr>
             <tr class="total-row">
                 <td colspan="2"><strong>TOTAL PENDAPATAN</strong></td>
                 <td class="amount"><strong>Rp {{ number_format($payroll->gross_salary, 0, ',', '.') }}</strong></td>
             </tr>
+            @if($payroll->employee->departemen != 'staff')
             <tr>
                 <td>Denda</td>
                 <td>Denda keterlambatan dan pelanggaran</td>
                 <td class="amount">Rp {{ number_format($payroll->total_fines, 0, ',', '.') }}</td>
             </tr>
+            @endif
             <tr class="net-salary-row">
                 <td colspan="2"><strong>GAJI BERSIH YANG DITERIMA</strong></td>
                 <td class="amount"><strong>Rp {{ number_format($payroll->net_salary, 0, ',', '.') }}</strong></td>
@@ -234,8 +277,8 @@
         @endif
     </div>
 
-    <div class="signatures" style="text-align: center;">
-        <div style="display: inline-block; text-align: center;">
+    <div class="signatures" style="text-align: right;">
+        <div style="display: inline-block; text-align: right;">
             <strong>Mengetahui,</strong>
             <div style="height: 100px; margin: 10px 0; position: relative;">
                 <img src="{{ storage_path('app/public/docs/images/ttd-fix.png') }}" alt="Tanda Tangan" style="height: 80px; object-fit: contain;">

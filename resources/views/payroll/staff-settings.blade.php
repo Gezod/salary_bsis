@@ -26,7 +26,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active-link" href="{{ route('payroll.settings') }}">
+                            <a class="nav-link" href="{{ route('payroll.settings') }}">
                                 <div class="d-flex align-items-center">
                                     <div class="icon-wrapper me-3">
                                         <i class="bi bi-gear"></i>
@@ -36,7 +36,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('payroll.staff.settings') }}">
+                            <a class="nav-link active-link" href="{{ route('payroll.staff.settings') }}">
                                 <div class="d-flex align-items-center">
                                     <div class="icon-wrapper me-3">
                                         <i class="bi bi-people"></i>
@@ -66,9 +66,9 @@
                     <div class="container-fluid">
                         <div class="d-flex align-items-center">
                             <div class="icon-wrapper me-3">
-                                <i class="bi bi-gear text-white"></i>
+                                <i class="bi bi-people text-white"></i>
                             </div>
-                            <span class="navbar-brand fw-bold text-white mb-0">Pengaturan Gaji Karyawan</span>
+                            <span class="navbar-brand fw-bold text-white mb-0">Pengaturan Gaji Staff</span>
                         </div>
                         <div class="ms-auto d-flex align-items-center">
                             <div class="theme-toggle me-3" onclick="toggleTheme()">
@@ -91,8 +91,12 @@
                 <div class="py-4 animate-fade-in">
                     {{-- Page Header --}}
                     <div class="mb-4">
-                        <h1 class="page-title mb-2">Pengaturan Gaji Harian Karyawan</h1>
-                        <p class="text-muted mb-0">Kelola gaji harian dan uang makan untuk karyawan (sistem absensi harian)</p>
+                        <h1 class="page-title mb-2">Pengaturan Gaji Bulanan Staff</h1>
+                        <p class="text-muted mb-0">Kelola gaji bulanan dan uang makan harian untuk staff</p>
+                        <div class="alert alert-info mt-3">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Catatan:</strong> Uang makan hanya diberikan pada hari masuk kerja. Cuti/libur tidak mendapat uang makan.
+                        </div>
                     </div>
 
                     @if (session('success'))
@@ -109,22 +113,22 @@
                         </div>
                     @endif
 
-                    {{-- Update Salary Form --}}
+                    {{-- Update Staff Salary Form --}}
                     <div class="card mb-4">
                         <div class="card-header">
                             <h5 class="card-title mb-0 text-white">
-                                <i class="bi bi-cash me-2"></i>Update Gaji Harian & Uang Makan Karyawan
+                                <i class="bi bi-cash me-2"></i>Update Gaji Bulanan & Uang Makan Harian Staff
                             </h5>
                         </div>
                         <div class="card-body">
-                            <form method="POST" action="{{ route('payroll.update.salary') }}">
+                            <form method="POST" action="{{ route('payroll.staff.update.salary') }}">
                                 @csrf
                                 <div class="row g-3">
-                                    <div class="col-md-4">
-                                        <label class="form-label text-white">Pilih Karyawan</label>
-                                        <select name="employee_id" class="form-control" required id="employeeSelect">
-                                            <option value="">Pilih Karyawan</option>
-                                            @foreach ($employees as $employee)
+                                    <div class="col-md-3">
+                                        <label class="form-label text-white">Pilih Staff</label>
+                                        <select name="employee_id" class="form-control" required id="staffSelect">
+                                            <option value="">Pilih Staff</option>
+                                            @foreach ($staffEmployees as $employee)
                                                 <option value="{{ $employee->id }}">
                                                     {{ $employee->nama }} - {{ $employee->jabatan }}
                                                 </option>
@@ -132,16 +136,21 @@
                                         </select>
                                     </div>
                                     <div class="col-md-3">
-                                        <label class="form-label text-white">Gaji Harian (Rp)</label>
-                                        <input type="number" name="daily_salary" class="form-control" min="0"
-                                            required placeholder="100000">
+                                        <label class="form-label text-white">Gaji Bulanan (Rp)</label>
+                                        <input type="number" name="monthly_salary" class="form-control" min="0"
+                                            required placeholder="5000000">
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <label class="form-label text-white">Uang Makan Harian (Rp)</label>
-                                        <input type="number" name="meal_allowance" class="form-control" min="0"
+                                        <input type="number" name="daily_meal_allowance" class="form-control" min="0"
                                             required placeholder="25000">
                                     </div>
-                                    <div class="col-md-2 d-flex align-items-end">
+                                    <div class="col-md-3">
+                                        <label class="form-label text-white">Catatan Uang Makan</label>
+                                        <input type="text" name="meal_allowance_notes" class="form-control"
+                                            placeholder="Keterangan uang makan (opsional)">
+                                    </div>
+                                    <div class="col-md-1 d-flex align-items-end">
                                         <button type="submit" class="btn btn-primary w-100">
                                             <i class="bi bi-check-lg me-2"></i>Update
                                         </button>
@@ -155,10 +164,10 @@
                                 @csrf
                                 <div class="row g-3">
                                     <div class="col-md-4">
-                                        <label class="form-label text-white">Pilih Karyawan</label>
+                                        <label class="form-label text-white">Pilih Staff</label>
                                         <select name="employee_id" class="form-control" required>
-                                            <option value="">Pilih Karyawan</option>
-                                            @foreach ($employees as $employee)
+                                            <option value="">Pilih Staff</option>
+                                            @foreach ($staffEmployees as $employee)
                                                 <option value="{{ $employee->id }}">
                                                     {{ $employee->nama }} - {{ $employee->jabatan }}
                                                 </option>
@@ -206,11 +215,11 @@
                         </div>
                     </div>
 
-                    {{-- Current Salaries --}}
+                    {{-- Current Staff Salaries --}}
                     <div class="card">
                         <div class="card-header">
                             <h5 class="card-title mb-0 text-white">
-                                <i class="bi bi-list me-2"></i>Daftar Gaji Karyawan
+                                <i class="bi bi-list me-2"></i>Daftar Gaji Staff
                             </h5>
                         </div>
                         <div class="table-responsive">
@@ -219,18 +228,22 @@
                                     <tr>
                                         <th><i class="bi bi-person me-2"></i>Nama</th>
                                         <th><i class="bi bi-briefcase me-2"></i>Jabatan</th>
-                                        <th><i class="bi bi-cash me-2"></i>Gaji Harian</th>
-                                        <th><i class="bi bi-cup-hot me-2"></i>Uang Makan</th>
-                                        <th><i class="bi bi-calendar me-2"></i>Estimasi Bulanan</th>
+                                        <th><i class="bi bi-cash me-2"></i>Gaji Bulanan</th>
+                                        <th><i class="bi bi-cup-hot me-2"></i>Uang Makan Harian</th>
+                                        <th><i class="bi bi-calculator me-2"></i>Estimasi Total</th>
+                                        <th><i class="bi bi-sticky me-2"></i>Catatan</th>
                                         <th><i class="bi bi-bank me-2"></i>Data Bank</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($employees as $employee)
+                                    @foreach ($staffEmployees as $employee)
+                                        @php
+                                            $setting = $staffSettings->get($employee->id);
+                                        @endphp
                                         <tr>
                                             <td>
                                                 <div class="d-flex align-items-center">
-                                                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3"
+                                                    <div class="bg-info rounded-circle d-flex align-items-center justify-content-center me-3"
                                                         style="width: 40px; height: 40px;">
                                                         <span class="text-white fw-bold">
                                                             {{ substr($employee->nama, 0, 1) }}
@@ -244,31 +257,32 @@
                                             </td>
                                             <td class="text-white">{{ $employee->jabatan }}</td>
                                             <td class="text-white">
-                                                @if ($employee->daily_salary)
-                                                    Rp {{ number_format($employee->daily_salary, 0, ',', '.') }}
+                                                @if ($setting)
+                                                    {{ $setting->formatted_monthly_salary }}
                                                 @else
                                                     <span class="badge bg-warning">Belum diset</span>
                                                 @endif
                                             </td>
                                             <td class="text-info">
-                                                @if ($employee->meal_allowance)
-                                                    Rp {{ number_format($employee->meal_allowance, 0, ',', '.') }}
+                                                @if ($setting)
+                                                    {{ $setting->formatted_daily_meal_allowance }}
                                                 @else
                                                     <span class="badge bg-warning">Belum diset</span>
                                                 @endif
                                             </td>
-                                            <td class="text-white">
-                                                @if ($employee->daily_salary)
-                                                    @php
-                                                        $monthlyEstimate =
-                                                            ($employee->daily_salary +
-                                                                ($employee->meal_allowance ?? 0)) *
-                                                            26; // Estimasi 26 hari kerja
-                                                    @endphp
-                                                    Rp {{ number_format($monthlyEstimate, 0, ',', '.') }}
+                                            <td class="text-success fw-bold">
+                                                @if ($setting)
+                                                    {{ $setting->formatted_estimated_gross_salary }}
                                                     <small class="text-muted d-block">
-                                                        (26 hari kerja x Rp {{ number_format($employee->daily_salary + ($employee->meal_allowance ?? 0), 0, ',', '.') }})
+                                                        (Gaji + {{ $setting->formatted_estimated_monthly_meal_allowance }} uang makan)
                                                     </small>
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
+                                            <td class="text-white">
+                                                @if ($setting && $setting->meal_allowance_notes)
+                                                    <small>{{ $setting->meal_allowance_notes }}</small>
                                                 @else
                                                     <span class="text-muted">-</span>
                                                 @endif

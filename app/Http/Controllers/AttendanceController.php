@@ -209,8 +209,8 @@ class AttendanceController extends Controller
             'employee_id' => 'required|exists:employees,id',
             'tanggal' => 'required|date',
             'half_day_type' => 'required|in:shift_1,shift_2',
-            'scan1' => 'required|date_format:H:i',
-            'scan2' => 'required|date_format:H:i',
+            'scan1' => 'nullable|date_format:H:i',
+            'scan2' => 'nullable|date_format:H:i',
             'scan3' => 'nullable|date_format:H:i',
             'scan4' => 'nullable|date_format:H:i',
             'half_day_notes' => 'nullable|string|max:500',
@@ -227,11 +227,24 @@ class AttendanceController extends Controller
 
         $tanggal = Carbon::parse($request->tanggal);
 
-        // Prepare scan data
+        // Prepare scan data berdasarkan jenis shift
         $scanData = [];
-        foreach (['scan1', 'scan2', 'scan3', 'scan4'] as $scan) {
-            if ($request->filled($scan)) {
-                $scanData[$scan] = $tanggal->copy()->setTimeFromTimeString($request->input($scan));
+
+        if ($request->half_day_type === 'shift_1') {
+            // Shift 1: menggunakan scan1 dan scan2
+            if ($request->filled('scan1')) {
+                $scanData['scan1'] = $tanggal->copy()->setTimeFromTimeString($request->input('scan1'));
+            }
+            if ($request->filled('scan2')) {
+                $scanData['scan2'] = $tanggal->copy()->setTimeFromTimeString($request->input('scan2'));
+            }
+        } else {
+            // Shift 2: menggunakan scan3 dan scan4
+            if ($request->filled('scan3')) {
+                $scanData['scan3'] = $tanggal->copy()->setTimeFromTimeString($request->input('scan3'));
+            }
+            if ($request->filled('scan4')) {
+                $scanData['scan4'] = $tanggal->copy()->setTimeFromTimeString($request->input('scan4'));
             }
         }
 
@@ -279,47 +292,74 @@ class AttendanceController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
-        $attendance = Attendance::findOrFail($id);
+{
+    $attendance = Attendance::findOrFail($id);
 
-        $request->validate([
-            'scan1' => 'nullable|date_format:H:i',
-            'scan2' => 'nullable|date_format:H:i',
-            'scan3' => 'nullable|date_format:H:i',
-            'scan4' => 'nullable|date_format:H:i',
-            'scan5' => 'nullable|date_format:H:i',
-            'is_half_day' => 'boolean',
-            'half_day_type' => 'nullable|in:shift_1,shift_2',
-            'half_day_notes' => 'nullable|string|max:500',
-            'overtime_status' => 'nullable|in:pending,approved,rejected',
-            'overtime_notes' => 'nullable|string|max:500',
-        ]);
+    $request->validate([
+        'scan1' => 'nullable|date_format:H:i',
+        'scan2' => 'nullable|date_format:H:i',
+        'scan3' => 'nullable|date_format:H:i',
+        'scan4' => 'nullable|date_format:H:i',
+        'scan5' => 'nullable|date_format:H:i',
+        'is_half_day' => 'boolean',
+        'half_day_type' => 'nullable|required_if:is_half_day,true|in:shift_1,shift_2',
+        'half_day_notes' => 'nullable|string|max:500',
+        'overtime_status' => 'nullable|in:pending,approved,rejected',
+        'overtime_notes' => 'nullable|string|max:500',
+    ]);
 
-        $tanggal = $attendance->tanggal;
+    $tanggal = $attendance->tanggal;
 
-        // Update scan times
-        foreach (['scan1', 'scan2', 'scan3', 'scan4', 'scan5'] as $scan) {
-            if ($request->filled($scan)) {
-                $attendance->$scan = $tanggal->copy()->setTimeFromTimeString($request->input($scan));
-            } elseif ($request->has($scan)) {
+    // Update half day info first
+    $attendance->is_half_day = $request->boolean('is_half_day');
+    $attendance->half_day_type = $attendance->is_half_day ? $request->half_day_type : null;
+    $attendance->half_day_notes = $request->half_day_notes;
+    $attendance->overtime_status = $request->overtime_status ?? 'pending';
+    $attendance->overtime_notes = $request->overtime_notes;
+
+    // Update scan times based on half day type
+    foreach (['scan1', 'scan2', 'scan3', 'scan4', 'scan5'] as $scan) {
+        if ($request->filled($scan)) {
+            // Only allow relevant scans for half day
+            if ($attendance->is_half_day) {
+                if ($attendance->half_day_type === 'shift_1' && in_array($scan, ['scan3', 'scan4', 'scan5'])) {
+                    continue; // Skip irrelevant scans for shift 1
+                }
+                if ($attendance->half_day_type === 'shift_2' && in_array($scan, ['scan1', 'scan2', 'scan5'])) {
+                    continue; // Skip irrelevant scans for shift 2
+                }
+            }
+            $attendance->$scan = $tanggal->copy()->setTimeFromTimeString($request->input($scan));
+        } elseif ($request->has($scan)) {
+            // Clear irrelevant scans when half day is selected
+            if (!$attendance->is_half_day ||
+                ($attendance->half_day_type === 'shift_1' && !in_array($scan, ['scan3', 'scan4', 'scan5'])) ||
+                ($attendance->half_day_type === 'shift_2' && !in_array($scan, ['scan1', 'scan2', 'scan5']))) {
                 $attendance->$scan = null;
             }
         }
-
-        // Update half day info
-        $attendance->is_half_day = $request->boolean('is_half_day');
-        $attendance->half_day_type = $request->half_day_type;
-        $attendance->half_day_notes = $request->half_day_notes;
-        $attendance->overtime_status = $request->overtime_status ?? 'pending';
-        $attendance->overtime_notes = $request->overtime_notes;
-
-        $attendance->save();
-
-        // Re-evaluate attendance
-        AttendanceService::evaluate($attendance);
-
-        return response()->json(['success' => true]);
     }
+
+    Log::debug('Attendance update data', [
+        'is_half_day' => $attendance->is_half_day,
+        'half_day_type' => $attendance->half_day_type,
+        'scans' => [
+            'scan1' => $attendance->scan1?->format('H:i'),
+            'scan2' => $attendance->scan2?->format('H:i'),
+            'scan3' => $attendance->scan3?->format('H:i'),
+            'scan4' => $attendance->scan4?->format('H:i'),
+            'scan5' => $attendance->scan5?->format('H:i'),
+        ],
+        'request_data' => $request->all()
+    ]);
+
+    $attendance->save();
+
+    // Re-evaluate attendance
+    AttendanceService::evaluate($attendance);
+
+    return response()->json(['success' => true]);
+}
 
     public function updateOvertimeStatus(Request $request, $id)
     {
@@ -449,7 +489,6 @@ class AttendanceController extends Controller
                 'message' => "Izin berhasil {$statusText}.",
                 'status' => $request->status
             ]);
-
         } catch (\Exception $e) {
             Log::error('Error updating leave status: ' . $e->getMessage());
             return response()->json([

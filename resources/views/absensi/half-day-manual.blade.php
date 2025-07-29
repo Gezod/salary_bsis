@@ -106,20 +106,21 @@
                                 <div class="col-md-6">
                                     <h6 class="text-white">Senin - Kamis, Sabtu:</h6>
                                     <ul class="text-muted small">
-                                        <li><strong>Masuk:</strong> 07:30</li>
-                                        <li><strong>Shift 1:</strong> Cek log 11:30 (tidak ada data lagi)</li>
-                                        <li><strong>Shift 2:</strong> Cek log 12:30 dan 16:30</li>
+                                        <li><strong>Shift 1 (Pagi):</strong> Scan 1 (07:00) dan Scan 2 (11:00) saja</li>
+                                        <li><strong>Shift 2 (Siang):</strong> Scan 3 (12:00) dan Scan 4 (16:30) saja</li>
                                     </ul>
                                 </div>
                                 <div class="col-md-6">
                                     <h6 class="text-white">Jumat:</h6>
                                     <ul class="text-muted small">
-                                        <li><strong>Masuk:</strong> 07:00</li>
-                                        <li><strong>Shift 1:</strong> Cek log 11:00 (tidak ada data lagi)</li>
-                                        <li><strong>Shift 2:</strong> Cek log 12:30 dan 16:00</li>
-                                        <li><strong>Lembur:</strong> Cek log 07:00 dan 16:00 (tanpa denda)</li>
+                                        <li><strong>Shift 1 (Pagi):</strong> Scan 1 (07:00) dan Scan 2 (11:00) saja</li>
+                                        <li><strong>Shift 2 (Siang):</strong> Scan 3 (12:30) dan Scan 4 (16:00) saja</li>
                                     </ul>
                                 </div>
+                            </div>
+                            <div class="alert alert-warning mt-3">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                <strong>Penting:</strong> Setengah hari bebas denda dan hanya menggunakan 2 scan sesuai shift yang dipilih.
                             </div>
                         </div>
                     </div>
@@ -227,7 +228,7 @@
                                                 id="shift1" value="shift_1" required>
                                             <label class="form-check-label text-white" for="shift1">
                                                 <strong>Shift 1 (Pagi)</strong>
-                                                <small class="d-block text-muted">Masuk pagi, pulang siang</small>
+                                                <small class="d-block text-muted">Hanya gunakan Scan 1 dan Scan 2</small>
                                             </label>
                                         </div>
                                     </div>
@@ -237,7 +238,7 @@
                                                 id="shift2" value="shift_2" required>
                                             <label class="form-check-label text-white" for="shift2">
                                                 <strong>Shift 2 (Siang)</strong>
-                                                <small class="d-block text-muted">Masuk siang, pulang sore</small>
+                                                <small class="d-block text-muted">Hanya gunakan Scan 3 dan Scan 4</small>
                                             </label>
                                         </div>
                                     </div>
@@ -251,26 +252,34 @@
                                     Waktu Scan Absensi
                                 </h6>
                                 <div class="row g-3">
-                                    <div class="col-md-3">
-                                        <label class="form-label small">Scan 1 (Masuk)</label>
+                                    <div class="col-md-3" id="scan1Group">
+                                        <label class="form-label small">Scan 1 (Masuk Shift 1)</label>
                                         <input type="time" name="scan1" class="form-control"
-                                            value="{{ old('scan1') }}" required>
+                                            value="{{ old('scan1') }}">
+                                        <small class="text-muted">Hanya untuk Shift 1</small>
                                     </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label small">Scan 2 (Pulang/Istirahat)</label>
+                                    <div class="col-md-3" id="scan2Group">
+                                        <label class="form-label small">Scan 2 (Pulang Shift 1)</label>
                                         <input type="time" name="scan2" class="form-control"
-                                            value="{{ old('scan2') }}" required>
+                                            value="{{ old('scan2') }}">
+                                        <small class="text-muted">Hanya untuk Shift 1</small>
                                     </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label small">Scan 3 (Kembali - Jika Shift 2)</label>
+                                    <div class="col-md-3" id="scan3Group">
+                                        <label class="form-label small">Scan 3 (Masuk Shift 2)</label>
                                         <input type="time" name="scan3" class="form-control"
                                             value="{{ old('scan3') }}">
+                                        <small class="text-muted">Hanya untuk Shift 2</small>
                                     </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label small">Scan 4 (Pulang Akhir)</label>
+                                    <div class="col-md-3" id="scan4Group">
+                                        <label class="form-label small">Scan 4 (Pulang Shift 2)</label>
                                         <input type="time" name="scan4" class="form-control"
                                             value="{{ old('scan4') }}">
+                                        <small class="text-muted">Hanya untuk Shift 2</small>
                                     </div>
+                                </div>
+                                <div class="alert alert-info mt-3">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    <strong>Petunjuk:</strong> Isi hanya waktu scan sesuai shift yang dipilih. Jangan isi scan yang tidak relevan.
                                 </div>
                             </div>
 
@@ -386,15 +395,46 @@
             });
 
             function updateScanFieldsVisibility(type) {
+                const scan1Group = document.getElementById('scan1Group');
+                const scan2Group = document.getElementById('scan2Group');
+                const scan3Group = document.getElementById('scan3Group');
+                const scan4Group = document.getElementById('scan4Group');
+
+                const scan1Field = document.querySelector('input[name="scan1"]');
+                const scan2Field = document.querySelector('input[name="scan2"]');
                 const scan3Field = document.querySelector('input[name="scan3"]');
                 const scan4Field = document.querySelector('input[name="scan4"]');
 
                 if (type === 'shift_1') {
+                    // Show and enable scan1 and scan2, hide scan3 and scan4
+                    scan1Group.style.display = 'block';
+                    scan2Group.style.display = 'block';
+                    scan3Group.style.display = 'none';
+                    scan4Group.style.display = 'none';
+
+                    scan1Field.required = true;
+                    scan2Field.required = true;
                     scan3Field.required = false;
                     scan4Field.required = false;
+
+                    // Clear values for hidden fields
+                    scan3Field.value = '';
+                    scan4Field.value = '';
                 } else if (type === 'shift_2') {
+                    // Show and enable scan3 and scan4, hide scan1 and scan2
+                    scan1Group.style.display = 'none';
+                    scan2Group.style.display = 'none';
+                    scan3Group.style.display = 'block';
+                    scan4Group.style.display = 'block';
+
+                    scan1Field.required = false;
+                    scan2Field.required = false;
                     scan3Field.required = true;
-                    scan4Field.required = false;
+                    scan4Field.required = true;
+
+                    // Clear values for hidden fields
+                    scan1Field.value = '';
+                    scan2Field.value = '';
                 }
             }
 
@@ -413,6 +453,25 @@
                     e.preventDefault();
                     alert('Silakan pilih jenis setengah hari');
                     return false;
+                }
+
+                // Validate scan times based on selected shift
+                if (halfDayType.value === 'shift_1') {
+                    const scan1 = document.querySelector('input[name="scan1"]').value;
+                    const scan2 = document.querySelector('input[name="scan2"]').value;
+                    if (!scan1 || !scan2) {
+                        e.preventDefault();
+                        alert('Untuk Shift 1, harap isi Scan 1 dan Scan 2');
+                        return false;
+                    }
+                } else if (halfDayType.value === 'shift_2') {
+                    const scan3 = document.querySelector('input[name="scan3"]').value;
+                    const scan4 = document.querySelector('input[name="scan4"]').value;
+                    if (!scan3 || !scan4) {
+                        e.preventDefault();
+                        alert('Untuk Shift 2, harap isi Scan 3 dan Scan 4');
+                        return false;
+                    }
                 }
             });
         });

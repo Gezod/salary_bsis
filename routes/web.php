@@ -99,17 +99,38 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Payroll Routes
     Route::prefix('payroll')->group(function () {
-        Route::get('/', [PayrollController::class, 'index'])->name('payroll.index');
-        Route::post('/generate', [PayrollController::class, 'generate'])->name('payroll.generate');
-        Route::get('/{id}', [PayrollController::class, 'show'])->name('payroll.show');
-        Route::put('/{id}/payment', [PayrollController::class, 'updatePayment'])->name('payroll.update.payment');
-        Route::get('/{id}/recalculate', [PayrollController::class, 'recalculate'])->name('payroll.recalculate');
-        Route::get('/{id}/download', [PayrollController::class, 'downloadIndividualPdf'])->name('payroll.download.individual');
-        Route::get('/settings/salary', [PayrollController::class, 'settings'])->name('payroll.settings');
-        Route::post('/settings/salary', [PayrollController::class, 'updateSalary'])->name('payroll.update.salary');
-        Route::post('/settings/bank', [PayrollController::class, 'updateEmployeeBankDetails'])->name('payroll.update.bank');
-        Route::get('/export/pdf', [PayrollController::class, 'exportPdf'])->name('payroll.export.pdf');
-    });
+    // Halaman utama payroll
+    Route::get('/', [PayrollController::class, 'index'])->name('payroll.index');
+
+    // Generate data payroll
+    Route::post('/generate', [PayrollController::class, 'generate'])->name('payroll.generate');
+
+    // Tampilkan detail payroll per karyawan
+    Route::get('/{id}', [PayrollController::class, 'show'])->name('payroll.show');
+
+    // Update status pembayaran
+    Route::put('/{id}/payment', [PayrollController::class, 'updatePayment'])->name('payroll.update.payment');
+
+    // Hitung ulang payroll
+    Route::get('/{id}/recalculate', [PayrollController::class, 'recalculate'])->name('payroll.recalculate');
+
+    // Unduh slip gaji individu
+    Route::get('/{id}/download', [PayrollController::class, 'downloadIndividualPdf'])->name('payroll.download.individual');
+
+    // Export semua data payroll ke PDF
+    Route::get('/export/pdf', [PayrollController::class, 'exportPdf'])->name('payroll.export.pdf');
+
+    // Pengaturan gaji pokok
+    Route::get('/settings/salary', [PayrollController::class, 'settings'])->name('payroll.settings');
+    Route::post('/settings/salary', [PayrollController::class, 'updateSalary'])->name('payroll.update.salary');
+
+    // Pengaturan data bank karyawan
+    Route::post('/settings/bank', [PayrollController::class, 'updateEmployeeBankDetails'])->name('payroll.update.bank');
+    Route::get('/staff/settings', [PayrollController::class, 'staffSettings'])->name('payroll.staff.settings');
+    Route::post('/staff/settings', [PayrollController::class, 'updateStaffSalary'])->name('payroll.staff.update.salary');
+});
+
+
 });
 
 // API Routes
