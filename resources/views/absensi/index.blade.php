@@ -249,14 +249,17 @@
                                         <th><i class="bi bi-person me-2"></i>Nama</th>
                                         <th><i class="bi bi-building me-2"></i>Departemen</th>
                                         <th><i class="bi bi-calendar me-2"></i>Tanggal</th>
+                                        <th><i class="bi bi-calendar3 me-2"></i>Hari</th>
                                         <th><i class="bi bi-info-circle me-2"></i>Status</th>
                                         <th><i class="bi bi-clock me-2"></i>Masuk</th>
                                         <th><i class="bi bi-pause-circle me-2"></i>Istirahat Mulai</th>
                                         <th><i class="bi bi-play-circle me-2"></i>Istirahat Selesai</th>
                                         <th><i class="bi bi-door-open me-2"></i>Pulang</th>
                                         <th><i class="bi bi-clock-history me-2"></i>Lembur</th>
-                                        <th><i class="bi bi-exclamation-triangle me-2"></i>Telat</th>
-                                        <th><i class="bi bi-currency-dollar me-2"></i>Denda</th>
+                                        <th><i class="bi bi-stopwatch me-2"></i>Telat (mnt)</th>
+                                        <th style="min-width: 300px;"><i class="bi bi-currency-dollar me-2"></i>Detail
+                                            Denda & Perhitungan</th>
+                                        <th><i class="bi bi-cash-stack me-2"></i>Total</th>
                                         <th><i class="bi bi-gear me-2"></i>Aksi</th>
                                     </tr>
                                 </thead>
@@ -267,6 +270,9 @@
                                             $isLate = ($a->late_minutes ?? 0) > 0;
                                             $noCheckIn = !$a->scan1;
                                             $noCheckOut = !$a->scan4;
+                                            $penaltyDetails = $a->penalty_types;
+                                            $penaltyBreakdown = $a->penalty_breakdown;
+                                            $detailedCalculation = $a->detailed_penalty_calculation;
                                         @endphp
                                         <tr>
                                             <td>
@@ -284,17 +290,23 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                <span class="badge bg-secondary">{{ $employee->departemen ?? '-' }}</span>
+                                                <span
+                                                    class="badge bg-{{ $employee->departemen === 'staff' ? 'primary' : 'success' }}">
+                                                    {{ ucfirst($employee->departemen ?? '-') }}
+                                                </span>
                                             </td>
                                             <td>{{ $a->tanggal->format('d M Y') }}</td>
+                                            <td>
+                                                <span
+                                                    class="badge bg-info">{{ $a->tanggal->translatedFormat('D') }}</span>
+                                            </td>
                                             <td>
                                                 @php $detailedStatus = $a->detailed_status; @endphp
                                                 <span class="badge {{ $detailedStatus['badge'] }}">
                                                     {{ $detailedStatus['text'] }}
                                                 </span>
                                                 @if ($a->is_half_day)
-                                                    <small
-                                                        class="d-block mt-1 text-muted">{{ $detailedStatus['penalties'] }}</small>
+                                                    <small class="d-block mt-1 text-info">Bebas Denda</small>
                                                 @endif
                                             </td>
                                             <td>
@@ -342,27 +354,128 @@
                                             </td>
                                             <td class="text-center">
                                                 @if ($isLate)
-                                                    <span class="badge bg-warning text-dark">{{ $a->late_minutes }}
+                                                    <span
+                                                        class="badge bg-warning text-dark fw-bold">{{ $a->late_minutes }}
                                                         mnt</span>
+                                                    <small class="d-block text-warning mt-1">
+                                                        @ Rp{{ number_format($a->late_penalty_rate, 0, ',', '.') }}/mnt
+                                                    </small>
                                                 @else
                                                     <span class="text-muted">-</span>
                                                 @endif
                                             </td>
+                                            <td class="penalty-column">
+                                                @if ($a->is_half_day)
+                                                    <div class="penalty-free">
+                                                        <strong class="text-info">Bebas Denda</strong>
+                                                        <small class="d-block text-info">(Setengah Hari)</small>
+                                                    </div>
+                                                @else
+                                                    <div class="penalty-details-wrapper">
+                                                        {{-- Denda Telat dengan Perhitungan Detail --}}
+                                                        @if ($a->late_fine > 0)
+                                                            <div class="penalty-item penalty-late">
+                                                                <strong class="penalty-label text-danger">Denda
+                                                                    Telat:</strong>
+                                                                <strong class="penalty-value text-danger">
+                                                                    {{ $penaltyBreakdown['late_fine'] }}
+                                                                </strong>
+                                                                <small class="penalty-desc text-danger">
+                                                                    {{ $a->late_minutes }} menit ×
+                                                                    Rp{{ number_format($a->late_penalty_rate, 0, ',', '.') }}/menit
+                                                                </small>
+                                                                <small class="penalty-formula text-danger">
+                                                                    = {{ $a->late_minutes }} × {{ number_format($a->late_penalty_rate, 0, ',', '.') }}
+                                                                    = Rp{{ number_format($a->late_fine, 0, ',', '.') }}
+                                                                </small>
+                                                            </div>
+                                                        @endif
+
+                                                        {{-- Denda Istirahat --}}
+                                                        @if ($a->break_fine > 0)
+                                                            <div class="penalty-item penalty-break">
+                                                                <strong class="penalty-label text-warning">Denda
+                                                                    Istirahat:</strong>
+                                                                <strong class="penalty-value text-warning">
+                                                                    {{ $penaltyBreakdown['break_fine'] }}
+                                                                </strong>
+                                                                @if (!$a->scan2 && !$a->scan3)
+                                                                    <small class="penalty-desc text-warning">(2x tidak
+                                                                        absen istirahat)</small>
+                                                                @elseif (!$a->scan2 || !$a->scan3)
+                                                                    <small class="penalty-desc text-warning">(1x tidak
+                                                                        absen istirahat)</small>
+                                                                @else
+                                                                    <small class="penalty-desc text-warning">(telat
+                                                                        istirahat)</small>
+                                                                @endif
+                                                            </div>
+                                                        @endif
+
+                                                        {{-- Denda Absen --}}
+                                                        @if ($a->absence_fine > 0)
+                                                            <div class="penalty-item penalty-absence">
+                                                                <strong class="penalty-label text-info">Denda
+                                                                    Absen:</strong>
+                                                                <strong class="penalty-value text-info">
+                                                                    {{ $penaltyBreakdown['absence_fine'] }}
+                                                                </strong>
+                                                                <small class="penalty-desc text-info">
+                                                                    @if (!$a->scan1 && !$a->scan4)
+                                                                        (lupa absen masuk & pulang)
+                                                                    @elseif (!$a->scan1)
+                                                                        (lupa absen masuk)
+                                                                    @elseif (!$a->scan4)
+                                                                        (lupa absen pulang)
+                                                                    @endif
+                                                                </small>
+                                                            </div>
+                                                        @endif
+
+                                                        {{-- Total Perhitungan --}}
+                                                        @if ($a->total_fine > 0)
+                                                            <div class="penalty-total">
+                                                                <hr class="my-2">
+                                                                <strong class="text-danger">Total:
+                                                                    @if($a->late_fine > 0)
+                                                                        Rp{{ number_format($a->late_fine, 0, ',', '.') }}
+                                                                    @endif
+                                                                    @if($a->late_fine > 0 && ($a->break_fine > 0 || $a->absence_fine > 0))
+                                                                        +
+                                                                    @endif
+                                                                    @if($a->break_fine > 0)
+                                                                        Rp{{ number_format($a->break_fine, 0, ',', '.') }}
+                                                                    @endif
+                                                                    @if($a->break_fine > 0 && $a->absence_fine > 0)
+                                                                        +
+                                                                    @endif
+                                                                    @if($a->absence_fine > 0)
+                                                                        Rp{{ number_format($a->absence_fine, 0, ',', '.') }}
+                                                                    @endif
+                                                                </strong>
+                                                                <small class="d-block text-danger">
+                                                                    = Rp{{ number_format($a->total_fine, 0, ',', '.') }}
+                                                                </small>
+                                                            </div>
+                                                        @else
+                                                            <div class="penalty-free">
+                                                                <strong class="text-success">Tidak Ada Denda</strong>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                @endif
+                                            </td>
                                             <td class="text-end">
-                                                @if ($a->total_fine)
-                                                    <span class="fw-bold" style="color: var(--warning-color);">
+                                                @if ($a->total_fine > 0)
+                                                    <span class="total-fine-amount">
                                                         {{ $a->formatted_total_fine }}
                                                     </span>
-                                                    @if (!$a->is_half_day)
-                                                        <small
-                                                            class="d-block text-muted">{{ $detailedStatus['penalties'] }}</small>
-                                                    @endif
                                                 @else
-                                                    <span class="text-muted">
+                                                    <span class="total-fine-free">
                                                         @if ($a->is_half_day)
-                                                            Bebas Denda
+                                                            <strong class="text-info">Bebas</strong>
                                                         @else
-                                                            -
+                                                            <strong class="text-success">Rp 0</strong>
                                                         @endif
                                                     </span>
                                                 @endif
@@ -384,7 +497,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="12" class="text-center py-5">
+                                            <td colspan="14" class="text-center py-5">
                                                 <div class="text-muted">
                                                     <i class="bi bi-inbox display-4 d-block mb-3"></i>
                                                     <h5 class="text-muted">Tidak ada data</h5>
@@ -716,6 +829,98 @@
     </script>
 
     <style>
+        /* Enhanced penalty display styling */
+        .penalty-column {
+            min-width: 300px;
+            font-size: 0.75rem;
+            line-height: 1.3;
+        }
+
+        .penalty-details-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .penalty-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding: 6px 10px;
+            border-left: 3px solid transparent;
+            margin-bottom: 3px;
+        }
+
+        .penalty-item.penalty-late {
+            border-left-color: #dc3545;
+            background: rgba(220, 53, 69, 0.1);
+        }
+
+        .penalty-item.penalty-break {
+            border-left-color: #ffc107;
+            background: rgba(255, 193, 7, 0.1);
+        }
+
+        .penalty-item.penalty-absence {
+            border-left-color: #17a2b8;
+            background: rgba(23, 162, 184, 0.1);
+        }
+
+        .penalty-label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 700 !important;
+            margin-bottom: 2px;
+        }
+
+        .penalty-value {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 700 !important;
+        }
+
+        .penalty-desc {
+            display: block;
+            font-size: 0.65rem;
+            opacity: 0.9;
+            font-style: italic;
+            margin-top: 1px;
+        }
+
+        .penalty-formula {
+            display: block;
+            font-size: 0.65rem;
+            opacity: 0.8;
+            font-weight: 600;
+            margin-top: 1px;
+        }
+
+        .penalty-total {
+            background: rgba(220, 53, 69, 0.15);
+            border-radius: 4px;
+            padding: 6px 8px;
+            margin-top: 4px;
+            text-align: center;
+        }
+
+        .penalty-free {
+            text-align: center;
+            padding: 8px;
+            background: rgba(40, 167, 69, 0.1);
+            border-radius: 4px;
+            border-left: 3px solid #28a745;
+        }
+
+        .total-fine-amount {
+            font-weight: 700 !important;
+            font-size: 0.9rem !important;
+            color: #dc3545 !important;
+        }
+
+        .total-fine-free {
+            font-weight: 700 !important;
+            font-size: 0.9rem !important;
+        }
+
         .swal2-textarea-dark {
             background-color: var(--bg-color) !important;
             border: 1px solid var(--border-color) !important;
@@ -725,6 +930,27 @@
 
         .swal2-textarea-dark::placeholder {
             color: var(--text-muted) !important;
+        }
+
+        /* Dark theme adjustments */
+        [data-theme="dark"] .penalty-item.penalty-late {
+            background: rgba(220, 53, 69, 0.2);
+        }
+
+        [data-theme="dark"] .penalty-item.penalty-break {
+            background: rgba(255, 193, 7, 0.2);
+        }
+
+        [data-theme="dark"] .penalty-item.penalty-absence {
+            background: rgba(23, 162, 184, 0.2);
+        }
+
+        [data-theme="dark"] .penalty-free {
+            background: rgba(40, 167, 69, 0.2);
+        }
+
+        [data-theme="dark"] .penalty-total {
+            background: rgba(220, 53, 69, 0.25);
         }
     </style>
 @endsection

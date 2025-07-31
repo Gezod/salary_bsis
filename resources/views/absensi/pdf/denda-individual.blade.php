@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <meta charset="utf-8">
     <title>Laporan Denda Individual - {{ $employee->nama }}</title>
     <style>
         body {
@@ -10,275 +10,433 @@
             margin: 0;
             padding: 20px;
         }
+
         .header {
             text-align: center;
             margin-bottom: 30px;
             border-bottom: 2px solid #333;
             padding-bottom: 20px;
         }
-        .company-name {
+
+        .header h1 {
+            margin: 0;
             font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 5px;
+            color: #333;
         }
-        .report-title {
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .report-period {
-            font-size: 14px;
+
+        .header p {
+            margin: 5px 0;
             color: #666;
         }
+
         .employee-info {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-        .employee-info table {
+            margin-bottom: 30px;
+            display: table;
             width: 100%;
         }
-        .employee-info td {
-            padding: 5px;
+
+        .employee-data {
+            display: table-cell;
+            width: 60%;
             vertical-align: top;
         }
-        .employee-info .label {
-            font-weight: bold;
-            width: 120px;
+
+        .employee-summary {
+            display: table-cell;
+            width: 40%;
+            text-align: center;
+            vertical-align: top;
+            border-left: 1px solid #ddd;
+            padding-left: 20px;
         }
-        .summary-cards {
-            display: flex;
-            justify-content: space-between;
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .info-table td {
+            padding: 5px 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-table td:first-child {
+            font-weight: bold;
+            width: 30%;
+        }
+
+        .summary-stats {
+            display: table;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .stat-item {
+            display: table-cell;
+            text-align: center;
+            padding: 15px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+
+        .stat-item h3 {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .stat-item small {
+            color: #666;
+        }
+
+        .penalty-breakdown {
+            display: table;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .penalty-item {
+            display: table-cell;
+            text-align: center;
+            padding: 15px;
+            border: 1px solid #ddd;
+        }
+
+        .penalty-late {
+            background-color: #ffebee;
+        }
+
+        .penalty-break {
+            background-color: #fff8e1;
+        }
+
+        .penalty-absence {
+            background-color: #e3f2fd;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
             margin-bottom: 20px;
         }
-        .summary-card {
-            flex: 1;
-            background-color: #f8f9fa;
-            padding: 15px;
-            margin: 0 5px;
-            text-align: center;
-            border-radius: 5px;
-            border: 1px solid #dee2e6;
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 6px;
+            text-align: left;
+            font-size: 10px;
         }
-        .summary-card .value {
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-end {
+            text-align: right;
+        }
+
+        .text-danger {
+            color: #dc3545;
+        }
+
+        .text-warning {
+            color: #ffc107;
+        }
+
+        .text-success {
+            color: #28a745;
+        }
+
+        .text-info {
+            color: #17a2b8;
+        }
+
+        .badge {
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-size: 9px;
+            color: white;
+        }
+
+        .badge-primary {
+            background-color: #007bff;
+        }
+
+        .badge-success {
+            background-color: #28a745;
+        }
+
+        .badge-info {
+            background-color: #17a2b8;
+        }
+
+        .badge-warning {
+            background-color: #ffc107;
+            color: #000;
+        }
+
+        .badge-danger {
+            background-color: #dc3545;
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+
+        .total-fine {
             font-size: 18px;
             font-weight: bold;
             color: #dc3545;
         }
-        .summary-card .label {
-            font-size: 11px;
+
+        .penalty-detail {
+            font-size: 9px;
             color: #666;
-            margin-top: 5px;
-        }
-        .penalty-breakdown {
-            margin-bottom: 20px;
-        }
-        .penalty-breakdown table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .penalty-breakdown th,
-        .penalty-breakdown td {
-            border: 1px solid #dee2e6;
-            padding: 8px;
-            text-align: left;
-        }
-        .penalty-breakdown th {
-            background-color: #f8f9fa;
-            font-weight: bold;
-        }
-        .penalty-breakdown .amount {
-            text-align: right;
-            font-weight: bold;
-        }
-        .attendance-table {
-            margin-top: 20px;
-        }
-        .attendance-table table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 10px;
-        }
-        .attendance-table th,
-        .attendance-table td {
-            border: 1px solid #dee2e6;
-            padding: 6px;
-            text-align: center;
-        }
-        .attendance-table th {
-            background-color: #f8f9fa;
-            font-weight: bold;
-        }
-        .late {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-        .penalty {
-            background-color: #f8d7da;
-            color: #721c24;
-            font-weight: bold;
-        }
-        .footer {
-            margin-top: 30px;
-            text-align: right;
-            font-size: 11px;
-            color: #666;
-        }
-        .signature {
-            margin-top: 40px;
-            text-align: right;
-        }
-        .signature-box {
-            display: inline-block;
-            text-align: center;
-            margin-left: 50px;
-        }
-        .signature-line {
-            border-top: 1px solid #333;
-            width: 200px;
-            margin-top: 60px;
-            margin-bottom: 5px;
         }
     </style>
 </head>
+
 <body>
     <div class="header">
-        <div class="company-name">BANK SAMPAH SURABAYA</div>
-        <div class="report-title">LAPORAN DENDA INDIVIDUAL</div>
-        <div class="report-period">Periode: {{ $monthName }}</div>
+        <h1>LAPORAN DENDA INDIVIDUAL</h1>
+        <p>{{ $employee->nama }}</p>
+        <p>Periode: {{ $monthName }}</p>
+        <p>Tanggal Cetak: {{ \Carbon\Carbon::now()->format('d/m/Y H:i') }}</p>
     </div>
 
+    {{-- Employee Information --}}
     <div class="employee-info">
-        <table>
-            <tr>
-                <td class="label">Nama Karyawan:</td>
-                <td>{{ $employee->nama }}</td>
-                <td class="label">NIP:</td>
-                <td>{{ $employee->nip }}</td>
-            </tr>
-            <tr>
-                <td class="label">Departemen:</td>
-                <td>{{ ucfirst($employee->departemen) }}</td>
-                <td class="label">PIN:</td>
-                <td>{{ $employee->pin }}</td>
-            </tr>
-            <tr>
-                <td class="label">Jabatan:</td>
-                <td>{{ $employee->jabatan }}</td>
-                <td class="label">Kantor:</td>
-                <td>{{ $employee->kantor }}</td>
-            </tr>
-        </table>
+        <div class="employee-data">
+            <h3>Informasi Karyawan</h3>
+            <table class="info-table">
+                <tr>
+                    <td>Nama</td>
+                    <td>{{ $employee->nama }}</td>
+                </tr>
+                <tr>
+                    <td>NIP</td>
+                    <td>{{ $employee->nip }}</td>
+                </tr>
+                <tr>
+                    <td>PIN</td>
+                    <td>{{ $employee->pin }}</td>
+                </tr>
+                <tr>
+                    <td>Departemen</td>
+                    <td>
+                        <span class="badge badge-{{ $employee->departemen === 'staff' ? 'primary' : 'success' }}">
+                            {{ ucfirst($employee->departemen) }}
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Jabatan</td>
+                    <td>{{ $employee->jabatan }}</td>
+                </tr>
+                <tr>
+                    <td>Kantor</td>
+                    <td>{{ $employee->kantor }}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="employee-summary">
+            <h3>Total Denda</h3>
+            <div class="total-fine">
+                Rp {{ number_format($summary['total_penalty'], 0, ',', '.') }}
+            </div>
+            <small>Bulan {{ $monthName }}</small>
+        </div>
     </div>
 
-    <div class="summary-cards">
-        <div class="summary-card">
-            <div class="value">{{ $summary['total_days'] }}</div>
-            <div class="label">Total Hari Kerja</div>
+    {{-- Summary Statistics --}}
+    <div class="summary-stats">
+        <div class="stat-item">
+            <h3 class="text-info">{{ $summary['total_days'] }}</h3>
+            <small>Total Hari Kerja</small>
         </div>
-        <div class="summary-card">
-            <div class="value">{{ $summary['late_days'] }}</div>
-            <div class="label">Hari Terlambat</div>
+        <div class="stat-item">
+            <h3 class="text-warning">{{ $summary['late_days'] }}</h3>
+            <small>Hari Terlambat</small>
         </div>
-        <div class="summary-card">
-            <div class="value">{{ number_format($summary['total_late_minutes']) }}</div>
-            <div class="label">Total Menit Terlambat</div>
+        <div class="stat-item">
+            <h3 class="text-danger">{{ $summary['total_late_minutes'] }}</h3>
+            <small>Total Menit Telat</small>
         </div>
-        <div class="summary-card">
-            <div class="value">Rp {{ number_format($summary['total_penalty']) }}</div>
-            <div class="label">Total Denda</div>
+        <div class="stat-item">
+            <h3>{{ number_format($summary['avg_late_minutes'], 1) }}</h3>
+            <small>Rata-rata Telat/Hari</small>
         </div>
     </div>
 
+    {{-- Penalty Breakdown --}}
     <div class="penalty-breakdown">
-        <h3>Rincian Denda</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Jenis Denda</th>
-                    <th>Jumlah</th>
-                    <th>Keterangan</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Denda Keterlambatan</td>
-                    <td class="amount">Rp {{ number_format($summary['total_late_fine']) }}</td>
-                    <td>{{ $summary['late_days'] }} hari terlambat, rata-rata {{ number_format($summary['avg_late_minutes'], 1) }} menit/hari</td>
-                </tr>
-                <tr>
-                    <td>Denda Istirahat</td>
-                    <td class="amount">Rp {{ number_format($summary['total_break_fine']) }}</td>
-                    <td>Pelanggaran waktu istirahat</td>
-                </tr>
-                <tr>
-                    <td>Denda Absensi</td>
-                    <td class="amount">Rp {{ number_format($summary['total_absence_fine']) }}</td>
-                    <td>Lupa absen masuk/pulang</td>
-                </tr>
-                <tr style="background-color: #f8d7da; font-weight: bold;">
-                    <td>TOTAL DENDA</td>
-                    <td class="amount">Rp {{ number_format($summary['total_penalty']) }}</td>
-                    <td>-</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="attendance-table">
-        <h3>Detail Absensi Harian</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Tanggal</th>
-                    <th>Scan Masuk</th>
-                    <th>Scan Pulang</th>
-                    <th>Terlambat (menit)</th>
-                    <th>Denda Terlambat</th>
-                    <th>Denda Istirahat</th>
-                    <th>Denda Absensi</th>
-                    <th>Total Denda</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($attendanceData as $attendance)
-                    <tr class="{{ $attendance->total_fine > 0 ? 'late' : '' }}">
-                        <td>{{ $attendance->tanggal->format('d/m/Y') }}</td>
-                        <td>{{ $attendance->scan1 ? $attendance->scan1->format('H:i') : '-' }}</td>
-                        <td>{{ $attendance->scan4 ? $attendance->scan4->format('H:i') : '-' }}</td>
-                        <td class="{{ $attendance->late_minutes > 0 ? 'late' : '' }}">
-                            {{ $attendance->late_minutes > 0 ? $attendance->late_minutes : '-' }}
-                        </td>
-                        <td class="{{ $attendance->late_fine > 0 ? 'penalty' : '' }}">
-                            {{ $attendance->late_fine > 0 ? 'Rp ' . number_format($attendance->late_fine) : '-' }}
-                        </td>
-                        <td class="{{ $attendance->break_fine > 0 ? 'penalty' : '' }}">
-                            {{ $attendance->break_fine > 0 ? 'Rp ' . number_format($attendance->break_fine) : '-' }}
-                        </td>
-                        <td class="{{ $attendance->absence_fine > 0 ? 'penalty' : '' }}">
-                            {{ $attendance->absence_fine > 0 ? 'Rp ' . number_format($attendance->absence_fine) : '-' }}
-                        </td>
-                        <td class="{{ $attendance->total_fine > 0 ? 'penalty' : '' }}">
-                            {{ $attendance->total_fine > 0 ? 'Rp ' . number_format($attendance->total_fine) : 'Rp 0' }}
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-
-    <div class="signature">
-        <div class="signature-box">
-            <div>Surabaya, {{ now()->format('d F Y') }}</div>
-            <div>HRD</div>
-            <div class="signature-line"></div>
-            <div>{{ Auth::user()->name ?? 'Admin' }}</div>
+        <div class="penalty-item penalty-late">
+            <h3 class="text-danger">Rp {{ number_format($summary['total_late_fine'], 0, ',', '.') }}</h3>
+            <small>Denda Keterlambatan</small>
+        </div>
+        <div class="penalty-item penalty-break">
+            <h3 class="text-warning">Rp {{ number_format($summary['total_break_fine'], 0, ',', '.') }}</h3>
+            <small>Denda Istirahat</small>
+        </div>
+        <div class="penalty-item penalty-absence">
+            <h3 class="text-info">Rp {{ number_format($summary['total_absence_fine'], 0, ',', '.') }}</h3>
+            <small>Denda Absensi</small>
         </div>
     </div>
+
+    {{-- Detailed Attendance Table --}}
+    <h3>Detail Absensi Harian</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Tanggal</th>
+                <th>Hari</th>
+                <th>Status</th>
+                <th>Masuk</th>
+                <th>Pulang</th>
+                <th class="text-center">Telat (mnt)</th>
+                <th class="text-end">Denda Telat</th>
+                <th class="text-end">Denda Istirahat</th>
+                <th class="text-end">Denda Absen</th>
+                <th class="text-end">Total Denda</th>
+                <th>Keterangan</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($attendanceData as $attendance)
+                <tr>
+                    <td>{{ $attendance->tanggal->format('d/m/Y') }}</td>
+                    <td>{{ $attendance->tanggal->translatedFormat('D') }}</td>
+                    <td>
+                        @if ($attendance->is_half_day)
+                            <span class="badge badge-info">Setengah</span>
+                        @elseif(!$attendance->scan1)
+                            <span class="badge badge-danger">Tidak Hadir</span>
+                        @elseif($attendance->late_minutes > 0)
+                            <span class="badge badge-warning">Terlambat</span>
+                        @else
+                            <span class="badge badge-success">Tepat Waktu</span>
+                        @endif
+                    </td>
+                    <td class="text-center">
+                        @if ($attendance->scan1)
+                            <span class="@if ($attendance->late_minutes > 0) text-danger @endif">
+                                {{ $attendance->scan1->format('H:i') }}
+                            </span>
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td class="text-center">
+                        @if ($attendance->scan4)
+                            {{ $attendance->scan4->format('H:i') }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td class="text-center">
+                        @if ($attendance->late_minutes > 0)
+                            <span class="@if ($attendance->late_minutes > 0) text-danger @endif">
+                                {{ $attendance->late_minutes }}
+                            </span>
+                            <small class="d-block">
+                                @
+                                Rp{{ number_format($attendance->late_fine > 0 ? round($attendance->late_fine / $attendance->late_minutes) : 0, 0, ',', '.') }}/menit
+                            </small>
+                        @else
+                            <span class="text-muted">-</span>
+                        @endif
+                    </td>
+                    <td class="text-end">
+                        @if ($attendance->late_fine > 0)
+                            Rp {{ number_format($attendance->late_fine, 0, ',', '.') }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td class="text-end">
+                        @if ($attendance->break_fine > 0)
+                            Rp {{ number_format($attendance->break_fine, 0, ',', '.') }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td class="text-end">
+                        @if ($attendance->absence_fine > 0)
+                            Rp {{ number_format($attendance->absence_fine, 0, ',', '.') }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td class="text-end">
+                        @if ($attendance->total_fine > 0)
+                            <strong>Rp {{ number_format($attendance->total_fine, 0, ',', '.') }}</strong>
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td class="penalty-detail">
+                        @if ($attendance->is_half_day)
+                            Bebas denda (setengah hari)
+                        @else
+                            @php $penalties = []; @endphp
+                            @if ($attendance->late_minutes > 0)
+                                @php $penalties[] = "Telat {$attendance->late_minutes} mnt"; @endphp
+                            @endif
+                            @if ($attendance->break_fine > 0)
+                                @if (!$attendance->scan2 && !$attendance->scan3)
+                                    @php $penalties[] = "Tidak absen istirahat 2x"; @endphp
+                                @elseif(!$attendance->scan2 || !$attendance->scan3)
+                                    @php $penalties[] = "Tidak absen istirahat 1x"; @endphp
+                                @else
+                                    @php $penalties[] = "Telat istirahat"; @endphp
+                                @endif
+                            @endif
+                            @if ($attendance->absence_fine > 0)
+                                @if (!$attendance->scan1 && !$attendance->scan4)
+                                    @php $penalties[] = "Lupa absen masuk & pulang"; @endphp
+                                @elseif(!$attendance->scan1)
+                                    @php $penalties[] = "Lupa absen masuk"; @endphp
+                                @elseif(!$attendance->scan4)
+                                    @php $penalties[] = "Lupa absen pulang"; @endphp
+                                @endif
+                            @endif
+                            {{ empty($penalties) ? 'Tidak ada pelanggaran' : implode(', ', $penalties) }}
+                        @endif
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+        @if ($attendanceData->count() > 0)
+            <tfoot>
+                <tr style="background-color: #f2f2f2; font-weight: bold;">
+                    <td colspan="6" class="text-center">TOTAL</td>
+                    <td class="text-end">Rp {{ number_format($summary['total_late_fine'], 0, ',', '.') }}</td>
+                    <td class="text-end">Rp {{ number_format($summary['total_break_fine'], 0, ',', '.') }}</td>
+                    <td class="text-end">Rp {{ number_format($summary['total_absence_fine'], 0, ',', '.') }}</td>
+                    <td class="text-end text-danger">Rp {{ number_format($summary['total_penalty'], 0, ',', '.') }}
+                    </td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        @endif
+    </table>
 
     <div class="footer">
-        Dicetak pada: {{ now()->format('d F Y H:i:s') }}
+        <p>Laporan ini digenerate secara otomatis oleh Sistem Absensi Bank Sampah Surabaya</p>
+        <p>Dicetak pada: {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y H:i') }} WIB</p>
+        <p><strong>Keterangan Jam Masuk:</strong> Senin-Kamis & Sabtu: 07:30 | Jumat: 07:00</p>
     </div>
 </body>
+
 </html>

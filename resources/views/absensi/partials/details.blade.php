@@ -1,174 +1,204 @@
-<div class="row g-4">
-    <div class="col-md-6">
-        <h6 class="text-white mb-3">
-            <i class="bi bi-person me-2"></i>Informasi Karyawan
-        </h6>
-        <table class="table table-dark table-sm">
+<div class="row">
+    <div class="col-md-8">
+        <h6 class="mb-3">Informasi Karyawan</h6>
+        <table class="table table-sm">
             <tr>
-                <td class="text-muted">Nama:</td>
-                <td class="text-white">{{ $attendance->employee->nama }}</td>
+                <td width="150"><strong>Nama:</strong></td>
+                <td>{{ $attendance->employee->nama }}</td>
             </tr>
             <tr>
-                <td class="text-muted">NIP:</td>
-                <td class="text-white">{{ $attendance->employee->nip }}</td>
+                <td><strong>Departemen:</strong></td>
+                <td>
+                    <span class="badge bg-{{ $attendance->employee->departemen === 'staff' ? 'primary' : 'success' }}">
+                        {{ ucfirst($attendance->employee->departemen) }}
+                    </span>
+                </td>
             </tr>
             <tr>
-                <td class="text-muted">Departemen:</td>
-                <td><span class="badge bg-secondary">{{ ucfirst($attendance->employee->departemen) }}</span></td>
+                <td><strong>Tanggal:</strong></td>
+                <td>{{ $attendance->tanggal->format('d F Y') }}</td>
             </tr>
             <tr>
-                <td class="text-muted">Jabatan:</td>
-                <td class="text-white">{{ $attendance->employee->jabatan }}</td>
-            </tr>
-        </table>
-    </div>
-
-    <div class="col-md-6">
-        <h6 class="text-white mb-3">
-            <i class="bi bi-calendar me-2"></i>Informasi Absensi
-        </h6>
-        <table class="table table-dark table-sm">
-            <tr>
-                <td class="text-muted">Tanggal:</td>
-                <td class="text-white">{{ $attendance->tanggal->format('d M Y') }}</td>
+                <td><strong>Hari:</strong></td>
+                <td>
+                    <span class="badge bg-info">{{ $attendance->tanggal->translatedFormat('l') }}</span>
+                </td>
             </tr>
             <tr>
-                <td class="text-muted">Status:</td>
+                <td><strong>Status:</strong></td>
                 <td>
                     <span class="badge {{ $attendance->status_badge }}">
                         {{ $attendance->status_text }}
                     </span>
                 </td>
             </tr>
-            @if($attendance->is_half_day)
+        </table>
+
+        <h6 class="mb-3 mt-4">Detail Waktu</h6>
+        <table class="table table-sm">
             <tr>
-                <td class="text-muted">Jenis Shift:</td>
-                <td class="text-white">{{ $attendance->half_day_type_text }}</td>
+                <td width="150"><strong>Scan Masuk:</strong></td>
+                <td>{{ $attendance->getFormattedScan('scan1') ?: '-' }}</td>
+            </tr>
+            <tr>
+                <td><strong>Scan Istirahat:</strong></td>
+                <td>{{ $attendance->getFormattedScan('scan2') ?: '-' }}</td>
+            </tr>
+            <tr>
+                <td><strong>Scan Kembali:</strong></td>
+                <td>{{ $attendance->getFormattedScan('scan3') ?: '-' }}</td>
+            </tr>
+            <tr>
+                <td><strong>Scan Pulang:</strong></td>
+                <td>{{ $attendance->getFormattedScan('scan4') ?: '-' }}</td>
+            </tr>
+            @if($attendance->getFormattedScan('scan5'))
+            <tr>
+                <td><strong>Scan 5:</strong></td>
+                <td>{{ $attendance->getFormattedScan('scan5') }}</td>
             </tr>
             @endif
         </table>
+
+        @if($attendance->hasOvertime())
+        <h6 class="mb-3 mt-4">Informasi Lembur</h6>
+        <table class="table table-sm">
+            <tr>
+                <td width="150"><strong>Durasi Lembur:</strong></td>
+                <td>{{ $attendance->overtime_minutes }} menit</td>
+            </tr>
+            <tr>
+                <td><strong>Status:</strong></td>
+                <td>
+                    <span class="badge {{ $attendance->overtime_status_badge }}">
+                        {{ $attendance->formatted_overtime_status }}
+                    </span>
+                </td>
+            </tr>
+            @if($attendance->overtime_notes)
+            <tr>
+                <td><strong>Catatan:</strong></td>
+                <td>{{ $attendance->overtime_notes }}</td>
+            </tr>
+            @endif
+        </table>
+        @endif
     </div>
 
-    <div class="col-12">
-        <h6 class="text-white mb-3">
-            <i class="bi bi-clock me-2"></i>Waktu Scan
-        </h6>
-        <div class="row g-3">
-            <div class="col-md-3">
-                <div class="card bg-dark">
-                    <div class="card-body text-center py-2">
-                        <small class="text-muted">Masuk</small>
-                        <div class="text-white fw-bold">{{ $attendance->getFormattedScan('scan1') ?: '-' }}</div>
-                    </div>
-                </div>
+    <div class="col-md-4">
+        <h6 class="mb-3">Detail Denda & Perhitungan</h6>
+        @if($attendance->is_half_day)
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                <strong>Bebas Denda</strong><br>
+                Status setengah hari tidak dikenakan denda
             </div>
-            <div class="col-md-3">
-                <div class="card bg-dark">
-                    <div class="card-body text-center py-2">
-                        <small class="text-muted">Istirahat Mulai</small>
-                        <div class="text-white fw-bold">{{ $attendance->getFormattedScan('scan2') ?: '-' }}</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-dark">
-                    <div class="card-body text-center py-2">
-                        <small class="text-muted">Istirahat Selesai</small>
-                        <div class="text-white fw-bold">{{ $attendance->getFormattedScan('scan3') ?: '-' }}</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card bg-dark">
-                    <div class="card-body text-center py-2">
-                        <small class="text-muted">Pulang</small>
-                        <div class="text-white fw-bold">{{ $attendance->getFormattedScan('scan4') ?: '-' }}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+        @else
+            @php
+                $penaltyBreakdown = $attendance->penalty_breakdown;
+                $penaltyTypes = $attendance->penalty_types;
+                $detailedCalculation = $attendance->detailed_penalty_calculation;
+            @endphp
 
-    @if($attendance->overtime_minutes > 0)
-    <div class="col-12">
-        <h6 class="text-white mb-3">
-            <i class="bi bi-clock-history me-2"></i>Informasi Lembur
-        </h6>
-        <div class="card bg-dark">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4">
-                        <small class="text-muted">Durasi Lembur:</small>
-                        <div class="text-white fw-bold">{{ $attendance->overtime_text }}</div>
-                    </div>
-                    <div class="col-md-4">
-                        <small class="text-muted">Status:</small>
-                        <div>
-                            <span class="badge {{ $attendance->overtime_status_badge }}">
-                                {{ $attendance->formatted_overtime_status }}
-                            </span>
+            <div class="card">
+                <div class="card-body">
+                    {{-- Denda Telat dengan Perhitungan Detail --}}
+                    <div class="row mb-2">
+                        <div class="col-8"><strong>Telat (menit):</strong></div>
+                        <div class="col-4 text-end">
+                            @if($attendance->late_minutes > 0)
+                                <span class="text-danger fw-bold">{{ $attendance->late_minutes }}</span>
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <small class="text-muted">Catatan:</small>
-                        <div class="text-white">{{ $attendance->overtime_notes ?: '-' }}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    @endif
 
-    @if($attendance->total_fine > 0)
-    <div class="col-12">
-        <h6 class="text-white mb-3">
-            <i class="bi bi-currency-dollar me-2"></i>Rincian Denda
-        </h6>
-        <div class="card bg-dark">
-            <div class="card-body">
-                <div class="row g-3">
-                    @if($attendance->late_fine > 0)
-                    <div class="col-md-4">
-                        <small class="text-muted">Denda Terlambat:</small>
-                        <div class="text-warning fw-bold">Rp {{ number_format($attendance->late_fine, 0, ',', '.') }}</div>
-                        <small class="text-muted">({{ $attendance->late_minutes }} menit)</small>
+                    @if($attendance->late_minutes > 0 && $attendance->late_fine > 0)
+                    <div class="alert alert-warning p-2 mb-3">
+                        <small><strong>Perhitungan Denda Telat:</strong></small><br>
+                        <small>{{ $attendance->late_minutes }} menit × Rp{{ number_format($attendance->late_penalty_rate, 0, ',', '.') }}/menit</small><br>
+                        <small>= {{ $attendance->late_minutes }} × {{ number_format($attendance->late_penalty_rate, 0, ',', '.') }}</small><br>
+                        <small><strong>= Rp{{ number_format($attendance->late_fine, 0, ',', '.') }}</strong></small>
                     </div>
                     @endif
-                    @if($attendance->break_fine > 0)
-                    <div class="col-md-4">
-                        <small class="text-muted">Denda Istirahat:</small>
-                        <div class="text-warning fw-bold">Rp {{ number_format($attendance->break_fine, 0, ',', '.') }}</div>
+
+                    <div class="row mb-2">
+                        <div class="col-8"><strong>Denda Telat:</strong></div>
+                        <div class="col-4 text-end">
+                            @if($attendance->late_fine > 0)
+                                <span class="text-danger fw-bold">{{ $penaltyBreakdown['late_fine'] }}</span>
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- Denda Istirahat --}}
+                    <div class="row mb-2">
+                        <div class="col-8"><strong>Denda Istirahat:</strong></div>
+                        <div class="col-4 text-end">
+                            @if($attendance->break_fine > 0)
+                                <span class="text-warning fw-bold">{{ $penaltyBreakdown['break_fine'] }}</span>
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- Denda Absen --}}
+                    <div class="row mb-2">
+                        <div class="col-8"><strong>Denda Absen:</strong></div>
+                        <div class="col-4 text-end">
+                            @if($attendance->absence_fine > 0)
+                                <span class="text-info fw-bold">{{ $penaltyBreakdown['absence_fine'] }}</span>
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    {{-- Total Denda dengan Perhitungan --}}
+                    @if($attendance->total_fine > 0)
+                    <div class="alert alert-danger p-2 mb-3">
+                        <small><strong>Total Perhitungan:</strong></small><br>
+                        @if($attendance->late_fine > 0)
+                            <small>Denda Telat: Rp{{ number_format($attendance->late_fine, 0, ',', '.') }}</small><br>
+                        @endif
+                        @if($attendance->break_fine > 0)
+                            <small>Denda Istirahat: Rp{{ number_format($attendance->break_fine, 0, ',', '.') }}</small><br>
+                        @endif
+                        @if($attendance->absence_fine > 0)
+                            <small>Denda Absen: Rp{{ number_format($attendance->absence_fine, 0, ',', '.') }}</small><br>
+                        @endif
+                        <hr class="my-1">
+                        <small><strong>Total: Rp{{ number_format($attendance->total_fine, 0, ',', '.') }}</strong></small>
                     </div>
                     @endif
-                    @if($attendance->absence_fine > 0)
-                    <div class="col-md-4">
-                        <small class="text-muted">Denda Absen:</small>
-                        <div class="text-warning fw-bold">Rp {{ number_format($attendance->absence_fine, 0, ',', '.') }}</div>
-                    </div>
-                    @endif
-                    <div class="col-12">
-                        <hr class="border-secondary">
-                        <div class="d-flex justify-content-between">
-                            <strong class="text-white">Total Denda:</strong>
-                            <strong class="text-warning">{{ $attendance->formatted_total_fine }}</strong>
+
+                    <div class="row">
+                        <div class="col-8"><strong>Total Denda:</strong></div>
+                        <div class="col-4 text-end">
+                            @if($attendance->total_fine > 0)
+                                <span class="fw-bold text-danger fs-5">{{ $penaltyBreakdown['total_fine'] }}</span>
+                            @else
+                                <span class="fw-bold text-success fs-5">Rp 0</span>
+                            @endif
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    @endif
 
-    @if($attendance->half_day_notes)
-    <div class="col-12">
-        <h6 class="text-white mb-3">
-            <i class="bi bi-chat-text me-2"></i>Catatan
-        </h6>
-        <div class="card bg-dark">
-            <div class="card-body">
-                <p class="text-white mb-0">{{ $attendance->half_day_notes }}</p>
-            </div>
-        </div>
+            @if($attendance->total_fine > 0)
+                <div class="mt-3">
+                    <h6>Rincian Pelanggaran:</h6>
+                    <div class="alert alert-warning">
+                        <small class="fw-bold">{{ $penaltyTypes['total_text'] }}</small>
+                    </div>
+                </div>
+            @endif
+        @endif
     </div>
-    @endif
 </div>

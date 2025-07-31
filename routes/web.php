@@ -49,7 +49,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/evaluate-all', [AttendanceController::class, 'reevaluateAll']);
         Route::get('/manual', [AttendanceController::class, 'manual'])->name('absensi.manual');
         Route::post('/manual', [AttendanceController::class, 'manualStore'])->name('absensi.manual.store');
-        Route::get('/absensi/{id}/row-data', [AttendanceController::class, 'getRowData']);
+        Route::get('/{id}/row-data', [AttendanceController::class, 'getRowData']);
+        Route::delete('/destroy', [AttendanceController::class, 'destroy'])->name('destroyAbsensi');
 
         // Half Day Manual Routes
         Route::get('/half-day-manual', [AttendanceController::class, 'halfDayManual'])->name('absensi.half-day-manual');
@@ -59,12 +60,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/half-day-manual', [AttendanceController::class, 'halfDayManual'])->name('absensi.half-day-manual');
         Route::post('/half-day-manual', [AttendanceController::class, 'halfDayManualStore'])->name('absensi.half-day-manual.store');
 
+        // Penalty management
         Route::get('/denda', [AttendanceController::class, 'denda'])->name('absensi.denda');
-        Route::put('/denda', [AttendanceController::class, 'dendaUpdate'])->name('absensi.denda.update');
+        Route::post('/denda/update', [AttendanceController::class, 'dendaUpdate'])->name('absensi.denda.update');
+
+        // Individual penalty reports
         Route::get('/denda/individual', [AttendanceController::class, 'dendaIndividual'])->name('absensi.denda.individual');
-        Route::get('/denda/employee/{id}', [AttendanceController::class, 'dendaEmployeeDetail'])->name('absensi.denda.employee.detail');
-        Route::get('/denda/export/individual/{id}', [AttendanceController::class, 'dendaExportIndividualPdf'])->name('absensi.denda.export.individual');
-        Route::get('/denda/export/all', [AttendanceController::class, 'dendaExportAllPdf'])->name('absensi.denda.export.all');
+        Route::get('/denda/employee/{employee}', [AttendanceController::class, 'dendaEmployeeDetail'])->name('absensi.denda.employee-detail');
+
+        // PDF exports
+        Route::get('/denda/export/individual/{employee}', [AttendanceController::class, 'dendaExportIndividualPdf'])->name('absensi.denda.export-individual-pdf');
+        Route::get('/denda/export/all', [AttendanceController::class, 'dendaExportAllPdf'])->name('absensi.denda.export-all-pdf');
+
+        Route::post('/reevaluate-all', [AttendanceController::class, 'reevaluateAll'])->name('absensi.reevaluate-all');
+
 
         // Leave Routes
         Route::get('/leave', [AttendanceController::class, 'leaveIndex'])->name('absensi.leave.index');
@@ -99,38 +108,36 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Payroll Routes
     Route::prefix('payroll')->group(function () {
-    // Halaman utama payroll
-    Route::get('/', [PayrollController::class, 'index'])->name('payroll.index');
+        // Halaman utama payroll
+        Route::get('/', [PayrollController::class, 'index'])->name('payroll.index');
 
-    // Generate data payroll
-    Route::post('/generate', [PayrollController::class, 'generate'])->name('payroll.generate');
+        // Generate data payroll
+        Route::post('/generate', [PayrollController::class, 'generate'])->name('payroll.generate');
 
-    // Tampilkan detail payroll per karyawan
-    Route::get('/{id}', [PayrollController::class, 'show'])->name('payroll.show');
+        // Tampilkan detail payroll per karyawan
+        Route::get('/{id}', [PayrollController::class, 'show'])->name('payroll.show');
 
-    // Update status pembayaran
-    Route::put('/{id}/payment', [PayrollController::class, 'updatePayment'])->name('payroll.update.payment');
+        // Update status pembayaran
+        Route::put('/{id}/payment', [PayrollController::class, 'updatePayment'])->name('payroll.update.payment');
 
-    // Hitung ulang payroll
-    Route::get('/{id}/recalculate', [PayrollController::class, 'recalculate'])->name('payroll.recalculate');
+        // Hitung ulang payroll
+        Route::get('/{id}/recalculate', [PayrollController::class, 'recalculate'])->name('payroll.recalculate');
 
-    // Unduh slip gaji individu
-    Route::get('/{id}/download', [PayrollController::class, 'downloadIndividualPdf'])->name('payroll.download.individual');
+        // Unduh slip gaji individu
+        Route::get('/{id}/download', [PayrollController::class, 'downloadIndividualPdf'])->name('payroll.download.individual');
 
-    // Export semua data payroll ke PDF
-    Route::get('/export/pdf', [PayrollController::class, 'exportPdf'])->name('payroll.export.pdf');
+        // Export semua data payroll ke PDF
+        Route::get('/export/pdf', [PayrollController::class, 'exportPdf'])->name('payroll.export.pdf');
 
-    // Pengaturan gaji pokok
-    Route::get('/settings/salary', [PayrollController::class, 'settings'])->name('payroll.settings');
-    Route::post('/settings/salary', [PayrollController::class, 'updateSalary'])->name('payroll.update.salary');
+        // Pengaturan gaji pokok
+        Route::get('/settings/salary', [PayrollController::class, 'settings'])->name('payroll.settings');
+        Route::post('/settings/salary', [PayrollController::class, 'updateSalary'])->name('payroll.update.salary');
 
-    // Pengaturan data bank karyawan
-    Route::post('/settings/bank', [PayrollController::class, 'updateEmployeeBankDetails'])->name('payroll.update.bank');
-    Route::get('/staff/settings', [PayrollController::class, 'staffSettings'])->name('payroll.staff.settings');
-    Route::post('/staff/settings', [PayrollController::class, 'updateStaffSalary'])->name('payroll.staff.update.salary');
-});
-
-
+        // Pengaturan data bank karyawan
+        Route::post('/settings/bank', [PayrollController::class, 'updateEmployeeBankDetails'])->name('payroll.update.bank');
+        Route::get('/staff/settings', [PayrollController::class, 'staffSettings'])->name('payroll.staff.settings');
+        Route::post('/staff/settings', [PayrollController::class, 'updateStaffSalary'])->name('payroll.staff.update.salary');
+    });
 });
 
 // API Routes

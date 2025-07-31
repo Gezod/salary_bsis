@@ -13,36 +13,46 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use App\Models\OvertimeRecord;
+use App\Models\OvertimeSetting;
+use App\Models\Payroll;
+use Illuminate\Support\Facades\DB;
 
 class AttendanceController extends Controller
 {
     public function index(Request $r)
-    {
-        $query = Attendance::query()
-            ->join('employees', 'employees.id', '=', 'attendances.employee_id')
-            ->with('employee')
-            ->orderBy('attendances.tanggal')
-            ->orderBy('employees.nama')
-            ->select('attendances.*')
-            ->when($r->filled('date'), function ($q) use ($r) {
-                $q->whereDate('attendances.tanggal', Carbon::parse($r->input('date')));
-            })
-            ->when($r->filled('employee'), function ($q) use ($r) {
-                $q->where('employees.nama', 'like', '%' . $r->employee . '%');
+{
+    $query = Attendance::with('employee')
+        ->when($r->filled('date'), function ($q) use ($r) {
+            $q->whereDate('tanggal', Carbon::parse($r->input('date')));
+        })
+        ->when($r->filled('employee'), function ($q) use ($r) {
+            $q->whereHas('employee', function ($q2) use ($r) {
+                $q2->where('nama', 'like', '%' . $r->employee . '%');
             });
+        })
+        ->orderBy('tanggal');
 
-        $rows = $query->paginate(50)->withQueryString();
+    $rows = $query->paginate(50)->withQueryString();
 
-        // Evaluasi otomatis jika belum ada total_fine
-        foreach ($rows as $a) {
-            if (is_null($a->total_fine) || $a->total_fine === 0) {
-                AttendanceService::evaluate($a);
-                $a->refresh();
-            }
-        }
-
-        return view('absensi.index', compact('rows'));
+    // Optional: Jika kamu butuh urut nama, bisa pakai Collection sort setelah paginasi
+    if ($r->filled('employee')) {
+        $rows->getCollection()->sortBy(function ($item) {
+            return $item->employee->nama ?? '';
+        });
     }
+
+    // Evaluasi otomatis
+    foreach ($rows as $a) {
+        if (is_null($a->total_fine) || ($a->total_fine === 0 && !$a->is_half_day)) {
+            AttendanceService::evaluate($a);
+            $a->refresh();
+        }
+    }
+
+    return view('absensi.index', compact('rows'));
+}
+
 
     public function recap(Request $r)
     {
@@ -122,14 +132,31 @@ class AttendanceController extends Controller
 
     public function reevaluateAll()
     {
-        $attendances = \App\Models\Attendance::with('employee')->get();
-        foreach ($attendances as $attendance) {
-            if ($attendance instanceof \App\Models\Attendance && $attendance->employee) {
-                \App\Services\AttendanceService::evaluate($attendance);
-            }
-        }
+        try {
+            $attendances = Attendance::with('employee')->get();
+            $processed = 0;
 
-        return redirect()->back()->with('success', 'Semua absensi berhasil dievaluasi ulang.');
+            foreach ($attendances as $attendance) {
+                if ($attendance instanceof Attendance && $attendance->employee) {
+                    AttendanceService::evaluate($attendance);
+                    $processed++;
+                }
+            }
+
+            Log::info("Reevaluated {$processed} attendance records");
+
+            return response()->json([
+                'success' => true,
+                'message' => "Berhasil menghitung ulang {$processed} data absensi",
+                'processed' => $processed
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error in reevaluateAll: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function manual()
@@ -189,9 +216,7 @@ class AttendanceController extends Controller
         ]);
 
         // Evaluate attendance using AttendanceService
-        if (class_exists('App\Services\AttendanceService')) {
-            AttendanceService::evaluate($attendance);
-        }
+        AttendanceService::evaluate($attendance);
 
         return redirect()->route('absensi.manual')
             ->with('success', 'Data absensi berhasil ditambahkan dan dievaluasi.');
@@ -292,74 +317,74 @@ class AttendanceController extends Controller
     }
 
     public function update(Request $request, $id)
-{
-    $attendance = Attendance::findOrFail($id);
+    {
+        $attendance = Attendance::findOrFail($id);
 
-    $request->validate([
-        'scan1' => 'nullable|date_format:H:i',
-        'scan2' => 'nullable|date_format:H:i',
-        'scan3' => 'nullable|date_format:H:i',
-        'scan4' => 'nullable|date_format:H:i',
-        'scan5' => 'nullable|date_format:H:i',
-        'is_half_day' => 'boolean',
-        'half_day_type' => 'nullable|required_if:is_half_day,true|in:shift_1,shift_2',
-        'half_day_notes' => 'nullable|string|max:500',
-        'overtime_status' => 'nullable|in:pending,approved,rejected',
-        'overtime_notes' => 'nullable|string|max:500',
-    ]);
+        $request->validate([
+            'scan1' => 'nullable|date_format:H:i',
+            'scan2' => 'nullable|date_format:H:i',
+            'scan3' => 'nullable|date_format:H:i',
+            'scan4' => 'nullable|date_format:H:i',
+            'scan5' => 'nullable|date_format:H:i',
+            'is_half_day' => 'boolean',
+            'half_day_type' => 'nullable|required_if:is_half_day,true|in:shift_1,shift_2',
+            'half_day_notes' => 'nullable|string|max:500',
+            'overtime_status' => 'nullable|in:pending,approved,rejected',
+            'overtime_notes' => 'nullable|string|max:500',
+        ]);
 
-    $tanggal = $attendance->tanggal;
+        $tanggal = $attendance->tanggal;
 
-    // Update half day info first
-    $attendance->is_half_day = $request->boolean('is_half_day');
-    $attendance->half_day_type = $attendance->is_half_day ? $request->half_day_type : null;
-    $attendance->half_day_notes = $request->half_day_notes;
-    $attendance->overtime_status = $request->overtime_status ?? 'pending';
-    $attendance->overtime_notes = $request->overtime_notes;
+        // Update half day info first
+        $attendance->is_half_day = $request->boolean('is_half_day');
+        $attendance->half_day_type = $attendance->is_half_day ? $request->half_day_type : null;
+        $attendance->half_day_notes = $request->half_day_notes;
+        $attendance->overtime_status = $request->overtime_status ?? 'pending';
+        $attendance->overtime_notes = $request->overtime_notes;
 
-    // Update scan times based on half day type
-    foreach (['scan1', 'scan2', 'scan3', 'scan4', 'scan5'] as $scan) {
-        if ($request->filled($scan)) {
-            // Only allow relevant scans for half day
-            if ($attendance->is_half_day) {
-                if ($attendance->half_day_type === 'shift_1' && in_array($scan, ['scan3', 'scan4', 'scan5'])) {
-                    continue; // Skip irrelevant scans for shift 1
+        // Update scan times based on half day type
+        foreach (['scan1', 'scan2', 'scan3', 'scan4', 'scan5'] as $scan) {
+            if ($request->filled($scan)) {
+                // Only allow relevant scans for half day
+                if ($attendance->is_half_day) {
+                    if ($attendance->half_day_type === 'shift_1' && in_array($scan, ['scan3', 'scan4', 'scan5'])) {
+                        continue; // Skip irrelevant scans for shift 1
+                    }
+                    if ($attendance->half_day_type === 'shift_2' && in_array($scan, ['scan1', 'scan2', 'scan5'])) {
+                        continue; // Skip irrelevant scans for shift 2
+                    }
                 }
-                if ($attendance->half_day_type === 'shift_2' && in_array($scan, ['scan1', 'scan2', 'scan5'])) {
-                    continue; // Skip irrelevant scans for shift 2
+                $attendance->$scan = $tanggal->copy()->setTimeFromTimeString($request->input($scan));
+            } elseif ($request->has($scan)) {
+                // Clear irrelevant scans when half day is selected
+                if (!$attendance->is_half_day ||
+                    ($attendance->half_day_type === 'shift_1' && !in_array($scan, ['scan3', 'scan4', 'scan5'])) ||
+                    ($attendance->half_day_type === 'shift_2' && !in_array($scan, ['scan1', 'scan2', 'scan5']))) {
+                    $attendance->$scan = null;
                 }
-            }
-            $attendance->$scan = $tanggal->copy()->setTimeFromTimeString($request->input($scan));
-        } elseif ($request->has($scan)) {
-            // Clear irrelevant scans when half day is selected
-            if (!$attendance->is_half_day ||
-                ($attendance->half_day_type === 'shift_1' && !in_array($scan, ['scan3', 'scan4', 'scan5'])) ||
-                ($attendance->half_day_type === 'shift_2' && !in_array($scan, ['scan1', 'scan2', 'scan5']))) {
-                $attendance->$scan = null;
             }
         }
+
+        Log::debug('Attendance update data', [
+            'is_half_day' => $attendance->is_half_day,
+            'half_day_type' => $attendance->half_day_type,
+            'scans' => [
+                'scan1' => $attendance->scan1?->format('H:i'),
+                'scan2' => $attendance->scan2?->format('H:i'),
+                'scan3' => $attendance->scan3?->format('H:i'),
+                'scan4' => $attendance->scan4?->format('H:i'),
+                'scan5' => $attendance->scan5?->format('H:i'),
+            ],
+            'request_data' => $request->all()
+        ]);
+
+        $attendance->save();
+
+        // Re-evaluate attendance
+        AttendanceService::evaluate($attendance);
+
+        return response()->json(['success' => true]);
     }
-
-    Log::debug('Attendance update data', [
-        'is_half_day' => $attendance->is_half_day,
-        'half_day_type' => $attendance->half_day_type,
-        'scans' => [
-            'scan1' => $attendance->scan1?->format('H:i'),
-            'scan2' => $attendance->scan2?->format('H:i'),
-            'scan3' => $attendance->scan3?->format('H:i'),
-            'scan4' => $attendance->scan4?->format('H:i'),
-            'scan5' => $attendance->scan5?->format('H:i'),
-        ],
-        'request_data' => $request->all()
-    ]);
-
-    $attendance->save();
-
-    // Re-evaluate attendance
-    AttendanceService::evaluate($attendance);
-
-    return response()->json(['success' => true]);
-}
 
     public function updateOvertimeStatus(Request $request, $id)
     {
@@ -402,7 +427,7 @@ class AttendanceController extends Controller
 
         return response()->json([
             'success' => true,
-            'overtime_html' => view('absensi.partials.overtime_cell', compact('attendance'))->render()
+            'overtime_html' => view('absensi.partials.overtime_cell_data', compact('attendance'))->render()
         ]);
     }
 
@@ -552,6 +577,7 @@ class AttendanceController extends Controller
             ->with('success', 'Pergantian jam kerja berhasil ditambahkan.');
     }
 
+    // Penalty Management
     public function denda()
     {
         $penalties = config('penalties');
@@ -636,51 +662,63 @@ class AttendanceController extends Controller
 
     // Individual Penalty View
     public function dendaIndividual(Request $request)
-    {
-        $month = $request->input('month', now()->format('Y-m'));
-        if (!preg_match('/^\d{4}-\d{2}$/', $month)) {
-            abort(400, 'Format bulan tidak valid. Gunakan format YYYY-MM.');
+{
+    $month = $request->input('month', now()->format('Y-m'));
+    if (!preg_match('/^\d{4}-\d{2}$/', $month)) {
+        abort(400, 'Format bulan tidak valid. Gunakan format YYYY-MM.');
+    }
+
+    [$year, $mon] = explode('-', $month);
+
+    // First, evaluate all attendances for the month to ensure fines are calculated
+    $attendances = Attendance::with('employee')
+        ->whereYear('tanggal', $year)
+        ->whereMonth('tanggal', $mon)
+        ->get();
+
+    foreach ($attendances as $attendance) {
+        if ($attendance->employee) {
+            AttendanceService::evaluate($attendance);
         }
+    }
 
-        [$year, $mon] = explode('-', $month);
+    // Now get the penalty data
+    $penaltyData = Attendance::with('employee')
+        ->selectRaw('
+            employee_id,
+            COUNT(*) as total_days,
+            SUM(late_minutes) as total_late_minutes,
+            COUNT(CASE WHEN late_minutes > 0 THEN 1 END) as late_days,
+            SUM(late_fine) as total_late_fine,
+            SUM(break_fine) as total_break_fine,
+            SUM(absence_fine) as total_absence_fine,
+            SUM(total_fine) as total_penalty,
+            AVG(CASE WHEN late_minutes > 0 THEN late_minutes END) as avg_late_minutes
+        ')
+        ->whereYear('tanggal', $year)
+        ->whereMonth('tanggal', $mon)
+        ->groupBy('employee_id')
+        ->orderByDesc('total_penalty')
+        ->get();
 
-        // Get penalty data per employee
-        $penaltyData = Attendance::with('employee')
-            ->selectRaw('
-                employee_id,
-                COUNT(*) as total_days,
-                SUM(late_minutes) as total_late_minutes,
-                COUNT(CASE WHEN late_minutes > 0 THEN 1 END) as late_days,
-                SUM(late_fine) as total_late_fine,
-                SUM(break_fine) as total_break_fine,
-                SUM(absence_fine) as total_absence_fine,
-                SUM(total_fine) as total_penalty,
-                AVG(late_minutes) as avg_late_minutes
-            ')
-            ->whereYear('tanggal', $year)
-            ->whereMonth('tanggal', $mon)
-            ->groupBy('employee_id')
-            ->having('total_penalty', '>', 0)
-            ->orderByDesc('total_penalty')
-            ->get();
+    // Get department statistics
+    $departmentStats = [
+        'staff' => [
+            'total_employees' => 0,
+            'total_penalty' => 0,
+            'avg_penalty' => 0,
+            'total_late_days' => 0
+        ],
+        'karyawan' => [
+            'total_employees' => 0,
+            'total_penalty' => 0,
+            'avg_penalty' => 0,
+            'total_late_days' => 0
+        ]
+    ];
 
-        // Get department statistics
-        $departmentStats = [
-            'staff' => [
-                'total_employees' => 0,
-                'total_penalty' => 0,
-                'avg_penalty' => 0,
-                'total_late_days' => 0
-            ],
-            'karyawan' => [
-                'total_employees' => 0,
-                'total_penalty' => 0,
-                'avg_penalty' => 0,
-                'total_late_days' => 0
-            ]
-        ];
-
-        foreach ($penaltyData as $data) {
+    foreach ($penaltyData as $data) {
+        if ($data->employee) {
             $dept = $data->employee->departemen;
             if (isset($departmentStats[$dept])) {
                 $departmentStats[$dept]['total_employees']++;
@@ -688,16 +726,17 @@ class AttendanceController extends Controller
                 $departmentStats[$dept]['total_late_days'] += $data->late_days;
             }
         }
-
-        // Calculate averages
-        foreach ($departmentStats as $dept => $stats) {
-            if ($stats['total_employees'] > 0) {
-                $departmentStats[$dept]['avg_penalty'] = $stats['total_penalty'] / $stats['total_employees'];
-            }
-        }
-
-        return view('absensi.denda-individual', compact('penaltyData', 'departmentStats', 'month'));
     }
+
+    // Calculate averages
+    foreach ($departmentStats as $dept => $stats) {
+        if ($stats['total_employees'] > 0) {
+            $departmentStats[$dept]['avg_penalty'] = $stats['total_penalty'] / $stats['total_employees'];
+        }
+    }
+
+    return view('absensi.denda-individual', compact('penaltyData', 'departmentStats', 'month'));
+}
 
     // Individual Employee Penalty Detail
     public function dendaEmployeeDetail(Request $request, $employeeId)
@@ -764,7 +803,7 @@ class AttendanceController extends Controller
             'avg_late_minutes' => $attendanceData->where('late_minutes', '>', 0)->avg('late_minutes') ?? 0
         ];
 
-        $monthName = Carbon::createFromFormat('Y-m', $month)->format('F Y');
+        $monthName = Carbon::createFromFormat('Y-m', $month)->translatedFormat('F Y');
 
         $pdf = app('dompdf.wrapper');
         $pdf->loadView('absensi.pdf.denda-individual', compact('employee', 'attendanceData', 'summary', 'month', 'monthName'));
@@ -793,7 +832,7 @@ class AttendanceController extends Controller
                 SUM(break_fine) as total_break_fine,
                 SUM(absence_fine) as total_absence_fine,
                 SUM(total_fine) as total_penalty,
-                AVG(late_minutes) as avg_late_minutes
+                AVG(CASE WHEN late_minutes > 0 THEN late_minutes END) as avg_late_minutes
             ')
             ->whereYear('tanggal', $year)
             ->whereMonth('tanggal', $mon)
@@ -834,7 +873,7 @@ class AttendanceController extends Controller
             }
         }
 
-        $monthName = Carbon::createFromFormat('Y-m', $month)->format('F Y');
+        $monthName = Carbon::createFromFormat('Y-m', $month)->translatedFormat('F Y');
 
         $pdf = app('dompdf.wrapper');
         $pdf->loadView('absensi.pdf.denda-all', compact('penaltyData', 'departmentStats', 'month', 'monthName'));
@@ -961,11 +1000,11 @@ class AttendanceController extends Controller
 
     private function arrayToPhpString($array, $indent = 0)
     {
-        $spaces = str_repeat(' ', $indent);
+        $spaces = str_repeat('    ', $indent);
         $result = "[\n";
 
         foreach ($array as $key => $value) {
-            $result .= $spaces . ' ';
+            $result .= $spaces . '    ';
             if (is_string($key)) {
                 $result .= "'{$key}' => ";
             }
@@ -973,7 +1012,7 @@ class AttendanceController extends Controller
             if (is_array($value)) {
                 if (isset($value[0]) && $value[0] === '>') {
                     // Special handling for closure
-                    $baseValue = $indent === 2 ? ($key === 'staff' ? 12000 : 10000) : (strpos(json_encode($array), '"staff"') !== false ? 12000 : 10000);
+                    $baseValue = $indent === 0 ? ($key === 'staff' ? 12000 : 10000) : (strpos(json_encode($array), '"staff"') !== false ? 12000 : 10000);
                     $result .= "['>', 60, fn(\$m) => {$baseValue} + (\$m - 60)]";
                 } else {
                     $result .= $this->arrayToPhpString($value, $indent + 1);
@@ -988,5 +1027,18 @@ class AttendanceController extends Controller
 
         $result .= $spaces . ']';
         return $result;
+    }
+     public function destroy(){
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        Attendance::truncate();
+        OvertimeRecord::truncate();
+        OvertimeSetting::truncate();
+        Payroll::truncate();
+        Employee::truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+        // Implementation for destroy functionality
+        return redirect()->route('absensi.index')
+            ->with('success', 'Data absensi berhasil dihapus.');
     }
 }

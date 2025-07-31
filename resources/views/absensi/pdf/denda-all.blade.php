@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <meta charset="utf-8">
     <title>Laporan Denda Semua Karyawan</title>
     <style>
         body {
@@ -10,264 +10,318 @@
             margin: 0;
             padding: 20px;
         }
+
         .header {
             text-align: center;
             margin-bottom: 30px;
             border-bottom: 2px solid #333;
             padding-bottom: 20px;
         }
-        .company-name {
+
+        .header h1 {
+            margin: 0;
             font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 5px;
+            color: #333;
         }
-        .report-title {
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .report-period {
-            font-size: 14px;
+
+        .header p {
+            margin: 5px 0;
             color: #666;
         }
-        .department-stats {
+
+        .summary-stats {
+            display: table;
+            width: 100%;
             margin-bottom: 30px;
         }
-        .dept-card {
-            display: inline-block;
-            width: 48%;
-            background-color: #f8f9fa;
+
+        .stat-item {
+            display: table-cell;
+            text-align: center;
             padding: 15px;
-            margin: 1%;
-            border-radius: 5px;
-            border: 1px solid #dee2e6;
-            vertical-align: top;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
         }
-        .dept-title {
-            font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 10px;
-            text-transform: uppercase;
+
+        .stat-item h3 {
+            margin: 0;
+            font-size: 16px;
+            color: #333;
         }
-        .dept-stats {
-            font-size: 11px;
-        }
-        .dept-stats .stat-row {
-            margin-bottom: 5px;
-        }
-        .dept-stats .stat-label {
-            display: inline-block;
-            width: 120px;
-        }
-        .dept-stats .stat-value {
-            font-weight: bold;
-        }
-        .summary-table {
-            margin-bottom: 20px;
-        }
-        .summary-table table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .summary-table th,
-        .summary-table td {
-            border: 1px solid #dee2e6;
-            padding: 8px;
-            text-align: left;
-            font-size: 10px;
-        }
-        .summary-table th {
-            background-color: #f8f9fa;
-            font-weight: bold;
-        }
-        .amount {
-            text-align: right;
-            font-weight: bold;
-        }
-        .penalty-high {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-        .penalty-medium {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-        .dept-staff {
-            background-color: #cce5ff;
-        }
-        .dept-karyawan {
-            background-color: #ccffcc;
-        }
-        .footer {
-            margin-top: 30px;
-            text-align: right;
-            font-size: 11px;
+
+        .stat-item small {
             color: #666;
         }
-        .signature {
-            margin-top: 40px;
+
+        .department-section {
+            margin-bottom: 30px;
+        }
+
+        .department-header {
+            background-color: #333;
+            color: white;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .department-stats {
+            display: table;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .dept-stat {
+            display: table-cell;
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: #f5f5f5;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-end {
             text-align: right;
         }
-        .signature-box {
-            display: inline-block;
+
+        .text-danger {
+            color: #dc3545;
+        }
+
+        .text-warning {
+            color: #ffc107;
+        }
+
+        .text-success {
+            color: #28a745;
+        }
+
+        .text-primary {
+            color: #007bff;
+        }
+
+        .badge {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            color: white;
+        }
+
+        .badge-primary {
+            background-color: #007bff;
+        }
+
+        .badge-success {
+            background-color: #28a745;
+        }
+
+        .footer {
+            margin-top: 30px;
             text-align: center;
-            margin-left: 50px;
-        }
-        .signature-line {
-            border-top: 1px solid #333;
-            width: 200px;
-            margin-top: 60px;
-            margin-bottom: 5px;
-        }
-        .page-break {
-            page-break-before: always;
+            font-size: 10px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
         }
     </style>
 </head>
+
 <body>
     <div class="header">
-        <div class="company-name">BANK SAMPAH SURABAYA</div>
-        <div class="report-title">LAPORAN DENDA SEMUA KARYAWAN</div>
-        <div class="report-period">Periode: {{ $monthName }}</div>
+        <h1>LAPORAN DENDA SEMUA KARYAWAN</h1>
+        <p>Periode: {{ $monthName }}</p>
+        <p>Tanggal Cetak: {{ \Carbon\Carbon::now()->format('d/m/Y H:i') }}</p>
+        <p><strong>Jam Masuk:</strong> Senin-Kamis & Sabtu: 07:30 | Jumat: 07:00</p>
     </div>
 
-    <div class="department-stats">
-        <h3>Statistik Departemen</h3>
-        <div class="dept-card">
-            <div class="dept-title">Staff</div>
-            <div class="dept-stats">
-                <div class="stat-row">
-                    <span class="stat-label">Karyawan Terdenda:</span>
-                    <span class="stat-value">{{ $departmentStats['staff']['total_employees'] }} orang</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Total Denda:</span>
-                    <span class="stat-value">Rp {{ number_format($departmentStats['staff']['total_penalty']) }}</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Rata-rata Denda:</span>
-                    <span class="stat-value">Rp {{ number_format($departmentStats['staff']['avg_penalty']) }}</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Total Hari Terlambat:</span>
-                    <span class="stat-value">{{ $departmentStats['staff']['total_late_days'] }} hari</span>
-                </div>
-            </div>
+    {{-- Overall Summary --}}
+    <div class="summary-stats">
+        <div class="stat-item">
+            <h3>{{ $penaltyData->count() }}</h3>
+            <small>Total Karyawan Terkena Denda</small>
         </div>
-        <div class="dept-card">
-            <div class="dept-title">Karyawan</div>
-            <div class="dept-stats">
-                <div class="stat-row">
-                    <span class="stat-label">Karyawan Terdenda:</span>
-                    <span class="stat-value">{{ $departmentStats['karyawan']['total_employees'] }} orang</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Total Denda:</span>
-                    <span class="stat-value">Rp {{ number_format($departmentStats['karyawan']['total_penalty']) }}</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Rata-rata Denda:</span>
-                    <span class="stat-value">Rp {{ number_format($departmentStats['karyawan']['avg_penalty']) }}</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Total Hari Terlambat:</span>
-                    <span class="stat-value">{{ $departmentStats['karyawan']['total_late_days'] }} hari</span>
-                </div>
-            </div>
+        <div class="stat-item">
+            <h3>Rp {{ number_format($penaltyData->sum('total_penalty'), 0, ',', '.') }}</h3>
+            <small>Total Denda Keseluruhan</small>
+        </div>
+        <div class="stat-item">
+            <h3>{{ $penaltyData->sum('late_days') }}</h3>
+            <small>Total Hari Terlambat</small>
+        </div>
+        <div class="stat-item">
+            <h3>Rp {{ number_format($penaltyData->avg('total_penalty'), 0, ',', '.') }}</h3>
+            <small>Rata-rata Denda per Karyawan</small>
         </div>
     </div>
 
-    <div class="summary-table">
-        <h3>Rincian Denda Per Karyawan</h3>
-        <table>
-            <thead>
+    {{-- Department Statistics --}}
+    <div class="department-section">
+        <h2>Statistik per Departemen</h2>
+
+        {{-- Staff Statistics --}}
+        <div class="department-header">STAFF</div>
+        <div class="department-stats">
+            <div class="dept-stat">
+                <strong>{{ $departmentStats['staff']['total_employees'] }}</strong><br>
+                <small>Total Karyawan</small>
+            </div>
+            <div class="dept-stat">
+                <strong class="text-danger">Rp
+                    {{ number_format($departmentStats['staff']['total_penalty'], 0, ',', '.') }}</strong><br>
+                <small>Total Denda</small>
+            </div>
+            <div class="dept-stat">
+                <strong class="text-warning">{{ $departmentStats['staff']['total_late_days'] }}</strong><br>
+                <small>Total Hari Telat</small>
+            </div>
+            <div class="dept-stat">
+                <strong class="text-primary">Rp
+                    {{ number_format($departmentStats['staff']['avg_penalty'], 0, ',', '.') }}</strong><br>
+                <small>Rata-rata Denda</small>
+            </div>
+        </div>
+
+        {{-- Karyawan Statistics --}}
+        <div class="department-header">KARYAWAN</div>
+        <div class="department-stats">
+            <div class="dept-stat">
+                <strong>{{ $departmentStats['karyawan']['total_employees'] }}</strong><br>
+                <small>Total Karyawan</small>
+            </div>
+            <div class="dept-stat">
+                <strong class="text-danger">Rp
+                    {{ number_format($departmentStats['karyawan']['total_penalty'], 0, ',', '.') }}</strong><br>
+                <small>Total Denda</small>
+            </div>
+            <div class="dept-stat">
+                <strong class="text-warning">{{ $departmentStats['karyawan']['total_late_days'] }}</strong><br>
+                <small>Total Hari Telat</small>
+            </div>
+            <div class="dept-stat">
+                <strong class="text-primary">Rp
+                    {{ number_format($departmentStats['karyawan']['avg_penalty'], 0, ',', '.') }}</strong><br>
+                <small>Rata-rata Denda</small>
+            </div>
+        </div>
+    </div>
+
+    {{-- Detailed Table --}}
+    <table>
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Nama Karyawan</th>
+                <th>Departemen</th>
+                <th class="text-center">Total Hari</th>
+                <th class="text-center">Hari Telat</th>
+                <th class="text-center">Total Menit Telat</th>
+                <th class="text-end">Denda Telat</th>
+                <th class="text-end">Denda Istirahat</th>
+                <th class="text-end">Denda Absen</th>
+                <th class="text-end">Total Denda</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($penaltyData as $index => $data)
                 <tr>
-                    <th>No</th>
-                    <th>Nama Karyawan</th>
-                    <th>NIP</th>
-                    <th>Departemen</th>
-                    <th>Total Hari</th>
-                    <th>Hari Terlambat</th>
-                    <th>Total Menit Terlambat</th>
-                    <th>Denda Terlambat</th>
-                    <th>Denda Istirahat</th>
-                    <th>Denda Absensi</th>
-                    <th>Total Denda</th>
+                    <td class="text-center">{{ $index + 1 }}</td>
+                    <td>
+                        {{ $data->employee->nama ?? '-' }}<br>
+                        <small>ID: {{ $data->employee->id ?? '-' }}</small>
+                    </td>
+                    <td class="text-center">
+                        <span
+                            class="badge badge-{{ $data->employee->departemen === 'staff' ? 'primary' : 'success' }}">
+                            {{ ucfirst($data->employee->departemen ?? '-') }}
+                        </span>
+                    </td>
+                    <td class="text-center">{{ $data->total_days }}</td>
+                    <td class="text-center">
+                        @if ($data->late_days > 0)
+                            {{ $data->late_days }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td class="text-center">
+                        @if ($data->total_late_minutes > 0)
+                            {{ $data->total_late_minutes }} menit
+                            <small class="d-block">
+                                @
+                                Rp{{ number_format($data->total_late_fine > 0 ? round($data->total_late_fine / $data->total_late_minutes) : 0, 0, ',', '.') }}/menit
+                            </small>
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td class="text-end">
+                        @if ($data->total_late_fine > 0)
+                            Rp {{ number_format($data->total_late_fine, 0, ',', '.') }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td class="text-end">
+                        @if ($data->total_break_fine > 0)
+                            Rp {{ number_format($data->total_break_fine, 0, ',', '.') }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td class="text-end">
+                        @if ($data->total_absence_fine > 0)
+                            Rp {{ number_format($data->total_absence_fine, 0, ',', '.') }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td class="text-end">
+                        @if ($data->total_penalty > 0)
+                            <strong>Rp {{ number_format($data->total_penalty, 0, ',', '.') }}</strong>
+                        @else
+                            -
+                        @endif
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach ($penaltyData as $index => $data)
-                    <tr class="{{ $data->employee->departemen === 'staff' ? 'dept-staff' : 'dept-karyawan' }}">
-                        <td>{{ $index + 1 }}</td>
-                        <td>{{ $data->employee->nama }}</td>
-                        <td>{{ $data->employee->nip }}</td>
-                        <td>{{ ucfirst($data->employee->departemen) }}</td>
-                        <td>{{ $data->total_days }}</td>
-                        <td>{{ $data->late_days }}</td>
-                        <td>{{ number_format($data->total_late_minutes) }}</td>
-                        <td class="amount">Rp {{ number_format($data->total_late_fine) }}</td>
-                        <td class="amount">Rp {{ number_format($data->total_break_fine) }}</td>
-                        <td class="amount">Rp {{ number_format($data->total_absence_fine) }}</td>
-                        <td class="amount {{ $data->total_penalty > 50000 ? 'penalty-high' : ($data->total_penalty > 20000 ? 'penalty-medium' : '') }}">
-                            Rp {{ number_format($data->total_penalty) }}
-                        </td>
-                    </tr>
-                @endforeach
-                <tr style="background-color: #f8f9fa; font-weight: bold;">
-                    <td colspan="7">TOTAL KESELURUHAN</td>
-                    <td class="amount">Rp {{ number_format($penaltyData->sum('total_late_fine')) }}</td>
-                    <td class="amount">Rp {{ number_format($penaltyData->sum('total_break_fine')) }}</td>
-                    <td class="amount">Rp {{ number_format($penaltyData->sum('total_absence_fine')) }}</td>
-                    <td class="amount">Rp {{ number_format($penaltyData->sum('total_penalty')) }}</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="page-break">
-        <h3>Analisis dan Rekomendasi</h3>
-        <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
-            <h4>Ringkasan Periode {{ $monthName }}</h4>
-            <ul style="font-size: 11px; line-height: 1.5;">
-                <li><strong>Total Karyawan Terdenda:</strong> {{ $penaltyData->count() }} orang</li>
-                <li><strong>Total Denda Keseluruhan:</strong> Rp {{ number_format($penaltyData->sum('total_penalty')) }}</li>
-                <li><strong>Rata-rata Denda per Karyawan:</strong> Rp {{ number_format($penaltyData->avg('total_penalty')) }}</li>
-                <li><strong>Total Hari Terlambat:</strong> {{ $penaltyData->sum('late_days') }} hari</li>
-                <li><strong>Total Menit Keterlambatan:</strong> {{ number_format($penaltyData->sum('total_late_minutes')) }} menit</li>
-            </ul>
-        </div>
-
-        <div style="background-color: #fff3cd; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
-            <h4>Karyawan dengan Denda Tertinggi</h4>
-            <ol style="font-size: 11px; line-height: 1.5;">
-                @foreach ($penaltyData->take(5) as $data)
-                    <li>{{ $data->employee->nama }} ({{ ucfirst($data->employee->departemen) }}) - Rp {{ number_format($data->total_penalty) }}</li>
-                @endforeach
-            </ol>
-        </div>
-
-        <div style="background-color: #f8d7da; padding: 15px; border-radius: 5px;">
-            <h4>Rekomendasi</h4>
-            <ul style="font-size: 11px; line-height: 1.5;">
-                <li>Lakukan pembinaan khusus untuk karyawan dengan denda tinggi</li>
-                <li>Evaluasi sistem absensi dan sosialisasi ulang aturan kehadiran</li>
-                <li>Pertimbangkan program reward untuk karyawan dengan kehadiran terbaik</li>
-                <li>Monitor trend keterlambatan untuk identifikasi pola masalah</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="signature">
-        <div class="signature-box">
-            <div>Surabaya, {{ now()->format('d F Y') }}</div>
-            <div>HRD</div>
-            <div class="signature-line"></div>
-            <div>{{ Auth::user()->name ?? 'Admin' }}</div>
-        </div>
-    </div>
+            @endforeach
+        </tbody>
+        <tfoot>
+            <tr style="background-color: #f2f2f2; font-weight: bold;">
+                <td colspan="6" class="text-center">TOTAL KESELURUHAN</td>
+                <td class="text-end">Rp {{ number_format($penaltyData->sum('total_late_fine'), 0, ',', '.') }}</td>
+                <td class="text-end">Rp {{ number_format($penaltyData->sum('total_break_fine'), 0, ',', '.') }}</td>
+                <td class="text-end">Rp {{ number_format($penaltyData->sum('total_absence_fine'), 0, ',', '.') }}</td>
+                <td class="text-end text-danger">Rp
+                    {{ number_format($penaltyData->sum('total_penalty'), 0, ',', '.') }}</td>
+            </tr>
+        </tfoot>
+    </table>
 
     <div class="footer">
-        Dicetak pada: {{ now()->format('d F Y H:i:s') }}
+        <p>Laporan ini digenerate secara otomatis oleh Sistem Absensi Bank Sampah Surabaya</p>
+        <p>Dicetak pada: {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y H:i') }} WIB</p>
     </div>
 </body>
+
 </html>

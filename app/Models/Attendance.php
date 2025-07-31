@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use App\Services\AttendanceService;
 
 class Attendance extends Model
 {
@@ -55,7 +56,11 @@ class Attendance extends Model
         'formatted_total_fine',
         'overtime_text',
         'overtime_status_badge',
-        'formatted_overtime_status'
+        'formatted_overtime_status',
+        'penalty_breakdown',
+        'penalty_types',
+        'detailed_penalty_calculation',
+        'late_penalty_rate'
     ];
 
     public function employee()
@@ -122,33 +127,26 @@ class Attendance extends Model
                 'type' => 'half_day',
                 'text' => $this->half_day_type_text,
                 'badge' => 'bg-info',
-                'penalties' => 'Tidak ada denda'
+                'penalties' => 'Bebas denda (setengah hari)'
             ];
         }
 
         $status = 'Full Harian';
-        $penalties = [];
+        $penalties = $this->getPenaltyDescription();
 
         if (!$this->scan1) {
             $status = 'Tidak Hadir';
-            $penalties[] = 'Tidak absen masuk';
         } elseif ($this->late_minutes > 0) {
-            $penalties[] = "Terlambat {$this->late_minutes} menit";
-        }
-
-        if ($this->invalid_break) {
-            $penalties[] = 'Pelanggaran istirahat';
-        }
-
-        if ($this->overtime_minutes > 0) {
-            $penalties[] = "Lembur {$this->overtime_minutes} menit";
+            $status = 'Terlambat';
+        } else {
+            $status = 'Tepat Waktu';
         }
 
         return [
             'type' => 'full_day',
             'text' => $status,
             'badge' => $this->status_badge,
-            'penalties' => empty($penalties) ? 'Tidak ada pelanggaran' : implode(', ', $penalties)
+            'penalties' => $penalties['total_text']
         ];
     }
 
@@ -160,6 +158,114 @@ class Attendance extends Model
         return $this->total_fine > 0
             ? 'Rp ' . number_format($this->total_fine, 0, ',', '.')
             : '-';
+    }
+
+    /**
+     * Get penalty breakdown
+     */
+    public function getPenaltyBreakdownAttribute()
+    {
+        return [
+            'late_fine' => $this->late_fine > 0 ? 'Rp ' . number_format($this->late_fine, 0, ',', '.') : '-',
+            'break_fine' => $this->break_fine > 0 ? 'Rp ' . number_format($this->break_fine, 0, ',', '.') : '-',
+            'absence_fine' => $this->absence_fine > 0 ? 'Rp ' . number_format($this->absence_fine, 0, ',', '.') : '-',
+            'total_fine' => $this->total_fine > 0 ? 'Rp ' . number_format($this->total_fine, 0, ',', '.') : '-',
+        ];
+    }
+
+    /**
+     * Get penalty types as text
+     */
+    public function getPenaltyTypesAttribute()
+    {
+        return $this->getPenaltyDescription();
+    }
+
+    /**
+     * Get detailed penalty calculation
+     */
+    public function getDetailedPenaltyCalculationAttribute()
+    {
+        return AttendanceService::getDetailedPenaltyCalculation($this);
+    }
+
+    /**
+     * Get late penalty rate per minute
+     */
+    public function getLatePenaltyRateAttribute()
+    {
+        if ($this->late_minutes > 0 && $this->late_fine > 0) {
+            return round($this->late_fine / $this->late_minutes, 2);
+        }
+        return 0;
+    }
+
+    /**
+     * Get penalty description
+     */
+    public function getPenaltyDescription(): array
+    {
+        if ($this->is_half_day) {
+            return [
+                'late' => [],
+                'break' => [],
+                'absence' => [],
+                'total_text' => 'Bebas denda (setengah hari)'
+            ];
+        }
+
+        $penalties = [
+            'late' => [],
+            'break' => [],
+            'absence' => []
+        ];
+
+        $dept = $this->employee->departemen ?? 'karyawan';
+        $config = config('penalties');
+
+        // Late penalties with detailed calculation
+        if ($this->late_minutes > 0 && $this->late_fine > 0) {
+            $rate = round($this->late_fine / $this->late_minutes, 2);
+            $penalties['late'][] = "Terlambat {$this->late_minutes} menit × Rp " . number_format($rate, 0, ',', '.') . "/menit = Rp " . number_format($this->late_fine, 0, ',', '.');
+        }
+
+        // Break penalties
+        if ($this->break_fine > 0) {
+            if (!$this->scan2 && !$this->scan3) {
+                $penalties['break'][] = "Tidak absen istirahat 2x (Rp " . number_format($this->break_fine, 0, ',', '.') . ")";
+            } elseif (!$this->scan2 || !$this->scan3) {
+                $penalties['break'][] = "Tidak absen istirahat 1x (Rp " . number_format($this->break_fine, 0, ',', '.') . ")";
+            } elseif ($this->scan2 && $this->scan3) {
+                $expectedBreakStart = Carbon::parse($this->tanggal->format('Y-m-d') . ' 12:00');
+                if ($this->scan2->gt($expectedBreakStart)) {
+                    $penalties['break'][] = "Telat istirahat (Rp " . number_format($this->break_fine, 0, ',', '.') . ")";
+                }
+            }
+        }
+
+        // Absence penalties
+        if ($this->absence_fine > 0) {
+            $absencePenalties = [];
+            if (!$this->scan1) {
+                $fine = $config[$dept]['missing_checkin'] ?? 0;
+                $absencePenalties[] = "Lupa absen masuk (Rp " . number_format($fine, 0, ',', '.') . ")";
+            }
+            if (!$this->scan4) {
+                $fine = $config[$dept]['missing_checkout'] ?? 0;
+                $absencePenalties[] = "Lupa absen pulang (Rp " . number_format($fine, 0, ',', '.') . ")";
+            }
+            $penalties['absence'] = $absencePenalties;
+        }
+
+        $allPenalties = array_merge($penalties['late'], $penalties['break'], $penalties['absence']);
+        $totalText = empty($allPenalties) ? 'Tidak ada denda' : implode(', ', $allPenalties);
+
+        return [
+            'late' => $penalties['late'],
+            'break' => $penalties['break'],
+            'absence' => $penalties['absence'],
+            'total_text' => $totalText
+        ];
     }
 
     /**

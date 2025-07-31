@@ -35,19 +35,36 @@ class AttendanceService
         $attendance->overtime_minutes = 0;
         $attendance->overtime_status = 'pending';
 
-        // Detect half day shifts first - hanya jika belum di-set manual
+        // Debug info
+        Log::info('Evaluating attendance', [
+            'id' => $attendance->id,
+            'employee' => $employee->nama,
+            'date' => $date->format('Y-m-d'),
+            'day' => $dayOfWeek,
+            'is_friday' => $isFriday,
+            'is_half_day_before' => $attendance->is_half_day,
+            'scans' => [
+                'scan1' => optional($attendance->scan1)->format('H:i'),
+                'scan2' => optional($attendance->scan2)->format('H:i'),
+                'scan3' => optional($attendance->scan3)->format('H:i'),
+                'scan4' => optional($attendance->scan4)->format('H:i'),
+            ]
+        ]);
+
+        // Detect half day shifts hanya jika belum di-set manual
         if (!$attendance->is_half_day) {
             self::detectHalfDayShift($attendance, $isFriday);
-        } else {
-            // Jika sudah set half day manual, pastikan type-nya ada
-            if (empty($attendance->half_day_type)) {
-                Log::warning('Manual half day attendance missing type', ['attendance' => $attendance->id]);
-                // Beri default value jika diperlukan
-                $attendance->half_day_type = 'shift_1';
-            }
         }
 
-        if ($attendance->is_half_day) {
+        // PENTING: Hanya skip penalty jika benar-benar half day yang valid
+        if ($attendance->is_half_day && $attendance->half_day_type) {
+            Log::info('Half day detected - no penalties applied', [
+                'employee' => $employee->nama,
+                'date' => $date->format('Y-m-d'),
+                'type' => $attendance->half_day_type
+            ]);
+
+            // Clean up scans for half day
             if ($attendance->half_day_type === 'shift_1') {
                 $attendance->scan3 = null;
                 $attendance->scan4 = null;
@@ -57,19 +74,18 @@ class AttendanceService
                 $attendance->scan2 = null;
                 $attendance->scan5 = null;
             }
-        }
-        // Apply penalties and calculations based on attendance type
-        if ($attendance->is_half_day) {
-            // Setengah hari: TIDAK ADA DENDA
-            Log::info('Half day detected - no penalties applied', [
+        } else {
+            // Full day atau tidak memenuhi kriteria half day: Apply penalties
+            $attendance->is_half_day = false;
+            $attendance->half_day_type = null;
+
+            Log::info('Full day detected - applying penalties', [
                 'employee' => $employee->nama,
                 'date' => $date->format('Y-m-d'),
-                'type' => $attendance->half_day_type
+                'day' => $dayOfWeek,
+                'is_friday' => $isFriday
             ]);
-        } else {
-            // Full day: Apply all penalties and calculations
-            // Pastikan reset nilai half_day_type jika bukan half day
-            $attendance->half_day_type = null;
+
             self::calculateLateness($attendance, $isFriday);
             self::calculateBreakViolations($attendance, $isFriday);
             self::calculateAbsenceFines($attendance);
@@ -79,28 +95,27 @@ class AttendanceService
         // Calculate total fine
         $attendance->total_fine = $attendance->late_fine + $attendance->break_fine + $attendance->absence_fine;
 
-        Log::debug('Final attendance data before save', [
+        Log::info('Final attendance evaluation', [
+            'employee' => $employee->nama,
+            'department' => $employee->departemen,
+            'date' => $date->format('Y-m-d'),
+            'day' => $dayOfWeek,
+            'is_friday' => $isFriday,
             'is_half_day' => $attendance->is_half_day,
             'half_day_type' => $attendance->half_day_type,
             'late_minutes' => $attendance->late_minutes,
-            'overtime_status' => $attendance->overtime_status
+            'late_fine' => $attendance->late_fine,
+            'break_fine' => $attendance->break_fine,
+            'absence_fine' => $attendance->absence_fine,
+            'total_fine' => $attendance->total_fine,
+            'overtime_minutes' => $attendance->overtime_minutes
         ]);
 
         $attendance->save();
-
-        Log::info('Attendance evaluated', [
-            'employee' => $employee->nama,
-            'date' => $date->format('Y-m-d'),
-            'status' => $attendance->is_half_day ? 'Setengah Hari' : 'Full Harian',
-            'half_day_type' => $attendance->half_day_type,
-            'total_fine' => $attendance->total_fine,
-            'overtime_minutes' => $attendance->overtime_minutes,
-            'overtime_status' => $attendance->overtime_status
-        ]);
     }
 
     /**
-     * Detect half day shift berdasarkan pola scan
+     * Detect half day shift dengan kriteria yang lebih ketat
      */
     private static function detectHalfDayShift(Attendance $attendance, bool $isFriday)
     {
@@ -114,31 +129,42 @@ class AttendanceService
         $scan3 = $attendance->scan3;
         $scan4 = $attendance->scan4;
 
-        // Logika baru: deteksi berdasarkan pola scan yang ada
-        $hasEarlyScans = $scan1 && $scan2; // scan1 dan scan2 ada
-        $hasLateScans = $scan3 && $scan4;  // scan3 dan scan4 ada
-        $onlyEarlyScans = $hasEarlyScans && !$scan3 && !$scan4; // hanya scan1 dan scan2
-        $onlyLateScans = $hasLateScans && !$scan1 && !$scan2;   // hanya scan3 dan scan4
+        // Logika deteksi half day yang lebih ketat
+        $hasEarlyScans = $scan1 && $scan2;
+        $hasLateScans = $scan3 && $scan4;
+        $onlyEarlyScans = $hasEarlyScans && !$scan3 && !$scan4;
+        $onlyLateScans = $hasLateScans && !$scan1 && !$scan2;
 
+        Log::debug('Half day detection', [
+            'hasEarlyScans' => $hasEarlyScans,
+            'hasLateScans' => $hasLateScans,
+            'onlyEarlyScans' => $onlyEarlyScans,
+            'onlyLateScans' => $onlyLateScans,
+            'isFriday' => $isFriday
+        ]);
+
+        // KRITERIA YANG LEBIH KETAT UNTUK HALF DAY
         if ($isFriday) {
-            // Hari Jumat
-            // Shift 1: hanya scan1 (07:00) dan scan2 (11:00)
+            // Shift 1 Jumat: scan1 (06:30-07:30) dan scan2 (10:30-11:30)
             if ($onlyEarlyScans) {
                 $scan1Time = $scan1->format('H:i');
                 $scan2Time = $scan2->format('H:i');
 
-                // Toleransi ±30 menit untuk jam masuk dan pulang
                 if (
                     $scan1Time >= '06:30' && $scan1Time <= '07:30' &&
                     $scan2Time >= '10:30' && $scan2Time <= '11:30'
                 ) {
                     $attendance->is_half_day = true;
                     $attendance->half_day_type = 'shift_1';
+                    Log::info('Friday shift 1 half day detected', [
+                        'scan1' => $scan1Time,
+                        'scan2' => $scan2Time
+                    ]);
                     return;
                 }
             }
 
-            // Shift 2: hanya scan3 (12:30) dan scan4 (16:00)
+            // Shift 2 Jumat: scan3 (12:00-13:00) dan scan4 (15:30-16:30)
             if ($onlyLateScans) {
                 $scan3Time = $scan3->format('H:i');
                 $scan4Time = $scan4->format('H:i');
@@ -149,12 +175,16 @@ class AttendanceService
                 ) {
                     $attendance->is_half_day = true;
                     $attendance->half_day_type = 'shift_2';
+                    Log::info('Friday shift 2 half day detected', [
+                        'scan3' => $scan3Time,
+                        'scan4' => $scan4Time
+                    ]);
                     return;
                 }
             }
         } else {
-            // Hari Senin-Kamis, Sabtu
-            // Shift 1: hanya scan1 (07:00) dan scan2 (11:00)
+            // Senin-Kamis, Sabtu
+            // Shift 1: scan1 (06:30-07:30) dan scan2 (10:30-11:30)
             if ($onlyEarlyScans) {
                 $scan1Time = $scan1->format('H:i');
                 $scan2Time = $scan2->format('H:i');
@@ -165,11 +195,15 @@ class AttendanceService
                 ) {
                     $attendance->is_half_day = true;
                     $attendance->half_day_type = 'shift_1';
+                    Log::info('Weekday shift 1 half day detected', [
+                        'scan1' => $scan1Time,
+                        'scan2' => $scan2Time
+                    ]);
                     return;
                 }
             }
 
-            // Shift 2: hanya scan3 (12:00) dan scan4 (16:30)
+            // Shift 2: scan3 (11:30-12:30) dan scan4 (16:00-17:00)
             if ($onlyLateScans) {
                 $scan3Time = $scan3->format('H:i');
                 $scan4Time = $scan4->format('H:i');
@@ -180,56 +214,27 @@ class AttendanceService
                 ) {
                     $attendance->is_half_day = true;
                     $attendance->half_day_type = 'shift_2';
+                    Log::info('Weekday shift 2 half day detected', [
+                        'scan3' => $scan3Time,
+                        'scan4' => $scan4Time
+                    ]);
                     return;
                 }
             }
         }
 
-        // Jika tidak memenuhi kriteria setengah hari, maka Full Harian
+        // Jika tidak memenuhi kriteria half day yang ketat, anggap full day
         $attendance->is_half_day = false;
         $attendance->half_day_type = null;
 
-        // Cek lembur untuk full day
-        if ($hasEarlyScans && $hasLateScans) {
-            // Full day normal, cek lembur berdasarkan jam pulang
-            self::calculateOvertime($attendance, $isFriday);
-        } elseif ($hasEarlyScans && !$hasLateScans) {
-            // Kemungkinan lembur: masuk pagi, pulang sore tanpa scan istirahat
-            self::detectOvertimeWithoutBreak($attendance, $isFriday);
-        }
+        Log::info('Full day determined - does not meet half day criteria', [
+            'employee' => $attendance->employee->nama,
+            'date' => $attendance->tanggal->format('Y-m-d')
+        ]);
     }
 
     /**
-     * Deteksi lembur tanpa scan istirahat (untuk Full Harian)
-     */
-    private static function detectOvertimeWithoutBreak(Attendance $attendance, bool $isFriday)
-    {
-        $scan1 = $attendance->scan1;
-        $scan2 = $attendance->scan2;
-
-        if (!$scan1 || !$scan2) return;
-
-        $expectedEndTime = $isFriday ? '16:00' : '16:30';
-        $expectedEnd = Carbon::parse($attendance->tanggal->format('Y-m-d') . ' ' . $expectedEndTime);
-
-        // Jika scan2 (pulang) lebih dari jam normal, anggap sebagai lembur
-        if ($scan2->gt($expectedEnd)) {
-            $overtimeMinutes = $scan2->diffInMinutes($expectedEnd);
-            $attendance->overtime_minutes = $overtimeMinutes;
-            $attendance->overtime_status = $isFriday ? 'approved' : 'pending'; // Auto approve untuk Jumat
-
-            Log::info('Overtime detected without break scans', [
-                'employee' => $attendance->employee->nama,
-                'date' => $attendance->tanggal->format('Y-m-d'),
-                'overtime_minutes' => $overtimeMinutes,
-                'scan1' => $scan1->format('H:i'),
-                'scan2' => $scan2->format('H:i')
-            ]);
-        }
-    }
-
-    /**
-     * Calculate lateness (hanya untuk Full Harian)
+     * Calculate lateness dengan waktu masuk yang benar per hari
      */
     private static function calculateLateness(Attendance $attendance, bool $isFriday)
     {
@@ -237,20 +242,48 @@ class AttendanceService
             return;
         }
 
-        $expectedTime = $isFriday ? '07:00' : '07:00'; // Ubah ke 07:00 untuk semua hari
-        $expectedCheckIn = Carbon::parse($attendance->tanggal->format('Y-m-d') . ' ' . $expectedTime);
+        // Waktu masuk yang benar berdasarkan hari
+        // Jumat: 07:00, Hari lain: 07:30
+        $officialStartTime = $isFriday ? '07:00' : '07:30';
+
+        $officialStart = Carbon::parse($attendance->tanggal->format('Y-m-d') . ' ' . $officialStartTime);
         $actualCheckIn = $attendance->scan1;
 
-        if ($actualCheckIn->gt($expectedCheckIn)) {
-            $attendance->late_minutes = $actualCheckIn->diffInMinutes($expectedCheckIn);
+        // Jika scan masuk melebihi waktu resmi masuk
+        if ($actualCheckIn->gt($officialStart)) {
+            $attendance->late_minutes = $actualCheckIn->diffInMinutes($officialStart);
             $department = $attendance->employee->departemen;
 
-            if (is_string($department)) {
+            if (is_string($department) && in_array($department, ['staff', 'karyawan'])) {
                 $attendance->late_fine = self::calculateLateFine($attendance->late_minutes, $department);
             } else {
-                Log::warning("Department kosong atau bukan string untuk employee ID: {$attendance->employee_id}");
+                Log::warning("Department tidak valid untuk employee ID: {$attendance->employee_id}, dept: {$department}");
                 $attendance->late_fine = 0;
             }
+
+            Log::info('Keterlambatan terdeteksi', [
+                'employee' => $attendance->employee->nama,
+                'department' => $department,
+                'date' => $attendance->tanggal->format('Y-m-d'),
+                'day' => $attendance->tanggal->format('l'),
+                'is_friday' => $isFriday,
+                'waktu_resmi_masuk' => $officialStartTime,
+                'waktu_masuk_actual' => $actualCheckIn->format('H:i'),
+                'keterlambatan' => $attendance->late_minutes . ' menit',
+                'denda' => $attendance->late_fine
+            ]);
+        } else {
+            $attendance->late_minutes = 0;
+            $attendance->late_fine = 0;
+
+            Log::info('Tepat waktu', [
+                'employee' => $attendance->employee->nama,
+                'date' => $attendance->tanggal->format('Y-m-d'),
+                'day' => $attendance->tanggal->format('l'),
+                'is_friday' => $isFriday,
+                'waktu_resmi_masuk' => $officialStartTime,
+                'waktu_masuk_actual' => $actualCheckIn->format('H:i')
+            ]);
         }
     }
 
@@ -261,40 +294,47 @@ class AttendanceService
     {
         $scan2 = $attendance->scan2;
         $scan3 = $attendance->scan3;
-
-        // Expected break times
-        $expectedBreakStart = Carbon::parse($attendance->tanggal->format('Y-m-d') . ' 12:00');
-        $expectedBreakEnd = Carbon::parse($attendance->tanggal->format('Y-m-d') . ' 13:00');
-
         $penalties = config('penalties');
-        $dept = $attendance->employee->departemen ?? null;
+        $dept = $attendance->employee->departemen ?? 'karyawan';
 
-        // Cek validitas departemen dan konfigurasi penalty-nya
-        if (!$dept || !isset($penalties[$dept])) {
-            $attendance->break_fine = 0;
-            $attendance->invalid_break = false;
-            return;
+        if (!in_array($dept, ['staff', 'karyawan'])) {
+            Log::error("Invalid department: {$dept}");
+            $dept = 'karyawan'; // Default to karyawan if invalid
         }
 
-        // Check for missing break scans
+        // Reset nilai sebelumnya
+        $attendance->break_fine = 0;
+        $attendance->invalid_break = false;
+
+        // Tidak ada scan istirahat sama sekali
         if (!$scan2 && !$scan3) {
-            // Missing both break scans
             $attendance->break_fine = $penalties[$dept]['absent_twice'] ?? 0;
             $attendance->invalid_break = true;
-        } elseif (!$scan2 || !$scan3) {
-            // Missing one break scan
+            Log::info('Break penalty: tidak absen istirahat 2x', [
+                'employee' => $attendance->employee->nama,
+                'fine' => $attendance->break_fine
+            ]);
+        }
+        // Hanya salah satu scan istirahat yang ada
+        elseif (!$scan2 || !$scan3) {
             $attendance->break_fine = $penalties[$dept]['absent_break_once'] ?? 0;
             $attendance->invalid_break = true;
-        } elseif ($scan2 && $scan3) {
-            // Both scans present, check for late break
+            Log::info('Break penalty: tidak absen istirahat 1x', [
+                'employee' => $attendance->employee->nama,
+                'fine' => $attendance->break_fine
+            ]);
+        }
+        // Kedua scan ada, tapi telat istirahat
+        elseif ($scan2 && $scan3) {
+            $expectedBreakStart = Carbon::parse($attendance->tanggal->format('Y-m-d') . ' 12:00');
             if ($scan2->gt($expectedBreakStart)) {
                 $attendance->break_fine = $penalties[$dept]['late_break'] ?? 0;
-            }
-
-            // Check for excess break time
-            $breakDuration = $scan3->diffInMinutes($scan2);
-            if ($breakDuration > 60) {
-                $attendance->excess_break_minutes = $breakDuration - 60;
+                Log::info('Break penalty: telat istirahat', [
+                    'employee' => $attendance->employee->nama,
+                    'expected' => '12:00',
+                    'actual' => $scan2->format('H:i'),
+                    'fine' => $attendance->break_fine
+                ]);
             }
         }
     }
@@ -305,15 +345,38 @@ class AttendanceService
     private static function calculateAbsenceFines(Attendance $attendance)
     {
         $penalties = config('penalties');
-        $dept = $attendance->employee->departemen;
+        $dept = $attendance->employee->departemen ?? 'karyawan';
 
+        if (!in_array($dept, ['staff', 'karyawan'])) {
+            Log::error("Invalid department: {$dept}");
+            $dept = 'karyawan'; // Default to karyawan if invalid
+        }
+
+        $totalAbsenceFine = 0;
+
+        // Denda tidak absen masuk (scan1)
         if (!$attendance->scan1) {
-            $attendance->absence_fine += $penalties[$dept]['missing_checkin'] ?? 0;
+            $fine = $penalties[$dept]['missing_checkin'] ?? 0;
+            $totalAbsenceFine += $fine;
+            Log::info('Missing check-in fine applied', [
+                'employee' => $attendance->employee->nama,
+                'department' => $dept,
+                'fine' => $fine
+            ]);
         }
 
+        // Denda tidak absen pulang (scan4)
         if (!$attendance->scan4) {
-            $attendance->absence_fine += $penalties[$dept]['missing_checkout'] ?? 0;
+            $fine = $penalties[$dept]['missing_checkout'] ?? 0;
+            $totalAbsenceFine += $fine;
+            Log::info('Missing check-out fine applied', [
+                'employee' => $attendance->employee->nama,
+                'department' => $dept,
+                'fine' => $fine
+            ]);
         }
+
+        $attendance->absence_fine = $totalAbsenceFine;
     }
 
     /**
@@ -321,11 +384,6 @@ class AttendanceService
      */
     private static function calculateOvertime(Attendance $attendance, bool $isFriday)
     {
-        // Skip jika sudah ada overtime dari deteksi sebelumnya
-        if ($attendance->overtime_minutes > 0) {
-            return;
-        }
-
         if (!$attendance->scan4) {
             return;
         }
@@ -336,7 +394,14 @@ class AttendanceService
 
         if ($actualEnd->gt($expectedEnd)) {
             $attendance->overtime_minutes = $actualEnd->diffInMinutes($expectedEnd);
-            $attendance->overtime_status = 'pending'; // Perlu approval
+            $attendance->overtime_status = 'pending';
+
+            Log::info('Overtime calculated', [
+                'employee' => $attendance->employee->nama,
+                'expected_end' => $expectedEnd->format('H:i'),
+                'actual_end' => $actualEnd->format('H:i'),
+                'overtime_minutes' => $attendance->overtime_minutes
+            ]);
         }
     }
 
@@ -347,9 +412,9 @@ class AttendanceService
     {
         $penalties = config('penalties');
 
-        // Cek apakah key tersedia untuk department tsb
         if (!isset($penalties[$department]['late'])) {
-            return 0; // fallback kalau key tidak ditemukan
+            Log::warning("Late penalties not found for department: {$department}");
+            return 0;
         }
 
         $latePenalties = $penalties[$department]['late'];
@@ -357,15 +422,193 @@ class AttendanceService
         foreach ($latePenalties as $range) {
             if ($range[0] === '>') {
                 if ($minutes > $range[1]) {
-                    return is_callable($range[2]) ? $range[2]($minutes) : $range[2];
+                    if (is_callable($range[2])) {
+                        $fine = $range[2]($minutes);
+                        Log::info("Late fine calculated (>60 min)", [
+                            'minutes' => $minutes,
+                            'department' => $department,
+                            'fine' => $fine
+                        ]);
+                        return round($fine); // Bulatkan ke bilangan bulat terdekat
+                    } else {
+                        return $range[2];
+                    }
                 }
             } else {
                 if ($minutes >= $range[0] && $minutes <= $range[1]) {
-                    return $range[2];
+                    $fine = $minutes * $range[2];
+                    Log::info("Late fine calculated (proportional)", [
+                        'minutes' => $minutes,
+                        'rate' => $range[2],
+                        'range' => "{$range[0]}-{$range[1]}",
+                        'department' => $department,
+                        'fine' => $fine
+                    ]);
+                    return round($fine); // Bulatkan ke bilangan bulat terdekat
                 }
             }
         }
 
         return 0;
+    }
+
+    /**
+     * Get penalty description based on attendance data
+     */
+    public static function getPenaltyDescription(Attendance $attendance): array
+    {
+        if ($attendance->is_half_day) {
+            return [
+                'late' => [],
+                'break' => [],
+                'absence' => [],
+                'total_text' => 'Bebas denda (setengah hari)'
+            ];
+        }
+
+        $penalties = [];
+        $dept = $attendance->employee->departemen ?? 'karyawan';
+
+        // Late penalties
+        if ($attendance->late_minutes > 0) {
+            $penalties['late'][] = "Terlambat {$attendance->late_minutes} menit";
+        }
+
+        // Break penalties
+        if ($attendance->break_fine > 0) {
+            if (!$attendance->scan2 && !$attendance->scan3) {
+                $penalties['break'][] = "Tidak absen istirahat 2x";
+            } elseif (!$attendance->scan2 || !$attendance->scan3) {
+                $penalties['break'][] = "Tidak absen istirahat 1x";
+            } elseif ($attendance->scan2 && $attendance->scan3) {
+                $expectedBreakStart = Carbon::parse($attendance->tanggal->format('Y-m-d') . ' 12:00');
+                if ($attendance->scan2->gt($expectedBreakStart)) {
+                    $penalties['break'][] = "Telat istirahat";
+                }
+            }
+        }
+
+        // Absence penalties
+        if ($attendance->absence_fine > 0) {
+            if (!$attendance->scan1) {
+                $penalties['absence'][] = "Lupa absen masuk";
+            }
+            if (!$attendance->scan4) {
+                $penalties['absence'][] = "Lupa absen pulang";
+            }
+        }
+
+        $totalText = [];
+        if ($attendance->late_fine > 0) $totalText[] = "Denda telat: Rp " . number_format($attendance->late_fine, 0, ',', '.');
+        if ($attendance->break_fine > 0) $totalText[] = "Denda istirahat: Rp " . number_format($attendance->break_fine, 0, ',', '.');
+        if ($attendance->absence_fine > 0) $totalText[] = "Denda absen: Rp " . number_format($attendance->absence_fine, 0, ',', '.');
+
+        return [
+            'late' => $penalties['late'] ?? [],
+            'break' => $penalties['break'] ?? [],
+            'absence' => $penalties['absence'] ?? [],
+            'total_text' => empty($totalText) ? 'Tidak ada denda' : implode(', ', $totalText)
+        ];
+    }
+
+    /**
+     * Get detailed penalty calculation for display
+     */
+    public static function getDetailedPenaltyCalculation(Attendance $attendance): array
+    {
+        if ($attendance->is_half_day) {
+            return [
+                'is_half_day' => true,
+                'late_calculation' => null,
+                'break_calculation' => null,
+                'absence_calculation' => null,
+                'total_penalty' => 0
+            ];
+        }
+
+        $dept = $attendance->employee->departemen ?? 'karyawan';
+        $penalties = config('penalties');
+
+        $calculation = [
+            'is_half_day' => false,
+            'late_calculation' => null,
+            'break_calculation' => null,
+            'absence_calculation' => null,
+            'total_penalty' => $attendance->total_fine
+        ];
+
+        // Late calculation
+        if ($attendance->late_minutes > 0 && $attendance->late_fine > 0) {
+            $rate = round($attendance->late_fine / $attendance->late_minutes, 2);
+            $calculation['late_calculation'] = [
+                'minutes' => $attendance->late_minutes,
+                'rate' => $rate,
+                'fine' => $attendance->late_fine,
+                'formula' => "{$attendance->late_minutes} menit × Rp " . number_format($rate, 0, ',', '.') . "/menit"
+            ];
+        }
+
+        // Break calculation
+        if ($attendance->break_fine > 0) {
+            $breakType = '';
+            if (!$attendance->scan2 && !$attendance->scan3) {
+                $breakType = 'Tidak absen istirahat 2x';
+            } elseif (!$attendance->scan2 || !$attendance->scan3) {
+                $breakType = 'Tidak absen istirahat 1x';
+            } else {
+                $breakType = 'Telat istirahat';
+            }
+
+            $calculation['break_calculation'] = [
+                'type' => $breakType,
+                'fine' => $attendance->break_fine
+            ];
+        }
+
+        // Absence calculation
+        if ($attendance->absence_fine > 0) {
+            $absenceTypes = [];
+            if (!$attendance->scan1) {
+                $fine = $penalties[$dept]['missing_checkin'] ?? 0;
+                $absenceTypes[] = "Lupa absen masuk (Rp " . number_format($fine, 0, ',', '.') . ")";
+            }
+            if (!$attendance->scan4) {
+                $fine = $penalties[$dept]['missing_checkout'] ?? 0;
+                $absenceTypes[] = "Lupa absen pulang (Rp " . number_format($fine, 0, ',', '.') . ")";
+            }
+
+            $calculation['absence_calculation'] = [
+                'types' => $absenceTypes,
+                'fine' => $attendance->absence_fine
+            ];
+        }
+
+        return $calculation;
+    }
+
+    private static function validatePenaltyConfig()
+    {
+        $penalties = config('penalties');
+
+        if (!$penalties) {
+            $errorMsg = 'Penalty configuration not found!';
+            Log::error($errorMsg);
+            throw new \RuntimeException($errorMsg);
+        }
+
+        // Validasi struktur dasar
+        if (!isset($penalties['staff'])) {
+            $errorMsg = 'Staff penalties not configured!';
+            Log::error($errorMsg);
+            throw new \RuntimeException($errorMsg);
+        }
+
+        if (!isset($penalties['karyawan'])) {
+            $errorMsg = 'Karyawan penalties not configured!';
+            Log::error($errorMsg);
+            throw new \RuntimeException($errorMsg);
+        }
+
+        return $penalties;
     }
 }
