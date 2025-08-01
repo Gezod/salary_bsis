@@ -273,6 +273,7 @@
                                             $penaltyDetails = $a->penalty_types;
                                             $penaltyBreakdown = $a->penalty_breakdown;
                                             $detailedCalculation = $a->detailed_penalty_calculation;
+                                            $lateFineBreakdown = $a->late_fine_breakdown;
                                         @endphp
                                         <tr>
                                             <td>
@@ -299,6 +300,11 @@
                                             <td>
                                                 <span
                                                     class="badge bg-info">{{ $a->tanggal->translatedFormat('D') }}</span>
+                                                @if($a->tanggal->format('l') === 'Friday')
+                                                    <small class="d-block text-info">07:00</small>
+                                                @else
+                                                    <small class="d-block text-info">07:30</small>
+                                                @endif
                                             </td>
                                             <td>
                                                 @php $detailedStatus = $a->detailed_status; @endphp
@@ -357,9 +363,14 @@
                                                     <span
                                                         class="badge bg-warning text-dark fw-bold">{{ $a->late_minutes }}
                                                         mnt</span>
-                                                    <small class="d-block text-warning mt-1">
-                                                        @ Rp{{ number_format($a->late_penalty_rate, 0, ',', '.') }}/mnt
-                                                    </small>
+                                                    @if($lateFineBreakdown)
+                                                        <small class="d-block text-warning mt-1">
+                                                            @ Rp{{ number_format($lateFineBreakdown['rate'], 0, ',', '.') }}/mnt
+                                                        </small>
+                                                        <small class="d-block text-muted">
+                                                            {{ $lateFineBreakdown['range_text'] }}
+                                                        </small>
+                                                    @endif
                                                 @else
                                                     <span class="text-muted">-</span>
                                                 @endif
@@ -373,41 +384,40 @@
                                                 @else
                                                     <div class="penalty-details-wrapper">
                                                         {{-- Denda Telat dengan Perhitungan Detail --}}
-                                                        @if ($a->late_fine > 0)
+                                                        @if ($a->late_fine > 0 && $lateFineBreakdown)
                                                             <div class="penalty-item penalty-late">
-                                                                <strong class="penalty-label text-danger">Denda
-                                                                    Telat:</strong>
+                                                                <strong class="penalty-label text-danger">Denda Telat:</strong>
                                                                 <strong class="penalty-value text-danger">
-                                                                    {{ $penaltyBreakdown['late_fine'] }}
+                                                                    Rp {{ number_format($a->late_fine, 0, ',', '.') }}
                                                                 </strong>
                                                                 <small class="penalty-desc text-danger">
-                                                                    {{ $a->late_minutes }} menit ×
-                                                                    Rp{{ number_format($a->late_penalty_rate, 0, ',', '.') }}/menit
+                                                                    {{ $lateFineBreakdown['range_text'] }}
                                                                 </small>
                                                                 <small class="penalty-formula text-danger">
-                                                                    = {{ $a->late_minutes }} × {{ number_format($a->late_penalty_rate, 0, ',', '.') }}
-                                                                    = Rp{{ number_format($a->late_fine, 0, ',', '.') }}
+                                                                    {{ $lateFineBreakdown['calculation_text'] }}
                                                                 </small>
+                                                                @if(isset($lateFineBreakdown['base_fine']))
+                                                                    <small class="penalty-formula text-danger">
+                                                                        Base: Rp{{ number_format($lateFineBreakdown['base_fine'], 0, ',', '.') }}
+                                                                        + Extra: Rp{{ number_format($lateFineBreakdown['extra_fine'], 0, ',', '.') }}
+                                                                    </small>
+                                                                @endif
                                                             </div>
                                                         @endif
 
                                                         {{-- Denda Istirahat --}}
                                                         @if ($a->break_fine > 0)
                                                             <div class="penalty-item penalty-break">
-                                                                <strong class="penalty-label text-warning">Denda
-                                                                    Istirahat:</strong>
+                                                                <strong class="penalty-label text-warning">Denda Istirahat:</strong>
                                                                 <strong class="penalty-value text-warning">
-                                                                    {{ $penaltyBreakdown['break_fine'] }}
+                                                                    Rp {{ number_format($a->break_fine, 0, ',', '.') }}
                                                                 </strong>
                                                                 @if (!$a->scan2 && !$a->scan3)
-                                                                    <small class="penalty-desc text-warning">(2x tidak
-                                                                        absen istirahat)</small>
+                                                                    <small class="penalty-desc text-warning">(2x tidak absen istirahat)</small>
                                                                 @elseif (!$a->scan2 || !$a->scan3)
-                                                                    <small class="penalty-desc text-warning">(1x tidak
-                                                                        absen istirahat)</small>
+                                                                    <small class="penalty-desc text-warning">(1x tidak absen istirahat)</small>
                                                                 @else
-                                                                    <small class="penalty-desc text-warning">(telat
-                                                                        istirahat)</small>
+                                                                    <small class="penalty-desc text-warning">(telat istirahat)</small>
                                                                 @endif
                                                             </div>
                                                         @endif
@@ -415,10 +425,9 @@
                                                         {{-- Denda Absen --}}
                                                         @if ($a->absence_fine > 0)
                                                             <div class="penalty-item penalty-absence">
-                                                                <strong class="penalty-label text-info">Denda
-                                                                    Absen:</strong>
+                                                                <strong class="penalty-label text-info">Denda Absen:</strong>
                                                                 <strong class="penalty-value text-info">
-                                                                    {{ $penaltyBreakdown['absence_fine'] }}
+                                                                    Rp {{ number_format($a->absence_fine, 0, ',', '.') }}
                                                                 </strong>
                                                                 <small class="penalty-desc text-info">
                                                                     @if (!$a->scan1 && !$a->scan4)
@@ -831,7 +840,7 @@
     <style>
         /* Enhanced penalty display styling */
         .penalty-column {
-            min-width: 300px;
+            min-width: 350px;
             font-size: 0.75rem;
             line-height: 1.3;
         }

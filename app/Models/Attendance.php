@@ -60,7 +60,8 @@ class Attendance extends Model
         'penalty_breakdown',
         'penalty_types',
         'detailed_penalty_calculation',
-        'late_penalty_rate'
+        'late_penalty_rate',
+        'late_fine_breakdown'
     ];
 
     public function employee()
@@ -77,7 +78,7 @@ class Attendance extends Model
             $this->total_fine = 0;
         } else {
             $department = $this->employee->departemen ?? 'karyawan';
-            $this->late_fine = self::calculateLateFine($this->late_minutes, $department);
+            $this->late_fine = AttendanceService::calculateLateFine($this->late_minutes, $department);
 
             // Hitung denda lainnya
             $this->break_fine = $this->calculateBreakFine();
@@ -256,9 +257,24 @@ class Attendance extends Model
     public function getLatePenaltyRateAttribute()
     {
         if ($this->late_minutes > 0 && $this->late_fine > 0) {
-            return round($this->late_fine / $this->late_minutes, 2);
+            $department = $this->employee->departemen ?? 'karyawan';
+            $breakdown = AttendanceService::getLateFineBreakdown($this->late_minutes, $department);
+            return $breakdown['rate'];
         }
         return 0;
+    }
+
+    /**
+     * Get late fine breakdown with detailed calculation
+     */
+    public function getLateFineBreakdownAttribute()
+    {
+        if ($this->late_minutes <= 0) {
+            return null;
+        }
+
+        $department = $this->employee->departemen ?? 'karyawan';
+        return AttendanceService::getLateFineBreakdown($this->late_minutes, $department);
     }
 
     /**
@@ -266,67 +282,7 @@ class Attendance extends Model
      */
     public function getPenaltyDescription(): array
     {
-        if ($this->is_half_day) {
-            return [
-                'late' => [],
-                'break' => [],
-                'absence' => [],
-                'total_text' => 'Bebas denda (setengah hari)'
-            ];
-        }
-
-        $penalties = [
-            'late' => [],
-            'break' => [],
-            'absence' => []
-        ];
-
-        $dept = $this->employee->departemen ?? 'karyawan';
-        $config = config('penalties');
-
-        // Late penalties with detailed calculation
-        if ($this->late_minutes > 0 && $this->late_fine > 0) {
-            $rate = round($this->late_fine / $this->late_minutes, 2);
-            $penalties['late'][] = "Terlambat {$this->late_minutes} menit × Rp " . number_format($rate, 0, ',', '.') . "/menit = Rp " . number_format($this->late_fine, 0, ',', '.');
-        }
-
-        // Break penalties
-        if ($this->break_fine > 0) {
-            if (!$this->scan2 && !$this->scan3) {
-                $penalties['break'][] = "Tidak absen istirahat 2x (Rp " . number_format($this->break_fine, 0, ',', '.') . ")";
-            } elseif (!$this->scan2 || !$this->scan3) {
-                $penalties['break'][] = "Tidak absen istirahat 1x (Rp " . number_format($this->break_fine, 0, ',', '.') . ")";
-            } elseif ($this->scan2 && $this->scan3) {
-                $expectedBreakStart = Carbon::parse($this->tanggal->format('Y-m-d') . ' 12:00');
-                if ($this->scan2->gt($expectedBreakStart)) {
-                    $penalties['break'][] = "Telat istirahat (Rp " . number_format($this->break_fine, 0, ',', '.') . ")";
-                }
-            }
-        }
-
-        // Absence penalties
-        if ($this->absence_fine > 0) {
-            $absencePenalties = [];
-            if (!$this->scan1) {
-                $fine = $config[$dept]['missing_checkin'] ?? 0;
-                $absencePenalties[] = "Lupa absen masuk (Rp " . number_format($fine, 0, ',', '.') . ")";
-            }
-            if (!$this->scan4) {
-                $fine = $config[$dept]['missing_checkout'] ?? 0;
-                $absencePenalties[] = "Lupa absen pulang (Rp " . number_format($fine, 0, ',', '.') . ")";
-            }
-            $penalties['absence'] = $absencePenalties;
-        }
-
-        $allPenalties = array_merge($penalties['late'], $penalties['break'], $penalties['absence']);
-        $totalText = empty($allPenalties) ? 'Tidak ada denda' : implode(', ', $allPenalties);
-
-        return [
-            'late' => $penalties['late'],
-            'break' => $penalties['break'],
-            'absence' => $penalties['absence'],
-            'total_text' => $totalText
-        ];
+        return AttendanceService::getPenaltyDescription($this);
     }
 
     /**

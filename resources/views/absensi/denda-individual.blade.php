@@ -132,6 +132,46 @@
                         </div>
                     </div>
 
+                    {{-- Penalty Configuration Info --}}
+                    <div class="alert alert-info mb-4">
+                        <h6 class="alert-heading d-flex align-items-center">
+                            <i class="bi bi-info-circle me-2"></i>Tarif Denda Keterlambatan
+                        </h6>
+                        @php
+                            $penalties = config('penalties');
+                        @endphp
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong class="text-primary">STAFF:</strong>
+                                <ul class="small mb-0">
+                                    <li>1-15 mnt: Rp{{ number_format($penalties['staff']['late'][0][2], 0, ',', '.') }}/mnt
+                                    </li>
+                                    <li>16-30 mnt:
+                                        Rp{{ number_format($penalties['staff']['late'][1][2], 0, ',', '.') }}/mnt</li>
+                                    <li>31-45 mnt:
+                                        Rp{{ number_format($penalties['staff']['late'][2][2], 0, ',', '.') }}/mnt</li>
+                                    <li>46-60 mnt:
+                                        Rp{{ number_format($penalties['staff']['late'][3][2], 0, ',', '.') }}/mnt</li>
+                                    <li>>60 mnt: Rp12.000 + Rp200/mnt extra</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <strong class="text-success">KARYAWAN:</strong>
+                                <ul class="small mb-0">
+                                    <li>1-15 mnt:
+                                        Rp{{ number_format($penalties['karyawan']['late'][0][2], 0, ',', '.') }}/mnt</li>
+                                    <li>16-30 mnt:
+                                        Rp{{ number_format($penalties['karyawan']['late'][1][2], 0, ',', '.') }}/mnt</li>
+                                    <li>31-45 mnt:
+                                        Rp{{ number_format($penalties['karyawan']['late'][2][2], 0, ',', '.') }}/mnt</li>
+                                    <li>46-60 mnt:
+                                        Rp{{ number_format($penalties['karyawan']['late'][3][2], 0, ',', '.') }}/mnt</li>
+                                    <li>>60 mnt: Rp10.000 + Rp166.67/mnt extra</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
                     {{-- Department Statistics --}}
                     <div class="row mb-4">
                         <div class="col-md-6">
@@ -249,6 +289,7 @@
                                         </th>
                                         <th class="text-center"><i class="bi bi-stopwatch me-2"></i>Total Menit Telat</th>
                                         <th class="text-center"><i class="bi bi-graph-up me-2"></i>Rata-rata Telat</th>
+                                        <th class="text-center"><i class="bi bi-calculator me-2"></i>Detail Kalkulasi</th>
                                         <th class="text-end"><i class="bi bi-exclamation-triangle me-2"></i>Denda Telat
                                         </th>
                                         <th class="text-end"><i class="bi bi-cup-hot me-2"></i>Denda Istirahat</th>
@@ -259,6 +300,19 @@
                                 </thead>
                                 <tbody>
                                     @forelse ($penaltyData as $data)
+                                        @php
+                                            $avgLateBreakdown = null;
+                                            if ($data->avg_late_minutes > 0) {
+                                                $avgLateBreakdown = \App\Services\AttendanceService::getLateFineBreakdown(
+                                                    round($data->avg_late_minutes),
+                                                    $data->employee->departemen,
+                                                );
+                                            }
+                                            $overallRate =
+                                                $data->total_late_minutes > 0
+                                                    ? $data->total_late_fine / $data->total_late_minutes
+                                                    : 0;
+                                        @endphp
                                         <tr>
                                             <td>
                                                 <div class="d-flex align-items-center">
@@ -292,10 +346,6 @@
                                             <td class="text-center">
                                                 @if ($data->total_late_minutes > 0)
                                                     <span class="text-danger">{{ $data->total_late_minutes }} menit</span>
-                                                    <small class="d-block text-muted">
-                                                        @
-                                                        Rp{{ number_format($data->total_late_fine > 0 ? round($data->total_late_fine / $data->total_late_minutes) : 0, 0, ',', '.') }}/menit
-                                                    </small>
                                                 @else
                                                     <span class="text-muted">-</span>
                                                 @endif
@@ -309,10 +359,39 @@
                                                     <span class="text-muted">-</span>
                                                 @endif
                                             </td>
+                                            <td class="text-center">
+                                                @if ($data->total_late_minutes > 0)
+                                                    @php
+                                                        $breakdown = \App\Services\AttendanceService::getLateFineBreakdown(
+                                                            $data->total_late_minutes,
+                                                            $data->employee->departemen,
+                                                        );
+                                                    @endphp
+                                                    <div class="small">
+                                                        <span class="text-info">Perhitungan:</span><br>
+                                                        <span
+                                                            class="text-success">{{ $breakdown['calculation_text'] }}</span>
+                                                        <br>
+                                                        <span class="text-muted">({{ $breakdown['range_text'] }})</span>
+                                                    </div>
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
                                             <td class="text-end">
                                                 @if ($data->total_late_fine > 0)
                                                     <span class="text-danger">Rp
                                                         {{ number_format($data->total_late_fine, 0, ',', '.') }}</span>
+                                                    @if ($data->total_late_minutes > 0)
+                                                        <br>
+                                                        <small class="text-muted">
+                                                            ({{ number_format($data->total_late_fine / $data->total_late_minutes, 2, ',', '.') }}/mnt)
+                                                        </small>
+                                                        <br>
+                                                        <small class="text-info">
+                                                            {{ \App\Services\AttendanceService::getLateFineBreakdown($data->total_late_minutes, $data->employee->departemen)['calculation_text'] }}
+                                                        </small>
+                                                    @endif
                                                 @else
                                                     <span class="text-muted">-</span>
                                                 @endif
@@ -357,7 +436,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="11" class="text-center py-5">
+                                            <td colspan="12" class="text-center py-5">
                                                 <div class="text-muted">
                                                     <i class="bi bi-inbox display-4 d-block mb-3"></i>
                                                     <h5>Tidak ada data</h5>

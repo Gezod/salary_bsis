@@ -406,60 +406,147 @@ class AttendanceService
     }
 
     /**
-     * Calculate late fine based on minutes and department
+     * Calculate late fine based on minutes and department with enhanced calculation
      */
-    private static function calculateLateFine(int $minutes, string $department)
+    public static function calculateLateFine(int $minutes, string $department)
+    {
+        if ($minutes <= 0) {
+            return 0;
+        }
+
+        $penalties = config('penalties');
+
+        // Debug logging
+        Log::debug('Calculating late fine', [
+            'minutes' => $minutes,
+            'department' => $department,
+            'penalties_config' => $penalties[$department] ?? null
+        ]);
+
+        if (!isset($penalties[$department]['late'])) {
+            Log::warning("Late penalties not found for department: {$department}");
+            return 0;
+        }
+
+        $latePenalties = $penalties[$department]['late'];
+
+        foreach ($latePenalties as $range) {
+            if ($range[0] === '>') {
+                if ($minutes > $range[1]) {
+                    if (is_callable($range[2])) {
+                        $fine = $range[2]($minutes);
+                        Log::info("Late fine calculated (>60 min)", [
+                            'minutes' => $minutes,
+                            'department' => $department,
+                            'fine' => $fine
+                        ]);
+                        return round($fine);
+                    } else {
+                        return $range[2];
+                    }
+                }
+            } else {
+                if ($minutes >= $range[0] && $minutes <= $range[1]) {
+                    $rate = $range[2];
+                    $fine = $minutes * $rate;
+
+                    Log::info("Late fine calculated (proportional)", [
+                        'minutes' => $minutes,
+                        'rate' => $rate,
+                        'range' => "{$range[0]}-{$range[1]}",
+                        'department' => $department,
+                        'fine' => $fine
+                    ]);
+
+                    return round($fine);
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * Get detailed late fine calculation breakdown
+     */
+    public static function getLateFineBreakdown(int $minutes, ?string $department): array
 {
+    // Handle invalid minutes or empty department
+    if ($minutes <= 0 || empty($department)) {
+        return [
+            'minutes' => max(0, $minutes),
+            'rate' => 0,
+            'fine' => 0,
+            'range_text' => $department === null ? 'Departemen tidak diketahui' : '',
+            'calculation_text' => ''
+        ];
+    }
+
     $penalties = config('penalties');
 
-    // Debug logging
-    Log::debug('Calculating late fine', [
-        'minutes' => $minutes,
-        'department' => $department,
-        'penalties_config' => $penalties[$department] ?? null
-    ]);
-
+    // Validate department exists in penalties config
     if (!isset($penalties[$department]['late'])) {
-        Log::warning("Late penalties not found for department: {$department}");
-        return 0;
+        Log::error("Late penalties configuration not found for department: {$department}");
+        return [
+            'minutes' => $minutes,
+            'rate' => 0,
+            'fine' => 0,
+            'range_text' => 'Konfigurasi tidak ditemukan',
+            'calculation_text' => ''
+        ];
     }
 
     $latePenalties = $penalties[$department]['late'];
 
     foreach ($latePenalties as $range) {
-        if ($range[0] === '>') {
-            if ($minutes > $range[1]) {
-                if (is_callable($range[2])) {
-                    $fine = $range[2]($minutes);
-                    Log::info("Late fine calculated (>60 min)", [
-                        'minutes' => $minutes,
-                        'department' => $department,
-                        'fine' => $fine
-                    ]);
-                    return round($fine);
-                } else {
-                    return $range[2];
-                }
-            }
-        } else {
+        // Handle ranges like [1, 15, 133.33]
+        if (count($range) === 3 && is_numeric($range[0]) && is_numeric($range[1])) {
             if ($minutes >= $range[0] && $minutes <= $range[1]) {
                 $rate = $range[2];
                 $fine = $minutes * $rate;
 
-                Log::info("Late fine calculated (proportional)", [
+                return [
                     'minutes' => $minutes,
                     'rate' => $rate,
-                    'range' => "{$range[0]}-{$range[1]}",
-                    'department' => $department,
-                    'fine' => $fine
-                ]);
+                    'fine' => round($fine),
+                    'range_text' => "{$range[0]}-{$range[1]} menit",
+                    'calculation_text' => "{$minutes} × Rp " . number_format($rate, 2, ',', '.') . " = Rp " . number_format(round($fine), 0, ',', '.'),
+                    'base_fine' => 0,
+                    'extra_minutes' => 0,
+                    'extra_fine' => 0
+                ];
+            }
+        }
+        // Handle special case for >60 minutes
+        elseif ($range[0] === '>') {
+            if ($minutes > $range[1]) {
+                $baseFine = $department === 'staff' ? 12000 : 10000;
+                $extraMinutes = $minutes - $range[1];
+                $extraRate = $department === 'staff' ? 200 : 166.67;
+                $extraFine = $extraMinutes * $extraRate;
+                $totalFine = $baseFine + $extraFine;
 
-                return round($fine);
+                return [
+                    'minutes' => $minutes,
+                    'rate' => $extraRate,
+                    'fine' => round($totalFine),
+                    'range_text' => "Lebih dari {$range[1]} menit",
+                    'calculation_text' => "Rp " . number_format($baseFine, 0, ',', '.') . " + ({$extraMinutes} × Rp " . number_format($extraRate, 2, ',', '.') . ") = Rp " . number_format(round($totalFine), 0, ',', '.'),
+                    'base_fine' => $baseFine,
+                    'extra_minutes' => $extraMinutes,
+                    'extra_fine' => $extraFine
+                ];
             }
         }
     }
 
-    return 0;
+    return [
+        'minutes' => $minutes,
+        'rate' => 0,
+        'fine' => 0,
+        'range_text' => 'Range tidak ditemukan',
+        'calculation_text' => ''
+    ];
 }
 
     /**
@@ -479,33 +566,60 @@ class AttendanceService
         $penalties = [];
         $dept = $attendance->employee->departemen ?? 'karyawan';
 
-        // Late penalties
+        // Late penalties with detailed breakdown
         if ($attendance->late_minutes > 0) {
-            $penalties['late'][] = "Terlambat {$attendance->late_minutes} menit";
+            $breakdown = self::getLateFineBreakdown($attendance->late_minutes, $dept);
+            $penalties['late'][] = [
+                'text' => "Terlambat {$attendance->late_minutes} menit",
+                'fine' => $attendance->late_fine,
+                'calculation' => $breakdown['calculation_text'],
+                'range' => $breakdown['range_text']
+            ];
         }
 
         // Break penalties
         if ($attendance->break_fine > 0) {
             if (!$attendance->scan2 && !$attendance->scan3) {
-                $penalties['break'][] = "Tidak absen istirahat 2x";
+                $penalties['break'][] = [
+                    'text' => "Tidak absen istirahat 2x",
+                    'fine' => $attendance->break_fine
+                ];
             } elseif (!$attendance->scan2 || !$attendance->scan3) {
-                $penalties['break'][] = "Tidak absen istirahat 1x";
+                $penalties['break'][] = [
+                    'text' => "Tidak absen istirahat 1x",
+                    'fine' => $attendance->break_fine
+                ];
             } elseif ($attendance->scan2 && $attendance->scan3) {
                 $expectedBreakStart = Carbon::parse($attendance->tanggal->format('Y-m-d') . ' 12:00');
                 if ($attendance->scan2->gt($expectedBreakStart)) {
-                    $penalties['break'][] = "Telat istirahat";
+                    $penalties['break'][] = [
+                        'text' => "Telat istirahat",
+                        'fine' => $attendance->break_fine
+                    ];
                 }
             }
         }
 
         // Absence penalties
         if ($attendance->absence_fine > 0) {
+            $absencePenalties = [];
+            $config = config('penalties');
+
             if (!$attendance->scan1) {
-                $penalties['absence'][] = "Lupa absen masuk";
+                $fine = $config[$dept]['missing_checkin'] ?? 0;
+                $absencePenalties[] = [
+                    'text' => "Lupa absen masuk",
+                    'fine' => $fine
+                ];
             }
             if (!$attendance->scan4) {
-                $penalties['absence'][] = "Lupa absen pulang";
+                $fine = $config[$dept]['missing_checkout'] ?? 0;
+                $absencePenalties[] = [
+                    'text' => "Lupa absen pulang",
+                    'fine' => $fine
+                ];
             }
+            $penalties['absence'] = $absencePenalties;
         }
 
         $totalText = [];
@@ -547,15 +661,24 @@ class AttendanceService
             'total_penalty' => $attendance->total_fine
         ];
 
-        // Late calculation
+        // Late calculation with detailed breakdown
         if ($attendance->late_minutes > 0 && $attendance->late_fine > 0) {
-            $rate = round($attendance->late_fine / $attendance->late_minutes, 2);
+            $breakdown = self::getLateFineBreakdown($attendance->late_minutes, $dept);
             $calculation['late_calculation'] = [
                 'minutes' => $attendance->late_minutes,
-                'rate' => $rate,
+                'rate' => $breakdown['rate'],
                 'fine' => $attendance->late_fine,
-                'formula' => "{$attendance->late_minutes} menit × Rp " . number_format($rate, 0, ',', '.') . "/menit"
+                'range_text' => $breakdown['range_text'],
+                'calculation_text' => $breakdown['calculation_text'],
+                'formula' => "{$attendance->late_minutes} menit × Rp " . number_format($breakdown['rate'], 0, ',', '.') . "/menit"
             ];
+
+            // Add extra details for >60 minutes
+            if (isset($breakdown['base_fine'])) {
+                $calculation['late_calculation']['base_fine'] = $breakdown['base_fine'];
+                $calculation['late_calculation']['extra_minutes'] = $breakdown['extra_minutes'];
+                $calculation['late_calculation']['extra_fine'] = $breakdown['extra_fine'];
+            }
         }
 
         // Break calculation

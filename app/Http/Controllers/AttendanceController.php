@@ -707,23 +707,22 @@ class AttendanceController extends Controller
 
     // Now get the penalty data
     $penaltyData = Attendance::with('employee')
-        ->selectRaw('
-            employee_id,
-            COUNT(*) as total_days,
-            SUM(late_minutes) as total_late_minutes,
-            COUNT(CASE WHEN late_minutes > 0 THEN 1 END) as late_days,
-            SUM(late_fine) as total_late_fine,
-            SUM(break_fine) as total_break_fine,
-            SUM(absence_fine) as total_absence_fine,
-            SUM(total_fine) as total_penalty,
-            AVG(CASE WHEN late_minutes > 0 THEN late_minutes END) as avg_late_minutes
-        ')
-        ->whereYear('tanggal', $year)
-        ->whereMonth('tanggal', $mon)
-        ->groupBy('employee_id')
-        ->orderByDesc('total_penalty')
-        ->get();
-
+    ->selectRaw('
+        employee_id,
+        COUNT(*) as total_days,
+        SUM(late_minutes) as total_late_minutes,
+        COUNT(CASE WHEN late_minutes > 0 THEN 1 END) as late_days,
+        SUM(late_fine) as total_late_fine,
+        SUM(break_fine) as total_break_fine,
+        SUM(absence_fine) as total_absence_fine,
+        SUM(total_fine) as total_penalty,
+        AVG(CASE WHEN late_minutes > 0 THEN late_minutes ELSE NULL END) as avg_late_minutes
+    ')
+    ->whereYear('tanggal', $year)
+    ->whereMonth('tanggal', $mon)
+    ->groupBy('employee_id')
+    ->orderByDesc('total_penalty')
+    ->get();
     // Get department statistics
     $departmentStats = [
         'staff' => [
@@ -846,23 +845,22 @@ class AttendanceController extends Controller
 
         // Get penalty data per employee
         $penaltyData = Attendance::with('employee')
-            ->selectRaw('
-                employee_id,
-                COUNT(*) as total_days,
-                SUM(late_minutes) as total_late_minutes,
-                COUNT(CASE WHEN late_minutes > 0 THEN 1 END) as late_days,
-                SUM(late_fine) as total_late_fine,
-                SUM(break_fine) as total_break_fine,
-                SUM(absence_fine) as total_absence_fine,
-                SUM(total_fine) as total_penalty,
-                AVG(CASE WHEN late_minutes > 0 THEN late_minutes END) as avg_late_minutes
-            ')
-            ->whereYear('tanggal', $year)
-            ->whereMonth('tanggal', $mon)
-            ->groupBy('employee_id')
-            ->having('total_penalty', '>', 0)
-            ->orderByDesc('total_penalty')
-            ->get();
+    ->selectRaw('
+        employee_id,
+        COUNT(*) as total_days,
+        SUM(late_minutes) as total_late_minutes,
+        COUNT(CASE WHEN late_minutes > 0 THEN 1 END) as late_days,
+        SUM(late_fine) as total_late_fine,
+        SUM(break_fine) as total_break_fine,
+        SUM(absence_fine) as total_absence_fine,
+        SUM(total_fine) as total_penalty,
+        AVG(CASE WHEN late_minutes > 0 THEN late_minutes END) as avg_late_minutes
+    ')
+    ->whereYear('tanggal', $year)
+    ->whereMonth('tanggal', $mon)
+    ->groupBy('employee_id')
+    ->orderByDesc('total_penalty')
+    ->get();
 
         // Get department statistics
         $departmentStats = [

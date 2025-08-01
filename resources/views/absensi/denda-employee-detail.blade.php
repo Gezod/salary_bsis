@@ -249,6 +249,22 @@
                                 <div class="card-body text-center">
                                     <h4 class="text-danger">Rp
                                         {{ number_format($summary['total_late_fine'], 0, ',', '.') }}</h4>
+                                    @php
+                                        $penalties = config('penalties');
+                                        $dept = strtolower($employee->departemen);
+                                    @endphp
+                                    <small class="text-muted d-block mt-2">
+                                        <strong>Tarif {{ ucfirst($dept) }}:</strong><br>
+                                        1-15 mnt:
+                                        Rp{{ number_format($penalties[$dept]['late'][0][2], 0, ',', '.') }}/mnt<br>
+                                        16-30 mnt:
+                                        Rp{{ number_format($penalties[$dept]['late'][1][2], 0, ',', '.') }}/mnt<br>
+                                        31-45 mnt:
+                                        Rp{{ number_format($penalties[$dept]['late'][2][2], 0, ',', '.') }}/mnt<br>
+                                        46-60 mnt:
+                                        Rp{{ number_format($penalties[$dept]['late'][3][2], 0, ',', '.') }}/mnt<br>
+                                        >60 mnt: Base {{ $dept === 'staff' ? 'Rp12.000' : 'Rp10.000' }} + Rp200/mnt
+                                    </small>
                                 </div>
                             </div>
                         </div>
@@ -260,6 +276,15 @@
                                 <div class="card-body text-center">
                                     <h4 class="text-warning">Rp
                                         {{ number_format($summary['total_break_fine'], 0, ',', '.') }}</h4>
+                                    <small class="text-muted d-block mt-2">
+                                        <strong>Tarif {{ ucfirst($dept) }}:</strong><br>
+                                        Telat istirahat:
+                                        Rp{{ number_format($penalties[$dept]['late_break'], 0, ',', '.') }}<br>
+                                        1x tidak absen:
+                                        Rp{{ number_format($penalties[$dept]['absent_break_once'], 0, ',', '.') }}<br>
+                                        2x tidak absen:
+                                        Rp{{ number_format($penalties[$dept]['absent_twice'], 0, ',', '.') }}
+                                    </small>
                                 </div>
                             </div>
                         </div>
@@ -271,6 +296,13 @@
                                 <div class="card-body text-center">
                                     <h4 class="text-info">Rp
                                         {{ number_format($summary['total_absence_fine'], 0, ',', '.') }}</h4>
+                                    <small class="text-muted d-block mt-2">
+                                        <strong>Tarif {{ ucfirst($dept) }}:</strong><br>
+                                        Lupa absen masuk:
+                                        Rp{{ number_format($penalties[$dept]['missing_checkin'], 0, ',', '.') }}<br>
+                                        Lupa absen pulang:
+                                        Rp{{ number_format($penalties[$dept]['missing_checkout'], 0, ',', '.') }}
+                                    </small>
                                 </div>
                             </div>
                         </div>
@@ -294,6 +326,8 @@
                                         <th><i class="bi bi-door-open me-2"></i>Masuk</th>
                                         <th><i class="bi bi-door-closed me-2"></i>Pulang</th>
                                         <th class="text-center"><i class="bi bi-stopwatch me-2"></i>Telat (menit)</th>
+                                        <th class="text-center"><i class="bi bi-calculator me-2"></i>Perhitungan Denda
+                                            Telat</th>
                                         <th class="text-end"><i class="bi bi-exclamation-triangle me-2"></i>Denda Telat
                                         </th>
                                         <th class="text-end"><i class="bi bi-cup-hot me-2"></i>Denda Istirahat</th>
@@ -303,9 +337,29 @@
                                 </thead>
                                 <tbody>
                                     @forelse ($attendanceData as $attendance)
+                                        @php
+                                            $lateBreakdown = null;
+                                            if ($attendance->late_minutes > 0) {
+                                                $lateBreakdown = \App\Services\AttendanceService::getLateFineBreakdown(
+                                                    $attendance->late_minutes,
+                                                    $employee->departemen,
+                                                );
+                                            }
+                                            $overallRate =
+                                                $summary['total_late_minutes'] > 0
+                                                    ? $summary['total_late_fine'] / $summary['total_late_minutes']
+                                                    : 0;
+                                        @endphp
                                         <tr>
                                             <td>{{ $attendance->tanggal->format('d/m/Y') }}</td>
-                                            <td>{{ $attendance->tanggal->translatedFormat('l') }}</td>
+                                            <td>
+                                                {{ $attendance->tanggal->translatedFormat('l') }}
+                                                @if ($attendance->tanggal->format('l') === 'Friday')
+                                                    <small class="d-block text-info">Jam masuk: 07:00</small>
+                                                @else
+                                                    <small class="d-block text-info">Jam masuk: 07:30</small>
+                                                @endif
+                                            </td>
                                             <td>
                                                 @if ($attendance->is_half_day)
                                                     <span class="badge bg-info">Setengah Hari</span>
@@ -336,10 +390,24 @@
                                             <td class="text-center">
                                                 @if ($attendance->late_minutes > 0)
                                                     <span class="badge bg-danger">{{ $attendance->late_minutes }}</span>
-                                                    <small class="d-block">
-                                                        @
-                                                        Rp{{ number_format($attendance->late_fine > 0 ? round($attendance->late_fine / $attendance->late_minutes) : 0, 0, ',', '.') }}/menit
-                                                    </small>
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
+                                            <td class="text-center">
+                                                @if ($lateBreakdown)
+                                                    <div class="small">
+                                                        <strong
+                                                            class="text-warning">{{ $lateBreakdown['range_text'] }}</strong><br>
+                                                        <span
+                                                            class="text-info">{{ $lateBreakdown['calculation_text'] }}</span>
+                                                        @if (isset($lateBreakdown['base_fine']))
+                                                            <br><span class="text-success">Base:
+                                                                Rp{{ number_format($lateBreakdown['base_fine'], 0, ',', '.') }}</span>
+                                                            <br><span class="text-success">Extra:
+                                                                {{ $lateBreakdown['extra_minutes'] }}mnt × Rp200</span>
+                                                        @endif
+                                                    </div>
                                                 @else
                                                     <span class="text-muted">-</span>
                                                 @endif
@@ -380,7 +448,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="10" class="text-center py-5">
+                                            <td colspan="11" class="text-center py-5">
                                                 <div class="text-muted">
                                                     <i class="bi bi-inbox display-4 d-block mb-3"></i>
                                                     <h5>Tidak ada data</h5>
@@ -393,7 +461,7 @@
                                 @if ($attendanceData->count() > 0)
                                     <tfoot>
                                         <tr class="table-active">
-                                            <th colspan="6">TOTAL</th>
+                                            <th colspan="7">TOTAL</th>
                                             <th class="text-end">Rp
                                                 {{ number_format($summary['total_late_fine'], 0, ',', '.') }}</th>
                                             <th class="text-end">Rp
