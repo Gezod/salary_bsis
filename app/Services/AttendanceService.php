@@ -409,48 +409,58 @@ class AttendanceService
      * Calculate late fine based on minutes and department
      */
     private static function calculateLateFine(int $minutes, string $department)
-    {
-        $penalties = config('penalties');
+{
+    $penalties = config('penalties');
 
-        if (!isset($penalties[$department]['late'])) {
-            Log::warning("Late penalties not found for department: {$department}");
-            return 0;
-        }
+    // Debug logging
+    Log::debug('Calculating late fine', [
+        'minutes' => $minutes,
+        'department' => $department,
+        'penalties_config' => $penalties[$department] ?? null
+    ]);
 
-        $latePenalties = $penalties[$department]['late'];
+    if (!isset($penalties[$department]['late'])) {
+        Log::warning("Late penalties not found for department: {$department}");
+        return 0;
+    }
 
-        foreach ($latePenalties as $range) {
-            if ($range[0] === '>') {
-                if ($minutes > $range[1]) {
-                    if (is_callable($range[2])) {
-                        $fine = $range[2]($minutes);
-                        Log::info("Late fine calculated (>60 min)", [
-                            'minutes' => $minutes,
-                            'department' => $department,
-                            'fine' => $fine
-                        ]);
-                        return round($fine); // Bulatkan ke bilangan bulat terdekat
-                    } else {
-                        return $range[2];
-                    }
-                }
-            } else {
-                if ($minutes >= $range[0] && $minutes <= $range[1]) {
-                    $fine = $minutes * $range[2];
-                    Log::info("Late fine calculated (proportional)", [
+    $latePenalties = $penalties[$department]['late'];
+
+    foreach ($latePenalties as $range) {
+        if ($range[0] === '>') {
+            if ($minutes > $range[1]) {
+                if (is_callable($range[2])) {
+                    $fine = $range[2]($minutes);
+                    Log::info("Late fine calculated (>60 min)", [
                         'minutes' => $minutes,
-                        'rate' => $range[2],
-                        'range' => "{$range[0]}-{$range[1]}",
                         'department' => $department,
                         'fine' => $fine
                     ]);
-                    return round($fine); // Bulatkan ke bilangan bulat terdekat
+                    return round($fine);
+                } else {
+                    return $range[2];
                 }
             }
-        }
+        } else {
+            if ($minutes >= $range[0] && $minutes <= $range[1]) {
+                $rate = $range[2];
+                $fine = $minutes * $rate;
 
-        return 0;
+                Log::info("Late fine calculated (proportional)", [
+                    'minutes' => $minutes,
+                    'rate' => $rate,
+                    'range' => "{$range[0]}-{$range[1]}",
+                    'department' => $department,
+                    'fine' => $fine
+                ]);
+
+                return round($fine);
+            }
+        }
     }
+
+    return 0;
+}
 
     /**
      * Get penalty description based on attendance data

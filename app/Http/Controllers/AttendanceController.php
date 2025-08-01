@@ -44,11 +44,34 @@ class AttendanceController extends Controller
 
     // Evaluasi otomatis
     foreach ($rows as $a) {
-        if (is_null($a->total_fine) || ($a->total_fine === 0 && !$a->is_half_day)) {
+    if (is_null($a->total_fine) || ($a->total_fine === 0 && !$a->is_half_day)) {
+        Log::info('Evaluating attendance', [
+            'id' => $a->id,
+            'employee' => $a->employee->nama ?? 'Unknown',
+            'date' => $a->tanggal,
+            'current_fine' => $a->total_fine,
+            'is_half_day' => $a->is_half_day
+        ]);
+
+        try {
             AttendanceService::evaluate($a);
             $a->refresh();
+
+            Log::info('Evaluation result', [
+                'id' => $a->id,
+                'late_fine' => $a->late_fine,
+                'break_fine' => $a->break_fine,
+                'absence_fine' => $a->absence_fine,
+                'total_fine' => $a->total_fine
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Evaluation failed', [
+                'id' => $a->id,
+                'error' => $e->getMessage()
+            ]);
         }
     }
+}
 
     return view('absensi.index', compact('rows'));
 }

@@ -68,6 +68,67 @@ class Attendance extends Model
         return $this->belongsTo(Employee::class);
     }
 
+    public function calculateFines()
+    {
+        if ($this->is_half_day) {
+            $this->late_fine = 0;
+            $this->break_fine = 0;
+            $this->absence_fine = 0;
+            $this->total_fine = 0;
+        } else {
+            $department = $this->employee->departemen ?? 'karyawan';
+            $this->late_fine = self::calculateLateFine($this->late_minutes, $department);
+
+            // Hitung denda lainnya
+            $this->break_fine = $this->calculateBreakFine();
+            $this->absence_fine = $this->calculateAbsenceFine();
+
+            $this->total_fine = $this->late_fine + $this->break_fine + $this->absence_fine;
+        }
+
+        $this->save();
+    }
+
+    protected function calculateAbsenceFine()
+    {
+        if ($this->is_half_day) return 0;
+
+        $department = $this->employee->departemen ?? 'karyawan';
+        $penalties = config('penalties');
+        $fine = 0;
+
+        if (!$this->scan1) {
+            $fine += $penalties[$department]['missing_checkin'] ?? 0;
+        }
+
+        if (!$this->scan4) {
+            $fine += $penalties[$department]['missing_checkout'] ?? 0;
+        }
+
+        return $fine;
+    }
+
+    protected function calculateBreakFine()
+    {
+        if ($this->is_half_day) return 0;
+
+        $department = $this->employee->departemen ?? 'karyawan';
+        $penalties = config('penalties');
+
+        if (!$this->scan2 && !$this->scan3) {
+            return $penalties[$department]['absent_twice'] ?? 0;
+        } elseif (!$this->scan2 || !$this->scan3) {
+            return $penalties[$department]['absent_break_once'] ?? 0;
+        } elseif ($this->scan2 && $this->scan3) {
+            $expectedBreakStart = Carbon::parse($this->tanggal->format('Y-m-d') . ' 12:00');
+            if ($this->scan2->gt($expectedBreakStart)) {
+                return $penalties[$department]['late_break'] ?? 0;
+            }
+        }
+
+        return 0;
+    }
+
     public function getFormattedScan($scanField)
     {
         return $this->{$scanField} ? Carbon::parse($this->{$scanField})->format('H:i') : null;
