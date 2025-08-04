@@ -7,6 +7,7 @@ use App\Models\Payroll;
 use App\Models\Attendance;
 use App\Models\OvertimeRecord;
 use App\Models\StaffPayrollSetting;
+use App\Models\BpjsSetting;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -65,9 +66,12 @@ class PayrollService
             ->whereMonth('tanggal', $month)
             ->sum('overtime_pay');
 
+        // Calculate BPJS deduction
+        $bpjsDeduction = self::calculateBpjsDeduction($employee, 'monthly');
+
         // Calculate gross and net salary
         $grossSalary = $basicSalary + $overtimePay + $mealAllowance;
-        $netSalary = $grossSalary - $totalFines;
+        $netSalary = $grossSalary - $totalFines - $bpjsDeduction;
 
         return [
             'employee_id' => $employee->id,
@@ -79,6 +83,7 @@ class PayrollService
             'overtime_pay' => $overtimePay,
             'meal_allowance' => $mealAllowance,
             'total_fines' => $totalFines,
+            'bpjs_deduction' => $bpjsDeduction,
             'gross_salary' => $grossSalary,
             'net_salary' => $netSalary,
             'status' => 'pending'
@@ -139,9 +144,12 @@ class PayrollService
 
         $totalFines = 0; // No fines for staff anymore
 
+        // Calculate BPJS deduction
+        $bpjsDeduction = self::calculateBpjsDeduction($employee, 'monthly');
+
         // Calculate gross and net salary
         $grossSalary = $basicSalary + $overtimePay + $mealAllowance;
-        $netSalary = $grossSalary - $totalFines;
+        $netSalary = $grossSalary - $totalFines - $bpjsDeduction;
 
         return [
             'employee_id' => $employee->id,
@@ -153,10 +161,24 @@ class PayrollService
             'overtime_pay' => $overtimePay,
             'meal_allowance' => $mealAllowance,
             'total_fines' => $totalFines,
+            'bpjs_deduction' => $bpjsDeduction,
             'gross_salary' => $grossSalary,
             'net_salary' => $netSalary,
             'status' => 'pending'
         ];
+    }
+
+    private static function calculateBpjsDeduction($employee, $type = 'monthly')
+    {
+        $bpjsSetting = BpjsSetting::where('employee_id', $employee->id)
+            ->where('is_active', true)
+            ->first();
+
+        if (!$bpjsSetting) {
+            return 0;
+        }
+
+        return $type === 'weekly' ? $bpjsSetting->bpjs_weekly_amount : $bpjsSetting->bpjs_monthly_amount;
     }
 
     public static function generatePayrollForAllEmployees($month, $year)
@@ -175,6 +197,15 @@ class PayrollService
                 $payrollData = self::calculateMonthlyPayroll($employee->id, $month, $year);
                 Payroll::create($payrollData);
                 $generated++;
+
+                Log::info('Monthly payroll generated', [
+                    'employee_id' => $employee->id,
+                    'employee_name' => $employee->nama,
+                    'month' => $month,
+                    'year' => $year,
+                    'net_salary' => $payrollData['net_salary'],
+                    'bpjs_deduction' => $payrollData['bpjs_deduction']
+                ]);
             }
         }
 
@@ -200,6 +231,14 @@ class PayrollService
         }
 
         $payroll->update($newData);
+
+        Log::info('Monthly payroll recalculated', [
+            'payroll_id' => $payrollId,
+            'employee_name' => $payroll->employee->nama,
+            'new_net_salary' => $newData['net_salary'],
+            'new_bpjs_deduction' => $newData['bpjs_deduction']
+        ]);
+
         return $payroll;
     }
 }

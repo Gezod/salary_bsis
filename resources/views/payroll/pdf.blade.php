@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Laporan Payroll</title>
+    <title>Laporan Payroll Bulanan</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -44,6 +44,7 @@
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
+            font-size: 10px;
         }
         th {
             background-color: #f2f2f2;
@@ -79,7 +80,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>LAPORAN PAYROLL KARYAWAN</h1>
+        <h1>LAPORAN PAYROLL BULANAN</h1>
         <p>Bank Sampah Surabaya</p>
         <p>Periode: {{ now()->format('d F Y') }}</p>
     </div>
@@ -88,7 +89,11 @@
     <div class="filters">
         <h3>Filter yang Diterapkan:</h3>
         @if($request->filled('month'))
-            <p><strong>Bulan:</strong> {{ \Carbon\Carbon::parse($request->month . '-01')->translatedFormat('F Y') }}</p>
+            @php
+                [$year, $month] = explode('-', $request->month);
+                $monthName = Carbon\Carbon::create($year, $month, 1)->translatedFormat('F Y');
+            @endphp
+            <p><strong>Bulan:</strong> {{ $monthName }}</p>
         @endif
         @if($request->filled('employee'))
             <p><strong>Karyawan:</strong> {{ $request->employee }}</p>
@@ -106,15 +111,16 @@
         <thead>
             <tr>
                 <th>No</th>
-                <th>Nama Karyawan</th>
-                <th>Departemen</th>
+                <th>Nama</th>
+                <th>Dept</th>
                 <th>Periode</th>
-                <th>Kehadiran</th>
+                <th>Hadir</th>
                 <th class="text-right">Gaji Pokok</th>
                 <th class="text-right">Lembur</th>
-                <th class="text-right">Uang Makan</th>
+                <th class="text-right">U.Makan</th>
                 <th class="text-right">Denda</th>
-                <th class="text-right">Total Gaji</th>
+                <th class="text-right">BPJS</th>
+                <th class="text-right">Total</th>
                 <th class="text-center">Status</th>
             </tr>
         </thead>
@@ -130,12 +136,13 @@
                 <td class="text-right">Rp {{ number_format($payroll->overtime_pay, 0, ',', '.') }}</td>
                 <td class="text-right">Rp {{ number_format($payroll->meal_allowance, 0, ',', '.') }}</td>
                 <td class="text-right">Rp {{ number_format($payroll->total_fines, 0, ',', '.') }}</td>
+                <td class="text-right">Rp {{ number_format($payroll->bpjs_deduction, 0, ',', '.') }}</td>
                 <td class="text-right"><strong>Rp {{ number_format($payroll->net_salary, 0, ',', '.') }}</strong></td>
                 <td class="text-center">{{ ucfirst($payroll->status) }}</td>
             </tr>
             @empty
             <tr>
-                <td colspan="11" class="text-center">Tidak ada data payroll</td>
+                <td colspan="12" class="text-center">Tidak ada data payroll bulanan</td>
             </tr>
             @endforelse
         </tbody>
@@ -145,7 +152,7 @@
     <div class="summary">
         <h3>Ringkasan</h3>
         <div class="summary-row">
-            <span>Total Karyawan:</span>
+            <span>Total Karyawan/Staff:</span>
             <span>{{ $payrolls->count() }} orang</span>
         </div>
         <div class="summary-row">
@@ -165,6 +172,10 @@
             <span>Rp {{ number_format($payrolls->sum('total_fines'), 0, ',', '.') }}</span>
         </div>
         <div class="summary-row">
+            <span>Total BPJS:</span>
+            <span>Rp {{ number_format($payrolls->sum('bpjs_deduction'), 0, ',', '.') }}</span>
+        </div>
+        <div class="summary-row">
             <span><strong>Total Gaji Bersih:</strong></span>
             <span><strong>Rp {{ number_format($payrolls->sum('net_salary'), 0, ',', '.') }}</strong></span>
         </div>
@@ -181,7 +192,7 @@
 
     <div class="footer">
         <p>Laporan ini digenerate secara otomatis pada {{ now()->format('d F Y H:i:s') }}</p>
-        <p>Bank Sampah Surabaya - Sistem Payroll</p>
+        <p>Bank Sampah Surabaya - Sistem Payroll Bulanan</p>
     </div>
 </body>
 </html>

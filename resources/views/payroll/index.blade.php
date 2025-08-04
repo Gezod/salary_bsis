@@ -21,7 +21,17 @@
                                     <div class="icon-wrapper me-3">
                                         <i class="bi bi-cash-stack"></i>
                                     </div>
-                                    <span>Data Payroll</span>
+                                    <span>Payroll Bulanan</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('weekly-payroll.index') }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-wrapper me-3">
+                                        <i class="bi bi-calendar-week"></i>
+                                    </div>
+                                    <span>Payroll Mingguan</span>
                                 </div>
                             </a>
                         </li>
@@ -42,6 +52,16 @@
                                         <i class="bi bi-people"></i>
                                     </div>
                                     <span>Pengaturan Staff</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('bpjs.settings') }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-wrapper me-3">
+                                        <i class="bi bi-shield-check"></i>
+                                    </div>
+                                    <span>Pengaturan BPJS</span>
                                 </div>
                             </a>
                         </li>
@@ -68,7 +88,7 @@
                             <div class="icon-wrapper me-3">
                                 <i class="bi bi-cash-stack text-white"></i>
                             </div>
-                            <span class="navbar-brand fw-bold text-white mb-0">Sistem Payroll</span>
+                            <span class="navbar-brand fw-bold text-white mb-0">Payroll Bulanan</span>
                         </div>
                         <div class="ms-auto d-flex align-items-center">
                             <div class="theme-toggle me-3" onclick="toggleTheme()">
@@ -92,8 +112,8 @@
                     {{-- Page Header --}}
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
-                            <h1 class="page-title mb-2">Data Payroll Karyawan & Staff</h1>
-                            <p class="text-muted mb-0">Kelola dan pantau penggajian karyawan dan staff bulanan</p>
+                            <h1 class="page-title mb-2">Data Payroll Bulanan</h1>
+                            <p class="text-muted mb-0">Kelola dan pantau penggajian karyawan dan staff bulanan dengan sistem BPJS terintegrasi</p>
                         </div>
                         <div class="d-flex gap-2 align-items-center">
                             <div class="stats-card">
@@ -121,8 +141,8 @@
                             Filter Data
                         </h5>
                         <form method="GET" class="row g-3">
-                            <div class="col-md-2">
-                                <label class="form-label text-muted small">Bulan</label>
+                            <div class="col-md-3">
+                                <label class="form-label text-muted small">Bulan & Tahun</label>
                                 <input type="month" name="month" value="{{ request('month') }}" class="form-control">
                             </div>
                             <div class="col-md-3">
@@ -150,7 +170,7 @@
                                     </option>
                                 </select>
                             </div>
-                            <div class="col-md-2 d-flex align-items-end">
+                            <div class="col-md-1 d-flex align-items-end">
                                 <button type="submit" class="btn btn-primary w-100">
                                     <i class="bi bi-search me-2"></i>Filter
                                 </button>
@@ -176,6 +196,7 @@
                                         <th><i class="bi bi-clock me-2"></i>Lembur</th>
                                         <th><i class="bi bi-cup-hot me-2"></i>Uang Makan</th>
                                         <th><i class="bi bi-exclamation-triangle me-2"></i>Denda</th>
+                                        <th><i class="bi bi-shield-check me-2"></i>BPJS</th>
                                         <th><i class="bi bi-currency-dollar me-2"></i>Total</th>
                                         <th><i class="bi bi-check-circle me-2"></i>Status</th>
                                         <th><i class="bi bi-gear me-2"></i>Aksi</th>
@@ -205,7 +226,7 @@
                                             <td class="text-white">
                                                 {{ $payroll->present_days }}/{{ $payroll->working_days }} hari
                                                 @if($payroll->employee->departemen == 'staff')
-                                                    <small class="text-muted d-block">(Gaji Tetap)</small>
+                                                    <small class="text-muted d-block">(Fixed Monthly)</small>
                                                 @endif
                                             </td>
                                             <td class="text-white">{{ $payroll->formatted_basic_salary }}</td>
@@ -221,6 +242,16 @@
                                                     <span class="text-muted">-</span>
                                                 @else
                                                     {{ $payroll->formatted_total_fines }}
+                                                @endif
+                                            </td>
+                                            <td class="text-danger">
+                                                @if($payroll->bpjs_deduction > 0)
+                                                    {{ $payroll->formatted_bpjs_deduction }}
+                                                    @if($payroll->bpjs_setting)
+                                                        <small class="text-muted d-block">{{ $payroll->bpjs_setting->bpjs_number }}</small>
+                                                    @endif
+                                                @else
+                                                    <span class="text-muted">-</span>
                                                 @endif
                                             </td>
                                             <td class="text-white fw-bold">{{ $payroll->formatted_net_salary }}</td>
@@ -244,11 +275,11 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="10" class="text-center py-5">
+                                            <td colspan="11" class="text-center py-5">
                                                 <div class="text-muted">
                                                     <i class="bi bi-inbox display-4 d-block mb-3"></i>
                                                     <h5>Tidak ada data</h5>
-                                                    <p>Belum ada data payroll untuk filter yang dipilih</p>
+                                                    <p>Belum ada data payroll bulanan untuk filter yang dipilih</p>
                                                 </div>
                                             </td>
                                         </tr>
@@ -274,21 +305,21 @@
         <div class="modal-dialog">
             <div class="modal-content bg-dark">
                 <div class="modal-header border-secondary">
-                    <h5 class="modal-title text-white">Generate Payroll</h5>
+                    <h5 class="modal-title text-white">Generate Payroll Bulanan</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <form method="POST" action="{{ route('payroll.generate') }}">
                     @csrf
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label text-white">Pilih Bulan</label>
-                            <input type="month" name="month" class="form-control"
-                                value="{{ now()->format('Y-m') }}" required>
+                            <label class="form-label text-white">Bulan & Tahun</label>
+                            <input type="month" name="month" class="form-control" required>
                         </div>
                         <div class="alert alert-info">
                             <i class="bi bi-info-circle me-2"></i>
                             Sistem akan menghitung payroll untuk semua karyawan dan staff.
-                            <br><strong>Staff:</strong> Uang makan dihitung berdasarkan kehadiran (cuti/libur = tidak dapat uang makan).
+                            <br><strong>Staff:</strong> Gaji tetap bulanan dengan uang makan berdasarkan kehadiran.
+                            <br><strong>BPJS:</strong> Akan dipotong otomatis sesuai pengaturan bulanan.
                         </div>
                     </div>
                     <div class="modal-footer border-secondary">

@@ -152,6 +152,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('bpjs')->group(function () {
         Route::get('/settings', [BpjsSettingController::class, 'index'])->name('bpjs.settings');
         Route::post('/update', [BpjsSettingController::class, 'updateBpjs'])->name('bpjs.update');
+        Route::get('/employee/{employeeId}', [BpjsSettingController::class, 'show'])->name('bpjs.show');
+        Route::get('/employee/{employeeId}/data', [BpjsSettingController::class, 'getEmployeeBpjs'])->name('bpjs.employee.data');
+        Route::delete('/{id}', [BpjsSettingController::class, 'delete'])->name('bpjs.delete');
     });
 });
 

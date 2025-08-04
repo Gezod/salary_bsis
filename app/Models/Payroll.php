@@ -20,6 +20,7 @@ class Payroll extends Model
         'overtime_pay',
         'meal_allowance',
         'total_fines',
+        'bpjs_deduction',
         'gross_salary',
         'net_salary',
         'payment_method',
@@ -35,6 +36,7 @@ class Payroll extends Model
         'overtime_pay' => 'integer',
         'meal_allowance' => 'integer',
         'total_fines' => 'integer',
+        'bpjs_deduction' => 'integer',
         'gross_salary' => 'integer',
         'net_salary' => 'integer',
         'working_days' => 'integer',
@@ -64,6 +66,11 @@ class Payroll extends Model
     public function getFormattedTotalFinesAttribute()
     {
         return 'Rp ' . number_format($this->total_fines, 0, ',', '.');
+    }
+
+    public function getFormattedBpjsDeductionAttribute()
+    {
+        return 'Rp ' . number_format($this->bpjs_deduction, 0, ',', '.');
     }
 
     public function getFormattedGrossSalaryAttribute()
@@ -100,5 +107,21 @@ class Payroll extends Model
         ];
 
         return $badges[$this->payment_method] ?? 'bg-secondary';
+    }
+
+    /**
+     * Get BPJS setting for this employee
+     */
+    public function getBpjsSettingAttribute()
+    {
+        return \App\Models\BpjsSetting::where('employee_id', $this->employee_id)->first();
+    }
+
+    /**
+     * Check if employee has active BPJS
+     */
+    public function hasActiveBpjs()
+    {
+        return $this->bpjs_setting && $this->bpjs_setting->is_active;
     }
 }

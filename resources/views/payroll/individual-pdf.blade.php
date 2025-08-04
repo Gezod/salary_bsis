@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Slip Gaji - {{ $payroll->employee->nama }}</title>
+    <title>Slip Gaji Bulanan - {{ $payroll->employee->nama }}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -128,6 +128,14 @@
             border-top: 1px solid #ddd;
             padding-top: 10px;
         }
+        .period-highlight {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -139,8 +147,13 @@
     </div>
 
     <div class="slip-title">
-        SLIP GAJI KARYAWAN/STAFF<br>
+        SLIP GAJI BULANAN KARYAWAN/STAFF<br>
         <small>Periode: {{ $payroll->month_name }}</small>
+    </div>
+
+    <div class="period-highlight">
+        <strong>PERIODE PEMBAYARAN:</strong> {{ \Carbon\Carbon::create($payroll->year, $payroll->month, 1)->translatedFormat('F Y') }}
+        <br><small>({{ $payroll->working_days }} hari kerja, {{ $payroll->present_days }} hari hadir)</small>
     </div>
 
     <table class="info-table">
@@ -159,43 +172,17 @@
         <tr>
             <td class="label">Kantor</td>
             <td>{{ $payroll->employee->kantor }}</td>
-            <td class="label">
-                @if($payroll->employee->departemen == 'staff')
-                    Gaji Bulanan
-                @else
-                    Gaji Harian
-                @endif
-            </td>
-            <td>
-                @if($payroll->employee->departemen == 'staff')
-                    Rp {{ number_format($payroll->basic_salary, 0, ',', '.') }}
-                @else
-                    Rp {{ number_format($payroll->employee->daily_salary ?? 0, 0, ',', '.') }}
-                @endif
-            </td>
-        </tr>
-        <tr>
-            <td class="label">
-                @if($payroll->employee->departemen == 'staff')
-                    Uang Makan Harian
-                @else
-                    Uang Makan Harian
-                @endif
-            </td>
-            <td>
-                @if($payroll->employee->departemen == 'staff')
-                    @php
-                        $staffSetting = \App\Models\StaffPayrollSetting::where('employee_id', $payroll->employee->id)->first();
-                        $dailyMealAllowance = $staffSetting ? $staffSetting->daily_meal_allowance : 0;
-                    @endphp
-                    Rp {{ number_format($dailyMealAllowance, 0, ',', '.') }}/hari
-                @else
-                    Rp {{ number_format($payroll->employee->meal_allowance ?? 0, 0, ',', '.') }}/hari
-                @endif
-            </td>
             <td class="label">Hari Hadir</td>
-            <td>{{ $payroll->present_days }} dari {{ $payroll->working_days }} hari</td>
+            <td>{{ $payroll->present_days }} dari {{ $payroll->working_days }} hari kerja</td>
         </tr>
+        @if($payroll->bpjs_setting)
+        <tr>
+            <td class="label">No. BPJS</td>
+            <td>{{ $payroll->bpjs_setting->bpjs_number }}</td>
+            <td class="label">BPJS Bulanan</td>
+            <td>Rp {{ number_format($payroll->bpjs_setting->bpjs_monthly_amount, 0, ',', '.') }}</td>
+        </tr>
+        @endif
     </table>
 
     <table class="salary-table">
@@ -211,24 +198,34 @@
                 <td>Gaji Pokok</td>
                 <td>
                     @if($payroll->employee->departemen == 'staff')
-                        Gaji bulanan tetap
+                        @php
+                            $staffSetting = \App\Models\StaffPayrollSetting::where('employee_id', $payroll->employee->id)->first();
+                        @endphp
+                        Gaji tetap bulanan
+                        @if($staffSetting)
+                            (Rp {{ number_format($staffSetting->monthly_salary, 0, ',', '.') }})
+                        @endif
                     @else
-                        {{ $payroll->present_days }} hari hadir dari {{ $payroll->working_days }} hari kerja
+                        {{ $payroll->present_days }} hari hadir × Rp {{ number_format($payroll->employee->daily_salary ?? 0, 0, ',', '.') }}
                     @endif
                 </td>
                 <td class="amount">Rp {{ number_format($payroll->basic_salary, 0, ',', '.') }}</td>
             </tr>
             <tr>
                 <td>Uang Lembur</td>
-                <td>Lembur bulan {{ \Carbon\Carbon::create($payroll->year, $payroll->month, 1)->translatedFormat('F Y') }}</td>
+                <td>Lembur bulan {{ $payroll->month_name }}</td>
                 <td class="amount">Rp {{ number_format($payroll->overtime_pay, 0, ',', '.') }}</td>
             </tr>
             <tr>
                 <td>Uang Makan</td>
                 <td>
                     @if($payroll->employee->departemen == 'staff')
+                        @php
+                            $staffSetting = \App\Models\StaffPayrollSetting::where('employee_id', $payroll->employee->id)->first();
+                            $dailyMealAllowance = $staffSetting ? $staffSetting->daily_meal_allowance : 0;
+                        @endphp
                         {{ $payroll->present_days }} hari hadir × Rp {{ number_format($dailyMealAllowance, 0, ',', '.') }}
-                        <br><small style="color: #666;">(Tidak termasuk cuti/libur)</small>
+                        <br><small style="color: #666;">(Hanya hari masuk kerja)</small>
                     @else
                         {{ $payroll->present_days }} hari hadir × Rp {{ number_format($payroll->employee->meal_allowance ?? 0, 0, ',', '.') }}
                     @endif
@@ -239,11 +236,18 @@
                 <td colspan="2"><strong>TOTAL PENDAPATAN</strong></td>
                 <td class="amount"><strong>Rp {{ number_format($payroll->gross_salary, 0, ',', '.') }}</strong></td>
             </tr>
-            @if($payroll->employee->departemen != 'staff')
+            @if($payroll->employee->departemen != 'staff' && $payroll->total_fines > 0)
             <tr>
                 <td>Denda</td>
                 <td>Denda keterlambatan dan pelanggaran</td>
                 <td class="amount">Rp {{ number_format($payroll->total_fines, 0, ',', '.') }}</td>
+            </tr>
+            @endif
+            @if($payroll->bpjs_deduction > 0)
+            <tr>
+                <td>BPJS</td>
+                <td>Iuran BPJS bulanan</td>
+                <td class="amount">Rp {{ number_format($payroll->bpjs_deduction, 0, ',', '.') }}</td>
             </tr>
             @endif
             <tr class="net-salary-row">

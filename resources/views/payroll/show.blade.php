@@ -21,17 +21,27 @@
                                     <div class="icon-wrapper me-3">
                                         <i class="bi bi-cash-stack"></i>
                                     </div>
-                                    <span>Data Payroll</span>
+                                    <span>Payroll Bulanan</span>
                                 </div>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('payroll.settings') }}">
+                            <a class="nav-link" href="{{ route('weekly-payroll.index') }}">
                                 <div class="d-flex align-items-center">
                                     <div class="icon-wrapper me-3">
-                                        <i class="bi bi-gear"></i>
+                                        <i class="bi bi-calendar-week"></i>
                                     </div>
-                                    <span>Pengaturan Gaji</span>
+                                    <span>Payroll Mingguan</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('bpjs.settings') }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-wrapper me-3">
+                                        <i class="bi bi-shield-check"></i>
+                                    </div>
+                                    <span>Pengaturan BPJS</span>
                                 </div>
                             </a>
                         </li>
@@ -58,7 +68,7 @@
                             <div class="icon-wrapper me-3">
                                 <i class="bi bi-person-badge text-white"></i>
                             </div>
-                            <span class="navbar-brand fw-bold text-white mb-0">Detail Payroll</span>
+                            <span class="navbar-brand fw-bold text-white mb-0">Detail Payroll Bulanan</span>
                         </div>
                         <div class="ms-auto d-flex align-items-center">
                             <div class="theme-toggle me-3" onclick="toggleTheme()">
@@ -83,7 +93,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
                             <h1 class="page-title mb-2">{{ $payroll->employee->nama }}</h1>
-                            <p class="text-muted mb-0">Payroll {{ $payroll->month_name }}</p>
+                            <p class="text-muted mb-0">Payroll Bulanan {{ $payroll->month_name }}</p>
                         </div>
                         <div class="d-flex gap-2">
                             @if ($payroll->status === 'paid')
@@ -126,7 +136,7 @@
                                         </div>
                                         <h5 class="text-white">{{ $payroll->employee->nama }}</h5>
                                         <span
-                                            class="badge bg-secondary">{{ ucfirst($payroll->employee->departemen) }}</span>
+                                            class="badge {{ $payroll->employee->departemen == 'staff' ? 'bg-info' : 'bg-secondary' }}">{{ ucfirst($payroll->employee->departemen) }}</span>
                                     </div>
                                     <hr class="border-secondary">
                                     <div class="row g-2 text-sm">
@@ -136,12 +146,20 @@
                                         <div class="col-6 text-white">{{ $payroll->employee->jabatan }}</div>
                                         <div class="col-6 text-muted">Kantor:</div>
                                         <div class="col-6 text-white">{{ $payroll->employee->kantor }}</div>
+                                        @if($payroll->employee->departemen == 'karyawan')
                                         <div class="col-6 text-muted">Gaji Harian:</div>
                                         <div class="col-6 text-white">Rp
                                             {{ number_format($payroll->employee->daily_salary ?? 0, 0, ',', '.') }}</div>
                                         <div class="col-6 text-muted">Uang Makan:</div>
                                         <div class="col-6 text-info">Rp
                                             {{ number_format($payroll->employee->meal_allowance ?? 0, 0, ',', '.') }}</div>
+                                        @endif
+                                        @if($payroll->bpjs_setting)
+                                        <div class="col-6 text-muted">No. BPJS:</div>
+                                        <div class="col-6 text-white">{{ $payroll->bpjs_setting->bpjs_number }}</div>
+                                        <div class="col-6 text-muted">BPJS Bulanan:</div>
+                                        <div class="col-6 text-danger">Rp {{ number_format($payroll->bpjs_setting->bpjs_monthly_amount, 0, ',', '.') }}</div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -152,14 +170,16 @@
                             <div class="card">
                                 <div class="card-header">
                                     <h5 class="card-title mb-0 text-white">
-                                        <i class="bi bi-calculator me-2"></i>Rincian Payroll
+                                        <i class="bi bi-calculator me-2"></i>Rincian Payroll Bulanan
                                     </h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="row g-4">
                                         <div class="col-md-6">
-                                            <h6 class="text-white mb-3">Kehadiran</h6>
+                                            <h6 class="text-white mb-3">Kehadiran & Periode</h6>
                                             <div class="row g-2 mb-3">
+                                                <div class="col-6 text-muted">Periode:</div>
+                                                <div class="col-6 text-white">{{ $payroll->month_name }}</div>
                                                 <div class="col-6 text-muted">Hari Kerja:</div>
                                                 <div class="col-6 text-white">{{ $payroll->working_days }} hari</div>
                                                 <div class="col-6 text-muted">Hadir:</div>
@@ -177,8 +197,13 @@
                                                 <div class="col-6 text-muted">Uang Makan:</div>
                                                 <div class="col-6 text-info">{{ $payroll->formatted_meal_allowance }}
                                                 </div>
+                                                @if($payroll->employee->departemen != 'staff')
                                                 <div class="col-6 text-muted">Denda:</div>
                                                 <div class="col-6 text-warning">{{ $payroll->formatted_total_fines }}
+                                                </div>
+                                                @endif
+                                                <div class="col-6 text-muted">BPJS:</div>
+                                                <div class="col-6 text-danger">{{ $payroll->formatted_bpjs_deduction }}
                                                 </div>
                                             </div>
                                         </div>
