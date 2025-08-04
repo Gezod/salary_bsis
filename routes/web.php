@@ -8,6 +8,8 @@ use App\Http\Controllers\ImportController;
 use App\Http\Controllers\Api\EmployeeController;
 use App\Http\Controllers\OvertimeController;
 use App\Http\Controllers\PayrollController;
+use App\Http\Controllers\WeeklyPayrollController;
+use App\Http\Controllers\BpjsSettingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -137,6 +139,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/settings/bank', [PayrollController::class, 'updateEmployeeBankDetails'])->name('payroll.update.bank');
         Route::get('/staff/settings', [PayrollController::class, 'staffSettings'])->name('payroll.staff.settings');
         Route::post('/staff/settings', [PayrollController::class, 'updateStaffSalary'])->name('payroll.staff.update.salary');
+    });
+    Route::prefix('weekly-payroll')->group(function () {
+        Route::get('/', [WeeklyPayrollController::class, 'index'])->name('weekly-payroll.index');
+        Route::post('/generate', [WeeklyPayrollController::class, 'generate'])->name('weekly-payroll.generate');
+        Route::get('/export/pdf', [WeeklyPayrollController::class, 'exportPdf'])->name('weekly-payroll.export.pdf');
+        Route::get('{id}', [WeeklyPayrollController::class, 'show'])->name('weekly-payroll.show');
+        Route::put('{id}/payment', [WeeklyPayrollController::class, 'updatePayment'])->name('weekly-payroll.update.payment');
+        Route::get('{id}/recalculate', [WeeklyPayrollController::class, 'recalculate'])->name('weekly-payroll.recalculate');
+        Route::get('{id}/download', [WeeklyPayrollController::class, 'downloadIndividualPdf'])->name('weekly-payroll.download.individual');
+    });
+    Route::prefix('bpjs')->group(function () {
+        Route::get('/settings', [BpjsSettingController::class, 'index'])->name('bpjs.settings');
+        Route::post('/update', [BpjsSettingController::class, 'updateBpjs'])->name('bpjs.update');
     });
 });
 
