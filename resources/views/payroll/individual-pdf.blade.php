@@ -289,9 +289,7 @@
             </div>
             <div class="signature-name">Nur Ainiya Fariza, S.E.</div>
             <div class="signature-title">Manajer Dept. HRD & Keuangan</div>
-            <div class="nip">NIP: 19850315 200801 2 001</div>
         </div>
     </div>
-
 </body>
 </html>

@@ -162,7 +162,7 @@ class WeeklyPayrollController extends Controller
             return redirect()->back()->with('error', 'Slip gaji mingguan hanya bisa didownload setelah pembayaran selesai.');
         }
 
-        $pdf = Pdf::loadView('weekly-payroll.individual-pdf', compact('weeklyPayroll'))
+        $pdf = Pdf::loadView('weekly-payroll.individual', compact('weeklyPayroll'))
             ->setPaper('a4', 'portrait');
 
         $filename = 'slip_gaji_mingguan_' . str_replace(' ', '_', strtolower($weeklyPayroll->employee->nama)) . '_' . $weeklyPayroll->start_date->format('d_m_Y') . '.pdf';
