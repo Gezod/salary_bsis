@@ -289,6 +289,7 @@
                                         <th><i class="bi bi-building me-2"></i>Departemen</th>
                                         <th><i class="bi bi-geo-alt me-2"></i>Kantor</th>
                                         <th><i class="bi bi-calendar-range me-2"></i>Kontrak</th>
+                                        <th><i class="bi bi-clock-history me-2"></i>Lama Bekerja</th>
                                         <th><i class="bi bi-gear me-2"></i>Aksi</th>
                                     </tr>
                                 </thead>
@@ -355,6 +356,25 @@
                                                     <div class="text-muted">-</div>
                                                 @endif
                                             </td>
+                                            <td class="text-white">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="me-2">
+                                                        <div class="fw-bold text-success">{{ $employee->work_duration }}
+                                                        </div>
+                                                        @if ($employee->tanggal_mulai_kontrak_awal)
+                                                            <small class="text-muted">
+                                                                Sejak:
+                                                                {{ $employee->tanggal_mulai_kontrak_awal->format('d M Y') }}
+                                                            </small>
+                                                        @endif
+                                                    </div>
+                                                    <button type="button" class="btn btn-sm btn-outline-primary"
+                                                        onclick="showWorkDuration({{ $employee->id }})"
+                                                        title="Lihat detail lama bekerja">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
                                             <td>
                                                 <div class="d-flex gap-2">
                                                     <button type="button" class="btn btn-sm btn-outline-info"
@@ -371,7 +391,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="7" class="text-center py-5">
+                                            <td colspan="8" class="text-center py-5">
                                                 <div class="text-muted">
                                                     <i class="bi bi-people display-4 d-block mb-3"></i>
                                                     <h5>Tidak ada data karyawan</h5>
@@ -441,10 +461,15 @@
                                 <input type="text" name="kantor" class="form-control" required>
                             </div>
                             <div class="col-md-6">
+                                <label class="form-label text-white">Tanggal Mulai Kontrak Awal <small
+                                        class="text-info">(Pertama kali bekerja)</small></label>
+                                <input type="date" name="tanggal_mulai_kontrak_awal" class="form-control">
+                            </div>
+                            <div class="col-md-6">
                                 <label class="form-label text-white">Tanggal Mulai Kontrak</label>
                                 <input type="date" name="tanggal_start_kontrak" class="form-control">
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-12">
                                 <label class="form-label text-white">Tanggal Berakhir Kontrak</label>
                                 <input type="date" name="tanggal_end_kontrak" class="form-control">
                             </div>
@@ -507,11 +532,17 @@
                                 <input type="text" name="kantor" id="edit_kantor" class="form-control" required>
                             </div>
                             <div class="col-md-6">
+                                <label class="form-label text-white">Tanggal Mulai Kontrak Awal <small
+                                        class="text-info">(Pertama kali bekerja)</small></label>
+                                <input type="date" name="tanggal_mulai_kontrak_awal"
+                                    id="edit_tanggal_mulai_kontrak_awal" class="form-control">
+                            </div>
+                            <div class="col-md-6">
                                 <label class="form-label text-white">Tanggal Mulai Kontrak</label>
                                 <input type="date" name="tanggal_start_kontrak" id="edit_tanggal_start_kontrak"
                                     class="form-control">
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-12">
                                 <label class="form-label text-white">Tanggal Berakhir Kontrak</label>
                                 <input type="date" name="tanggal_end_kontrak" id="edit_tanggal_end_kontrak"
                                     class="form-control">
@@ -525,6 +556,72 @@
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- Work Duration Detail Modal --}}
+    <div class="modal fade" id="workDurationModal" tabindex="-1" aria-labelledby="workDurationModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content" style="background: var(--card-bg); border: 1px solid var(--border-color);">
+                <div class="modal-header" style="border-bottom: 1px solid var(--border-color);">
+                    <h5 class="modal-title text-white" id="workDurationModalLabel">
+                        <i class="bi bi-clock-history me-2"></i>Detail Lama Bekerja
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+                            style="width: 80px; height: 80px;">
+                            <i class="bi bi-person-workspace text-white fs-2"></i>
+                        </div>
+                        <h4 class="text-white mb-1" id="employee-name">-</h4>
+                        <small class="text-muted" id="employee-position">-</small>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-4 text-center">
+                            <div class="bg-success rounded-3 p-3">
+                                <div class="text-white fs-3 fw-bold" id="years-count">0</div>
+                                <small class="text-white-50">Tahun</small>
+                            </div>
+                        </div>
+                        <div class="col-4 text-center">
+                            <div class="bg-info rounded-3 p-3">
+                                <div class="text-white fs-3 fw-bold" id="months-count">0</div>
+                                <small class="text-white-50">Bulan</small>
+                            </div>
+                        </div>
+                        <div class="col-4 text-center">
+                            <div class="bg-warning rounded-3 p-3">
+                                <div class="text-white fs-3 fw-bold" id="days-count">0</div>
+                                <small class="text-white-50">Hari</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card bg-dark border-secondary">
+                        <div class="card-body">
+                            <h6 class="text-white mb-3"><i class="bi bi-calendar-event me-2"></i>Informasi Tanggal</h6>
+                            <div class="row g-2 text-sm">
+                                <div class="col-12 d-flex justify-content-between">
+                                    <span class="text-muted">Mulai Bekerja:</span>
+                                    <span class="text-white" id="start-date">-</span>
+                                </div>
+                                <div class="col-12 d-flex justify-content-between">
+                                    <span class="text-muted">Total Hari Kerja:</span>
+                                    <span class="text-success fw-bold" id="total-days">0 hari</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--border-color);">
+                    <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Tutup</button>
+                </div>
             </div>
         </div>
     </div>
@@ -589,6 +686,8 @@
                         document.getElementById('edit_jabatan').value = employee.jabatan || '';
                         document.getElementById('edit_departemen').value = employee.departemen || '';
                         document.getElementById('edit_kantor').value = employee.kantor || '';
+                        document.getElementById('edit_tanggal_mulai_kontrak_awal').value = employee
+                            .tanggal_mulai_kontrak_awal || '';
                         document.getElementById('edit_tanggal_start_kontrak').value = employee.tanggal_start_kontrak ||
                             '';
                         document.getElementById('edit_tanggal_end_kontrak').value = employee.tanggal_end_kontrak || '';
@@ -599,6 +698,45 @@
                 .catch(error => {
                     console.error('Error:', error);
                     alert('Gagal memuat data karyawan');
+                });
+        }
+
+        // Show Work Duration Detail Function
+        function showWorkDuration(id) {
+            fetch(`/absensi/role/${id}/show`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const employee = data.employee;
+                        const workDuration = data.work_duration;
+
+                        // Update modal content
+                        document.getElementById('employee-name').textContent = employee.nama || '-';
+                        document.getElementById('employee-position').textContent = employee.jabatan || '-';
+                        document.getElementById('years-count').textContent = workDuration.years || 0;
+                        document.getElementById('months-count').textContent = workDuration.months || 0;
+                        document.getElementById('days-count').textContent = workDuration.days || 0;
+                        document.getElementById('total-days').textContent = workDuration.total_days + ' hari';
+
+                        if (employee.tanggal_mulai_kontrak_awal) {
+                            const startDate = new Date(employee.tanggal_mulai_kontrak_awal);
+                            document.getElementById('start-date').textContent = startDate.toLocaleDateString('id-ID', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric'
+                            });
+                        } else {
+                            document.getElementById('start-date').textContent = 'Belum ada data';
+                        }
+
+                        // Show modal
+                        const modal = new bootstrap.Modal(document.getElementById('workDurationModal'));
+                        modal.show();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Gagal memuat data lama bekerja');
                 });
         }
 
@@ -704,6 +842,42 @@
             background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1));
             border: 1px solid rgba(245, 158, 11, 0.3);
             color: #f59e0b;
+        }
+
+        /* Work Duration Modal Styles */
+        .card.bg-dark {
+            background: rgba(0, 0, 0, 0.3) !important;
+        }
+
+        .rounded-3 {
+            border-radius: 0.75rem !important;
+        }
+
+        .text-sm {
+            font-size: 0.875rem;
+        }
+
+        .text-white-50 {
+            color: rgba(255, 255, 255, 0.5) !important;
+        }
+
+         [data-theme="light"] .text-muted {
+            color: #000 !important;
+        }
+
+        /* Untuk kontrak yang hampir berakhir */
+        [data-theme="light"] .table-danger .text-muted {
+            color: #555 !important;
+        }
+
+        /* Untuk teks di sidebar */
+        [data-theme="light"] .sidebar small.text-muted {
+            color: #000 !important;
+        }
+
+        /* Untuk deskripsi di bawah judul halaman */
+        [data-theme="light"] .page-title+.text-muted {
+            color: #000 !important;
         }
     </style>
 @endsection

@@ -10,6 +10,7 @@ use App\Http\Controllers\OvertimeController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\WeeklyPayrollController;
 use App\Http\Controllers\BpjsSettingController;
+use App\Http\Controllers\KaryawanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -91,11 +92,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/work-time-change', [AttendanceController::class, 'workTimeChangeStore'])->name('absensi.work_time_change.store');
 
         // Role Management
-        Route::get('/role', [AttendanceController::class, 'role'])->name('absensi.role');
-        Route::post('/role', [AttendanceController::class, 'roleStore'])->name('absensi.role.store');
-        Route::get('/role/{id}/edit', [AttendanceController::class, 'roleEdit'])->name('absensi.role.edit');
-        Route::put('/role/{id}', [AttendanceController::class, 'roleUpdate'])->name('absensi.role.update');
-        Route::delete('/role/{id}', [AttendanceController::class, 'roleDestroy'])->name('absensi.role.destroy');
+        Route::get('/role', [KaryawanController::class, 'role'])->name('absensi.role');
+        Route::post('/role', [KaryawanController::class, 'roleStore'])->name('absensi.role.store');
+        Route::get('/role/{id}/edit', [KaryawanController::class, 'roleEdit'])->name('absensi.role.edit');
+        Route::put('/role/{id}', [KaryawanController::class, 'roleUpdate'])->name('absensi.role.update');
+        Route::delete('/role/{id}', [KaryawanController::class, 'roleDestroy'])->name('absensi.role.destroy');
+        Route::get('/role/{id}/show', [KaryawanController::class, 'roleShow'])->name('absensi.role.show');
     });
 
     // Overtime Routes

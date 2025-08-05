@@ -20,8 +20,8 @@ class Employee extends Model
         'role',
         'tanggal_start_kontrak',
         'tanggal_end_kontrak',
+        'tanggal_mulai_kontrak_awal',
         'daily_salary',
-        'meal_allowance',
         'meal_allowance',
         'bank_name',
         'account_number'
@@ -29,7 +29,8 @@ class Employee extends Model
 
     protected $casts = [
         'tanggal_start_kontrak' => 'date',
-        'tanggal_end_kontrak' => 'date'
+        'tanggal_end_kontrak' => 'date',
+        'tanggal_mulai_kontrak_awal' => 'date'
     ];
 
     public function attendances()
@@ -82,6 +83,71 @@ class Employee extends Model
         }
 
         return $this->tanggal_start_kontrak->format('d M Y') . ' - ' . $this->tanggal_end_kontrak->format('d M Y');
+    }
+
+    /**
+     * Calculate work duration from initial contract start date
+     */
+    public function getWorkDurationAttribute()
+    {
+        if (!$this->tanggal_mulai_kontrak_awal) {
+            return 'Belum ada data';
+        }
+
+        $startDate = Carbon::parse($this->tanggal_mulai_kontrak_awal);
+        $endDate = Carbon::now();
+
+        $years = $startDate->diffInYears($endDate);
+        $months = $startDate->copy()->addYears($years)->diffInMonths($endDate);
+        $days = $startDate->copy()->addYears($years)->addMonths($months)->diffInDays($endDate);
+
+        $duration = [];
+
+        if ($years > 0) {
+            $duration[] = $years . ' tahun';
+        }
+
+        if ($months > 0) {
+            $duration[] = $months . ' bulan';
+        }
+
+        if ($days > 0) {
+            $duration[] = $days . ' hari';
+        }
+
+        return !empty($duration) ? implode(', ', $duration) : '0 hari';
+    }
+
+    /**
+     * Get work duration in detailed format
+     */
+    public function getDetailedWorkDurationAttribute()
+    {
+        if (!$this->tanggal_mulai_kontrak_awal) {
+            return [
+                'years' => 0,
+                'months' => 0,
+                'days' => 0,
+                'total_days' => 0,
+                'formatted' => 'Belum ada data'
+            ];
+        }
+
+        $startDate = Carbon::parse($this->tanggal_mulai_kontrak_awal);
+        $endDate = Carbon::now();
+
+        $years = $startDate->diffInYears($endDate);
+        $months = $startDate->copy()->addYears($years)->diffInMonths($endDate);
+        $days = $startDate->copy()->addYears($years)->addMonths($months)->diffInDays($endDate);
+        $totalDays = $startDate->diffInDays($endDate);
+
+        return [
+            'years' => $years,
+            'months' => $months,
+            'days' => $days,
+            'total_days' => $totalDays,
+            'formatted' => $this->work_duration
+        ];
     }
 
     /**
