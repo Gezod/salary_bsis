@@ -300,7 +300,7 @@
                                             <td>
                                                 <span
                                                     class="badge bg-info">{{ $a->tanggal->translatedFormat('D') }}</span>
-                                                @if($a->tanggal->format('l') === 'Friday')
+                                                @if ($a->tanggal->format('l') === 'Friday')
                                                     <small class="d-block text-info">07:00</small>
                                                 @else
                                                     <small class="d-block text-info">07:30</small>
@@ -363,9 +363,10 @@
                                                     <span
                                                         class="badge bg-warning text-dark fw-bold">{{ $a->late_minutes }}
                                                         mnt</span>
-                                                    @if($lateFineBreakdown)
+                                                    @if ($lateFineBreakdown)
                                                         <small class="d-block text-warning mt-1">
-                                                            @ Rp{{ number_format($lateFineBreakdown['rate'], 0, ',', '.') }}/mnt
+                                                            @
+                                                            Rp{{ number_format($lateFineBreakdown['rate'], 0, ',', '.') }}/mnt
                                                         </small>
                                                         <small class="d-block text-muted">
                                                             {{ $lateFineBreakdown['range_text'] }}
@@ -386,7 +387,8 @@
                                                         {{-- Denda Telat dengan Perhitungan Detail --}}
                                                         @if ($a->late_fine > 0 && $lateFineBreakdown)
                                                             <div class="penalty-item penalty-late">
-                                                                <strong class="penalty-label text-danger">Denda Telat:</strong>
+                                                                <strong class="penalty-label text-danger">Denda
+                                                                    Telat:</strong>
                                                                 <strong class="penalty-value text-danger">
                                                                     Rp {{ number_format($a->late_fine, 0, ',', '.') }}
                                                                 </strong>
@@ -396,10 +398,12 @@
                                                                 <small class="penalty-formula text-danger">
                                                                     {{ $lateFineBreakdown['calculation_text'] }}
                                                                 </small>
-                                                                @if(isset($lateFineBreakdown['base_fine']))
+                                                                @if (isset($lateFineBreakdown['base_fine']))
                                                                     <small class="penalty-formula text-danger">
-                                                                        Base: Rp{{ number_format($lateFineBreakdown['base_fine'], 0, ',', '.') }}
-                                                                        + Extra: Rp{{ number_format($lateFineBreakdown['extra_fine'], 0, ',', '.') }}
+                                                                        Base:
+                                                                        Rp{{ number_format($lateFineBreakdown['base_fine'], 0, ',', '.') }}
+                                                                        + Extra:
+                                                                        Rp{{ number_format($lateFineBreakdown['extra_fine'], 0, ',', '.') }}
                                                                     </small>
                                                                 @endif
                                                             </div>
@@ -408,16 +412,20 @@
                                                         {{-- Denda Istirahat --}}
                                                         @if ($a->break_fine > 0)
                                                             <div class="penalty-item penalty-break">
-                                                                <strong class="penalty-label text-warning">Denda Istirahat:</strong>
+                                                                <strong class="penalty-label text-warning">Denda
+                                                                    Istirahat:</strong>
                                                                 <strong class="penalty-value text-warning">
                                                                     Rp {{ number_format($a->break_fine, 0, ',', '.') }}
                                                                 </strong>
                                                                 @if (!$a->scan2 && !$a->scan3)
-                                                                    <small class="penalty-desc text-warning">(2x tidak absen istirahat)</small>
+                                                                    <small class="penalty-desc text-warning">(2x tidak
+                                                                        absen istirahat)</small>
                                                                 @elseif (!$a->scan2 || !$a->scan3)
-                                                                    <small class="penalty-desc text-warning">(1x tidak absen istirahat)</small>
+                                                                    <small class="penalty-desc text-warning">(1x tidak
+                                                                        absen istirahat)</small>
                                                                 @else
-                                                                    <small class="penalty-desc text-warning">(telat istirahat)</small>
+                                                                    <small class="penalty-desc text-warning">(telat
+                                                                        istirahat)</small>
                                                                 @endif
                                                             </div>
                                                         @endif
@@ -425,7 +433,8 @@
                                                         {{-- Denda Absen --}}
                                                         @if ($a->absence_fine > 0)
                                                             <div class="penalty-item penalty-absence">
-                                                                <strong class="penalty-label text-info">Denda Absen:</strong>
+                                                                <strong class="penalty-label text-info">Denda
+                                                                    Absen:</strong>
                                                                 <strong class="penalty-value text-info">
                                                                     Rp {{ number_format($a->absence_fine, 0, ',', '.') }}
                                                                 </strong>
@@ -446,19 +455,19 @@
                                                             <div class="penalty-total">
                                                                 <hr class="my-2">
                                                                 <strong class="text-danger">Total:
-                                                                    @if($a->late_fine > 0)
+                                                                    @if ($a->late_fine > 0)
                                                                         Rp{{ number_format($a->late_fine, 0, ',', '.') }}
                                                                     @endif
-                                                                    @if($a->late_fine > 0 && ($a->break_fine > 0 || $a->absence_fine > 0))
+                                                                    @if ($a->late_fine > 0 && ($a->break_fine > 0 || $a->absence_fine > 0))
                                                                         +
                                                                     @endif
-                                                                    @if($a->break_fine > 0)
+                                                                    @if ($a->break_fine > 0)
                                                                         Rp{{ number_format($a->break_fine, 0, ',', '.') }}
                                                                     @endif
-                                                                    @if($a->break_fine > 0 && $a->absence_fine > 0)
+                                                                    @if ($a->break_fine > 0 && $a->absence_fine > 0)
                                                                         +
                                                                     @endif
-                                                                    @if($a->absence_fine > 0)
+                                                                    @if ($a->absence_fine > 0)
                                                                         Rp{{ number_format($a->absence_fine, 0, ',', '.') }}
                                                                     @endif
                                                                 </strong>
@@ -840,200 +849,200 @@
     <style>
         /* Enhanced penalty display styling */
         .penalty-column {
-        min-width: 350px;
-        font-size: 0.75rem;
-        line-height: 1.3;
-    }
+            min-width: 350px;
+            font-size: 0.75rem;
+            line-height: 1.3;
+        }
 
-    .penalty-details-wrapper {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
+        .penalty-details-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
 
-    .penalty-item {
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 6px;
-        padding: 6px 10px;
-        border-left: 3px solid transparent;
-        margin-bottom: 3px;
-    }
+        .penalty-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding: 6px 10px;
+            border-left: 3px solid transparent;
+            margin-bottom: 3px;
+        }
 
-    /* Light theme styles */
-    [data-theme="light"] .penalty-item {
-        background: rgba(0, 0, 0, 0.03);
-    }
+        /* Light theme styles */
+        [data-theme="light"] .penalty-item {
+            background: rgba(0, 0, 0, 0.03);
+        }
 
-    .penalty-item.penalty-late {
-        border-left-color: #dc3545;
-        background: rgba(220, 53, 69, 0.1);
-    }
+        .penalty-item.penalty-late {
+            border-left-color: #dc3545;
+            background: rgba(220, 53, 69, 0.1);
+        }
 
-    .penalty-item.penalty-break {
-        border-left-color: #ffc107;
-        background: rgba(255, 193, 7, 0.1);
-    }
+        .penalty-item.penalty-break {
+            border-left-color: #ffc107;
+            background: rgba(255, 193, 7, 0.1);
+        }
 
-    .penalty-item.penalty-absence {
-        border-left-color: #17a2b8;
-        background: rgba(23, 162, 184, 0.1);
-    }
+        .penalty-item.penalty-absence {
+            border-left-color: #17a2b8;
+            background: rgba(23, 162, 184, 0.1);
+        }
 
-    .penalty-label {
-        display: block;
-        font-size: 0.7rem;
-        font-weight: 700 !important;
-        margin-bottom: 2px;
-    }
+        .penalty-label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 700 !important;
+            margin-bottom: 2px;
+        }
 
-    .penalty-value {
-        display: block;
-        font-size: 0.8rem;
-        font-weight: 700 !important;
-    }
+        .penalty-value {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 700 !important;
+        }
 
-    .penalty-desc {
-        display: block;
-        font-size: 0.65rem;
-        opacity: 0.9;
-        font-style: italic;
-        margin-top: 1px;
-    }
+        .penalty-desc {
+            display: block;
+            font-size: 0.65rem;
+            opacity: 0.9;
+            font-style: italic;
+            margin-top: 1px;
+        }
 
-    .penalty-formula {
-        display: block;
-        font-size: 0.65rem;
-        opacity: 0.8;
-        font-weight: 600;
-        margin-top: 1px;
-    }
+        .penalty-formula {
+            display: block;
+            font-size: 0.65rem;
+            opacity: 0.8;
+            font-weight: 600;
+            margin-top: 1px;
+        }
 
-    .penalty-total {
-        background: rgba(220, 53, 69, 0.15);
-        border-radius: 4px;
-        padding: 6px 8px;
-        margin-top: 4px;
-        text-align: center;
-    }
+        .penalty-total {
+            background: rgba(220, 53, 69, 0.15);
+            border-radius: 4px;
+            padding: 6px 8px;
+            margin-top: 4px;
+            text-align: center;
+        }
 
-    .penalty-free {
-        text-align: center;
-        padding: 8px;
-        background: rgba(40, 167, 69, 0.1);
-        border-radius: 4px;
-        border-left: 3px solid #28a745;
-    }
+        .penalty-free {
+            text-align: center;
+            padding: 8px;
+            background: rgba(40, 167, 69, 0.1);
+            border-radius: 4px;
+            border-left: 3px solid #28a745;
+        }
 
-    /* Text colors for both themes */
-    .penalty-item.penalty-late,
-    .penalty-item.penalty-late *,
-    .penalty-total,
-    .penalty-total * {
-        color: #dc3545 !important;
-    }
+        /* Text colors for both themes */
+        .penalty-item.penalty-late,
+        .penalty-item.penalty-late *,
+        .penalty-total,
+        .penalty-total * {
+            color: #dc3545 !important;
+        }
 
-    .penalty-item.penalty-break,
-    .penalty-item.penalty-break * {
-        color: #ffc107 !important;
-    }
+        .penalty-item.penalty-break,
+        .penalty-item.penalty-break * {
+            color: #ffc107 !important;
+        }
 
-    .penalty-item.penalty-absence,
-    .penalty-item.penalty-absence * {
-        color: #17a2b8 !important;
-    }
+        .penalty-item.penalty-absence,
+        .penalty-item.penalty-absence * {
+            color: #17a2b8 !important;
+        }
 
-    .penalty-free,
-    .penalty-free * {
-        color: #28a745 !important;
-    }
+        .penalty-free,
+        .penalty-free * {
+            color: #28a745 !important;
+        }
 
-    /* Dark theme adjustments */
-    [data-theme="dark"] .penalty-item.penalty-late {
-        background: rgba(220, 53, 69, 0.2);
-    }
+        /* Dark theme adjustments */
+        [data-theme="dark"] .penalty-item.penalty-late {
+            background: rgba(220, 53, 69, 0.2);
+        }
 
-    [data-theme="dark"] .penalty-item.penalty-break {
-        background: rgba(255, 193, 7, 0.2);
-    }
+        [data-theme="dark"] .penalty-item.penalty-break {
+            background: rgba(255, 193, 7, 0.2);
+        }
 
-    [data-theme="dark"] .penalty-item.penalty-absence {
-        background: rgba(23, 162, 184, 0.2);
-    }
+        [data-theme="dark"] .penalty-item.penalty-absence {
+            background: rgba(23, 162, 184, 0.2);
+        }
 
-    [data-theme="dark"] .penalty-free {
-        background: rgba(40, 167, 69, 0.2);
-    }
+        [data-theme="dark"] .penalty-free {
+            background: rgba(40, 167, 69, 0.2);
+        }
 
-    [data-theme="dark"] .penalty-total {
-        background: rgba(220, 53, 69, 0.25);
-    }
+        [data-theme="dark"] .penalty-total {
+            background: rgba(220, 53, 69, 0.25);
+        }
 
-    /* Late minutes column styling */
-    .late-minutes-cell {
-        text-align: center;
-    }
+        /* Late minutes column styling */
+        .late-minutes-cell {
+            text-align: center;
+        }
 
-    .late-minutes-cell .badge {
-        font-weight: 600;
-    }
+        .late-minutes-cell .badge {
+            font-weight: 600;
+        }
 
-    [data-theme="light"] .late-minutes-cell .badge {
-        background-color: #ffc107 !important;
-        color: #000 !important;
-    }
+        [data-theme="light"] .late-minutes-cell .badge {
+            background-color: #ffc107 !important;
+            color: #000 !important;
+        }
 
-    [data-theme="dark"] .late-minutes-cell .badge {
-        background-color: #ffc107 !important;
-        color: #000 !important;
-    }
+        [data-theme="dark"] .late-minutes-cell .badge {
+            background-color: #ffc107 !important;
+            color: #000 !important;
+        }
 
-    .late-minutes-cell small {
-        display: block;
-        margin-top: 2px;
-    }
+        .late-minutes-cell small {
+            display: block;
+            margin-top: 2px;
+        }
 
-    [data-theme="light"] .late-minutes-cell small.text-warning {
-        color: #ffc107 !important;
-    }
+        [data-theme="light"] .late-minutes-cell small.text-warning {
+            color: #ffc107 !important;
+        }
 
-    [data-theme="dark"] .late-minutes-cell small.text-warning {
-        color: #ffc107 !important;
-    }
+        [data-theme="dark"] .late-minutes-cell small.text-warning {
+            color: #ffc107 !important;
+        }
 
-    [data-theme="light"] .late-minutes-cell small.text-muted {
-        color: #6c757d !important;
-    }
+        [data-theme="light"] .late-minutes-cell small.text-muted {
+            color: #6c757d !important;
+        }
 
-    [data-theme="dark"] .late-minutes-cell small.text-muted {
-        color: #adb5bd !important;
-    }
+        [data-theme="dark"] .late-minutes-cell small.text-muted {
+            color: #adb5bd !important;
+        }
 
-    /* Total fine amount styling */
-    .total-fine-amount {
-        font-weight: 700 !important;
-        font-size: 0.9rem !important;
-        color: #dc3545 !important;
-    }
+        /* Total fine amount styling */
+        .total-fine-amount {
+            font-weight: 700 !important;
+            font-size: 0.9rem !important;
+            color: #dc3545 !important;
+        }
 
-    .total-fine-free {
-        font-weight: 700 !important;
-        font-size: 0.9rem !important;
-    }
+        .total-fine-free {
+            font-weight: 700 !important;
+            font-size: 0.9rem !important;
+        }
 
-    [data-theme="light"] .total-fine-free.text-info {
-        color: #17a2b8 !important;
-    }
+        [data-theme="light"] .total-fine-free.text-info {
+            color: #17a2b8 !important;
+        }
 
-    [data-theme="dark"] .total-fine-free.text-info {
-        color: #17a2b8 !important;
-    }
+        [data-theme="dark"] .total-fine-free.text-info {
+            color: #17a2b8 !important;
+        }
 
-    [data-theme="light"] .total-fine-free.text-success {
-        color: #28a745 !important;
-    }
+        [data-theme="light"] .total-fine-free.text-success {
+            color: #28a745 !important;
+        }
 
-    [data-theme="dark"] .total-fine-free.text-success {
-        color: #28a745 !important;
-    }
+        [data-theme="dark"] .total-fine-free.text-success {
+            color: #28a745 !important;
+        }
     </style>
 @endsection
