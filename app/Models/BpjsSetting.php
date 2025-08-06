@@ -14,7 +14,6 @@ class BpjsSetting extends Model
         'employee_id',
         'bpjs_number',
         'bpjs_monthly_amount',
-        'bpjs_weekly_amount',
         'is_active',
         'notes'
     ];
@@ -22,7 +21,6 @@ class BpjsSetting extends Model
     protected $casts = [
         'is_active' => 'boolean',
         'bpjs_monthly_amount' => 'integer',
-        'bpjs_weekly_amount' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];
@@ -41,14 +39,6 @@ class BpjsSetting extends Model
     public function getFormattedBpjsMonthlyAmountAttribute()
     {
         return 'Rp ' . number_format($this->bpjs_monthly_amount, 0, ',', '.');
-    }
-
-    /**
-     * Get formatted weekly amount
-     */
-    public function getFormattedBpjsWeeklyAmountAttribute()
-    {
-        return 'Rp ' . number_format($this->bpjs_weekly_amount, 0, ',', '.');
     }
 
     /**

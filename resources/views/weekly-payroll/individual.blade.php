@@ -136,6 +136,16 @@
             margin-bottom: 15px;
             text-align: center;
         }
+        .bpjs-note {
+            background-color: #e7f3ff;
+            border: 1px solid #b8daff;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 11px;
+            color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -143,7 +153,7 @@
         <img src="{{ public_path('images/Logo-Bank-Sampah-Surabaya-bank-sampah-induk-surabaya-v2 (1).png') }}" alt="Bank Sampah Logo" class="logo">
         <h1>BANK SAMPAH INDUK SURABAYA</h1>
         <p>Jl. Raya Menur No.31-A, Manyar Sabrangan, Kec. Mulyorejo, Surabaya, Jawa Timur 60116</p>
-        <p>Telp: (0851)-0009-0858 | Email: https://banksampahinduksurabaya.id/</p>
+        <p>Telp: (0851)-0009-0858 | Email: banksampahinduksurabaya@gmail.com</p>
     </div>
 
     <div class="slip-title">
@@ -154,6 +164,10 @@
     <div class="period-highlight">
         <strong>PERIODE PEMBAYARAN:</strong> {{ $weeklyPayroll->start_date->format('d F Y') }} s/d {{ $weeklyPayroll->end_date->format('d F Y') }}
         <br><small>({{ $weeklyPayroll->start_date->diffInDays($weeklyPayroll->end_date) + 1 }} hari kalender, {{ $weeklyPayroll->working_days }} hari kerja)</small>
+    </div>
+
+    <div class="bpjs-note">
+        <strong>CATATAN:</strong> BPJS hanya dipotong dari gaji bulanan, tidak ada potongan BPJS untuk gaji mingguan.
     </div>
 
     <table class="info-table">
@@ -175,17 +189,6 @@
             <td class="label">Hari Hadir</td>
             <td>{{ $weeklyPayroll->present_days }} dari {{ $weeklyPayroll->working_days }} hari kerja</td>
         </tr>
-        @php
-            $bpjsSetting = \App\Models\BpjsSetting::where('employee_id', $weeklyPayroll->employee->id)->first();
-        @endphp
-        @if($bpjsSetting)
-        <tr>
-            <td class="label">No. BPJS</td>
-            <td>{{ $bpjsSetting->bpjs_number }}</td>
-            <td class="label">BPJS Mingguan</td>
-            <td>Rp {{ number_format($bpjsSetting->bpjs_weekly_amount, 0, ',', '.') }}</td>
-        </tr>
-        @endif
     </table>
 
     <table class="salary-table">
@@ -240,13 +243,6 @@
                 <td class="amount">Rp {{ number_format($weeklyPayroll->total_fines, 0, ',', '.') }}</td>
             </tr>
             @endif
-            @if($weeklyPayroll->bpjs_deduction > 0)
-            <tr>
-                <td>BPJS</td>
-                <td>Iuran BPJS mingguan</td>
-                <td class="amount">Rp {{ number_format($weeklyPayroll->bpjs_deduction, 0, ',', '.') }}</td>
-            </tr>
-            @endif
             <tr class="net-salary-row">
                 <td colspan="2"><strong>GAJI BERSIH YANG DITERIMA</strong></td>
                 <td class="amount"><strong>Rp {{ number_format($weeklyPayroll->net_salary, 0, ',', '.') }}</strong></td>
@@ -279,15 +275,18 @@
     </div>
 
     <div class="signatures" style="text-align: right;">
-        <div style="display: inline-block; text-align: right;">
-            <strong>Mengetahui,</strong>
-            <div style="height: 100px; margin: 10px 0; position: relative;">
-                <img src="{{ storage_path('app/public/docs/images/ttd-fix.png') }}" alt="Tanda Tangan" style="height: 80px; object-fit: contain;">
+    <div style="display: inline-block; text-align: right;">
+        <strong>Mengetahui,</strong>
+        <div style="height: 100px; margin: 10px 0; position: relative;">
+            <img src="{{ storage_path('app/public/docs/images/ttd-fix.png') }}" alt="Tanda Tangan"
+                style="height: 80px; object-fit: contain;">
+            <div class="signature-info">
+                <strong>Nur Ainiya Fariza, S.E.</strong><br>
+                <span>Manajer Dept. HRD & Keuangan</span>
             </div>
-            <div class="signature-name">Nur Ainiya Fariza, S.E.</div>
-            <div class="signature-title">Manajer Dept. HRD & Keuangan</div>
         </div>
     </div>
+</div>
 
 </body>
 </html>

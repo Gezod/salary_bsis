@@ -137,7 +137,7 @@
         }
 
         .footer {
-            margin-top: 30px;
+            margin-top: 10px;
             text-align: center;
             font-size: 10px;
             color: #666;
@@ -319,8 +319,20 @@
     </table>
 
     <div class="footer">
-        <p>Laporan ini digenerate secara otomatis oleh Sistem Absensi Bank Sampah Surabaya</p>
         <p>Dicetak pada: {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y H:i') }} WIB</p>
+        <div class="signatures" style="text-align: right;">
+            <div style="display: inline-block; text-align: right;">
+                <strong>Mengetahui,</strong>
+                <div style="height: 100px; margin: 10px 0; position: relative;">
+                    <img src="{{ storage_path('app/public/docs/images/ttd-fix.png') }}" alt="Tanda Tangan"
+                        style="height: 80px; object-fit: contain;">
+                    <div class="signature-info">
+                        <strong>Nur Ainiya Fariza, S.E.</strong><br>
+                        <span>Manajer Dept. HRD & Keuangan</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 

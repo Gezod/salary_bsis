@@ -56,16 +56,6 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('bpjs.settings') }}">
-                                <div class="d-flex align-items-center">
-                                    <div class="icon-wrapper me-3">
-                                        <i class="bi bi-shield-check"></i>
-                                    </div>
-                                    <span>Pengaturan BPJS</span>
-                                </div>
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link" href="{{ route('absensi.index') }}">
                                 <div class="d-flex align-items-center">
                                     <div class="icon-wrapper me-3">
@@ -196,7 +186,6 @@
                                         <th><i class="bi bi-clock me-2"></i>Lembur</th>
                                         <th><i class="bi bi-cup-hot me-2"></i>Uang Makan</th>
                                         <th><i class="bi bi-exclamation-triangle me-2"></i>Denda</th>
-                                        <th><i class="bi bi-shield-check me-2"></i>BPJS</th>
                                         <th><i class="bi bi-currency-dollar me-2"></i>Total</th>
                                         <th><i class="bi bi-check-circle me-2"></i>Status</th>
                                         <th><i class="bi bi-gear me-2"></i>Aksi</th>
@@ -244,7 +233,6 @@
                                                     {{ $payroll->formatted_total_fines }}
                                                 @endif
                                             </td>
-                                            <td class="text-danger">{{ $payroll->formatted_bpjs_deduction }}</td>
                                             <td class="text-white fw-bold">{{ $payroll->formatted_net_salary }}</td>
                                             <td>
                                                 <span class="badge {{ $payroll->status_badge }}">
@@ -266,7 +254,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="11" class="text-center py-5">
+                                            <td colspan="10" class="text-center py-5">
                                                 <div class="text-muted">
                                                     <i class="bi bi-inbox display-4 d-block mb-3"></i>
                                                     <h5>Tidak ada data</h5>
@@ -316,7 +304,6 @@
                             <i class="bi bi-info-circle me-2"></i>
                             Sistem akan menghitung payroll untuk rentang tanggal yang dipilih.
                             <br><strong>Staff:</strong> Gaji dihitung proporsional dari gaji bulanan.
-                            <br><strong>BPJS:</strong> Akan dipotong sesuai pengaturan mingguan.
                         </div>
                     </div>
                     <div class="modal-footer border-secondary">

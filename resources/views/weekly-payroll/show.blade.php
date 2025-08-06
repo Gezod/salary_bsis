@@ -154,13 +154,12 @@
                                         <div class="col-6 text-info">Rp
                                             {{ number_format($weeklyPayroll->employee->meal_allowance ?? 0, 0, ',', '.') }}</div>
                                         @endif
-                                        @php
-                                            $bpjsSetting = \App\Models\BpjsSetting::where('employee_id', $weeklyPayroll->employee->id)->first();
-                                        @endphp
-                                        @if($bpjsSetting)
-                                        <div class="col-6 text-muted">No. BPJS:</div>
-                                        <div class="col-6 text-white">{{ $bpjsSetting->bpjs_number }}</div>
-                                        @endif
+                                    </div>
+                                    <div class="alert alert-info mt-3">
+                                        <small>
+                                            <i class="bi bi-info-circle me-1"></i>
+                                            BPJS hanya dipotong dari gaji bulanan, tidak dari gaji mingguan.
+                                        </small>
                                     </div>
                                 </div>
                             </div>
@@ -203,9 +202,6 @@
                                                 <div class="col-6 text-warning">{{ $weeklyPayroll->formatted_total_fines }}
                                                 </div>
                                                 @endif
-                                                <div class="col-6 text-muted">BPJS:</div>
-                                                <div class="col-6 text-danger">{{ $weeklyPayroll->formatted_bpjs_deduction }}
-                                                </div>
                                             </div>
                                         </div>
                                     </div>

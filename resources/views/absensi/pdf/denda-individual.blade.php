@@ -185,7 +185,7 @@
         }
 
         .footer {
-            margin-top: 30px;
+            margin-top: 10px;
             text-align: center;
             font-size: 10px;
             color: #666;
@@ -203,11 +203,17 @@
             font-size: 9px;
             color: #666;
         }
+        .logo {
+            width: 80px;
+            height: auto;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 
 <body>
     <div class="header">
+        <img src="{{ public_path('images/Logo-Bank-Sampah-Surabaya-bank-sampah-induk-surabaya-v2 (1).png') }}" alt="Bank Sampah Logo" class="logo">
         <h1>LAPORAN DENDA INDIVIDUAL</h1>
         <p>{{ $employee->nama }}</p>
         <p>Periode: {{ $monthName }}</p>
@@ -433,9 +439,21 @@
     </table>
 
     <div class="footer">
-        <p>Laporan ini digenerate secara otomatis oleh Sistem Absensi Bank Sampah Surabaya</p>
         <p>Dicetak pada: {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y H:i') }} WIB</p>
-        <p><strong>Keterangan Jam Masuk:</strong> Senin-Kamis & Sabtu: 07:30 | Jumat: 07:00</p>
+        <div class="signatures" style="text-align: right;">
+            <div style="display: inline-block; text-align: right;">
+                <strong>Mengetahui,</strong>
+                <div style="height: 100px; margin: 10px 0; position: relative;">
+                    <img src="{{ storage_path('app/public/docs/images/ttd-fix.png') }}" alt="Tanda Tangan"
+                        style="height: 80px; object-fit: contain;">
+                    <div class="signature-info">
+                        <strong>Nur Ainiya Fariza, S.E.</strong><br>
+                        <span>Manajer Dept. HRD & Keuangan</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </body>
 

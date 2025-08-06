@@ -76,6 +76,16 @@
             border-top: 1px solid #ddd;
             padding-top: 10px;
         }
+        .note {
+            background: #e7f3ff;
+            border: 1px solid #b8daff;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 11px;
+            color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -83,6 +93,10 @@
         <h1>LAPORAN PAYROLL MINGGUAN</h1>
         <p>Bank Sampah Surabaya</p>
         <p>Periode: {{ now()->format('d F Y') }}</p>
+    </div>
+
+    <div class="note">
+        <strong>CATATAN:</strong> BPJS hanya dipotong dari gaji bulanan, tidak ada potongan BPJS untuk gaji mingguan.
     </div>
 
     @if($request->filled('date_range') || $request->filled('employee') || $request->filled('department') || $request->filled('status'))
@@ -115,7 +129,6 @@
                 <th class="text-right">Lembur</th>
                 <th class="text-right">U.Makan</th>
                 <th class="text-right">Denda</th>
-                <th class="text-right">BPJS</th>
                 <th class="text-right">Total</th>
                 <th class="text-center">Status</th>
             </tr>
@@ -132,13 +145,12 @@
                 <td class="text-right">Rp {{ number_format($payroll->overtime_pay, 0, ',', '.') }}</td>
                 <td class="text-right">Rp {{ number_format($payroll->meal_allowance, 0, ',', '.') }}</td>
                 <td class="text-right">Rp {{ number_format($payroll->total_fines, 0, ',', '.') }}</td>
-                <td class="text-right">Rp {{ number_format($payroll->bpjs_deduction, 0, ',', '.') }}</td>
                 <td class="text-right"><strong>Rp {{ number_format($payroll->net_salary, 0, ',', '.') }}</strong></td>
                 <td class="text-center">{{ ucfirst($payroll->status) }}</td>
             </tr>
             @empty
             <tr>
-                <td colspan="12" class="text-center">Tidak ada data payroll mingguan</td>
+                <td colspan="11" class="text-center">Tidak ada data payroll mingguan</td>
             </tr>
             @endforelse
         </tbody>
@@ -166,10 +178,6 @@
         <div class="summary-row">
             <span>Total Denda:</span>
             <span>Rp {{ number_format($weeklyPayrolls->sum('total_fines'), 0, ',', '.') }}</span>
-        </div>
-        <div class="summary-row">
-            <span>Total BPJS:</span>
-            <span>Rp {{ number_format($weeklyPayrolls->sum('bpjs_deduction'), 0, ',', '.') }}</span>
         </div>
         <div class="summary-row">
             <span><strong>Total Gaji Bersih:</strong></span>

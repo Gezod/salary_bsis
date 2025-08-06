@@ -44,7 +44,6 @@ class BpjsSettingController extends Controller
                 'employee_id' => 'required|exists:employees,id',
                 'bpjs_number' => $uniqueRule,
                 'bpjs_monthly_amount' => 'required|integer|min:0|max:1000000',
-                'bpjs_weekly_amount' => 'required|integer|min:0|max:250000',
                 'is_active' => 'nullable|boolean', // Changed to nullable
                 'notes' => 'nullable|string|max:500'
             ], [
@@ -56,10 +55,6 @@ class BpjsSettingController extends Controller
                 'bpjs_monthly_amount.integer' => 'Jumlah BPJS bulanan harus berupa angka',
                 'bpjs_monthly_amount.min' => 'Jumlah BPJS bulanan tidak boleh negatif',
                 'bpjs_monthly_amount.max' => 'Jumlah BPJS bulanan terlalu besar',
-                'bpjs_weekly_amount.required' => 'Jumlah BPJS mingguan harus diisi',
-                'bpjs_weekly_amount.integer' => 'Jumlah BPJS mingguan harus berupa angka',
-                'bpjs_weekly_amount.min' => 'Jumlah BPJS mingguan tidak boleh negatif',
-                'bpjs_weekly_amount.max' => 'Jumlah BPJS mingguan terlalu besar',
                 'notes.max' => 'Catatan terlalu panjang (maksimal 500 karakter)'
             ]);
 
@@ -73,7 +68,6 @@ class BpjsSettingController extends Controller
                 [
                     'bpjs_number' => $request->bpjs_number,
                     'bpjs_monthly_amount' => $request->bpjs_monthly_amount,
-                    'bpjs_weekly_amount' => $request->bpjs_weekly_amount,
                     'is_active' => $isActive,
                     'notes' => $request->notes,
                     'updated_at' => Carbon::now('Asia/Jakarta')
@@ -85,7 +79,6 @@ class BpjsSettingController extends Controller
                 'employee_name' => $employee->nama,
                 'bpjs_number' => $request->bpjs_number,
                 'monthly_amount' => $request->bpjs_monthly_amount,
-                'weekly_amount' => $request->bpjs_weekly_amount,
                 'is_active' => $isActive,
                 'action' => $bpjsSetting->wasRecentlyCreated ? 'created' : 'updated',
                 'updated_at' => Carbon::now('Asia/Jakarta')->toDateTimeString()

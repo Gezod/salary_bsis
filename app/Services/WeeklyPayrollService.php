@@ -51,7 +51,9 @@ class WeeklyPayrollService
 
         $overtimePay = self::calculateOvertimePay($employee, $startDate, $endDate);
         $totalFines = self::calculateTotalFines($employee, $startDate, $endDate);
-        $bpjsDeduction = self::calculateBpjsDeduction($employee, 'weekly');
+
+        // No BPJS deduction for weekly payroll - only for monthly payroll
+        $bpjsDeduction = 0;
 
         $grossSalary = $basicSalary + $overtimePay + $mealAllowance;
         $netSalary = $grossSalary - $totalFines - $bpjsDeduction;
@@ -148,19 +150,6 @@ class WeeklyPayrollService
             ->sum('total_fine');  // Changed from 'jumlah_denda' to 'total_fine'
     }
 
-    private static function calculateBpjsDeduction($employee, $type = 'monthly')
-    {
-        $bpjsSetting = BpjsSetting::where('employee_id', $employee->id)
-            ->where('is_active', true)
-            ->first();
-
-        if (!$bpjsSetting) {
-            return 0;
-        }
-
-        return $type === 'weekly' ? $bpjsSetting->bpjs_weekly_amount : $bpjsSetting->bpjs_monthly_amount;
-    }
-
     public static function recalculateWeeklyPayroll($weeklyPayrollId)
     {
         $weeklyPayroll = WeeklyPayroll::findOrFail($weeklyPayrollId);
@@ -183,7 +172,9 @@ class WeeklyPayrollService
 
         $overtimePay = self::calculateOvertimePay($employee, $startDate, $endDate);
         $totalFines = self::calculateTotalFines($employee, $startDate, $endDate);
-        $bpjsDeduction = self::calculateBpjsDeduction($employee, 'weekly');
+
+        // No BPJS deduction for weekly payroll - only for monthly payroll
+        $bpjsDeduction = 0;
 
         $grossSalary = $basicSalary + $overtimePay + $mealAllowance;
         $netSalary = $grossSalary - $totalFines - $bpjsDeduction;
