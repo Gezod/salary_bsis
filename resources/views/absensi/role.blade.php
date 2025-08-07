@@ -539,11 +539,13 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label text-white">Tanggal Mulai Kontrak</label>
+                                <small class="text-info">(Tanggal Awal Perpanjang)</small></label>
                                 <input type="date" name="tanggal_start_kontrak" id="edit_tanggal_start_kontrak"
                                     class="form-control">
                             </div>
                             <div class="col-12">
                                 <label class="form-label text-white">Tanggal Berakhir Kontrak</label>
+                                <small class="text-info">(Tanggal Akhir dari Perpanjang Kontrak)</small></label>
                                 <input type="date" name="tanggal_end_kontrak" id="edit_tanggal_end_kontrak"
                                     class="form-control">
                             </div>

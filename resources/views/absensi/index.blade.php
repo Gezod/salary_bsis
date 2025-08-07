@@ -150,9 +150,11 @@
                             <a class="nav-link {{ request()->routeIs('payroll.*') ? 'active-link' : '' }}"
                                 href="{{ route('payroll.index') }}">
                                 <div class="d-flex align-items-center">
-                                    <div class="icon-wrapper me-3">
+
+                                    <div class="cash-icon-wrapper me-3">
                                         <i class="bi bi-cash-stack"></i>
                                     </div>
+
                                     <span>Sistem Payroll</span>
                                 </div>
                             </a>
