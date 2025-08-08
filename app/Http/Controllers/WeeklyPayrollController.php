@@ -6,26 +6,50 @@ use Illuminate\Http\Request;
 use App\Models\WeeklyPayroll;
 use App\Models\Employee;
 use App\Models\BpjsSetting;
+use App\Models\BpjsPremium;
 use App\Services\WeeklyPayrollService;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class WeeklyPayrollController extends Controller
 {
     public function index(Request $request)
     {
-        $query = WeeklyPayroll::with('employee')
+        $query = WeeklyPayroll::with(['employee', 'employee.bpjsSetting'])
             ->orderByDesc('start_date')
             ->orderBy('employee_id');
 
-        // Apply filters
+        // Apply date range filter with proper date parsing
         if ($request->filled('date_range')) {
-            [$startDate, $endDate] = explode(' - ', $request->date_range);
-            $query->whereBetween('start_date', [
-                Carbon::parse($startDate)->format('Y-m-d'),
-                Carbon::parse($endDate)->format('Y-m-d')
-            ]);
+            try {
+                // Handle different date formats
+                $dateRange = trim($request->date_range);
+
+                if (strpos($dateRange, ' - ') !== false) {
+                    [$startDateStr, $endDateStr] = explode(' - ', $dateRange);
+                    $startDateStr = trim($startDateStr);
+                    $endDateStr = trim($endDateStr);
+
+                    // Parse dates with multiple format support
+                    $startDate = $this->parseDate($startDateStr);
+                    $endDate = $this->parseDate($endDateStr);
+
+                    if ($startDate && $endDate) {
+                        $query->whereBetween('start_date', [
+                            $startDate->format('Y-m-d'),
+                            $endDate->format('Y-m-d')
+                        ]);
+                    }
+                }
+            } catch (\Exception $e) {
+                // Log error but don't break the page
+                Log::warning('Date parsing error in weekly payroll filter', [
+                    'date_range' => $request->date_range,
+                    'error' => $e->getMessage()
+                ]);
+            }
         }
 
         if ($request->filled('employee')) {
@@ -49,6 +73,38 @@ class WeeklyPayrollController extends Controller
         return view('weekly-payroll.index', compact('weeklyPayrolls'));
     }
 
+    /**
+     * Parse date string with multiple format support
+     */
+    private function parseDate($dateStr)
+    {
+        $formats = [
+            'd/m/Y',    // 25/06/2025
+            'Y-m-d',    // 2025-06-25
+            'd-m-Y',    // 25-06-2025
+            'd.m.Y',    // 25.06.2025
+            'm/d/Y',    // 06/25/2025 (US format)
+        ];
+
+        foreach ($formats as $format) {
+            try {
+                $date = Carbon::createFromFormat($format, $dateStr);
+                if ($date && $date->format($format) === $dateStr) {
+                    return $date;
+                }
+            } catch (\Exception $e) {
+                continue;
+            }
+        }
+
+        // Fallback: try Carbon's automatic parsing
+        try {
+            return Carbon::parse($dateStr);
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
     public function generate(Request $request)
     {
         $request->validate([
@@ -68,7 +124,7 @@ class WeeklyPayrollController extends Controller
 
     public function show($id)
     {
-        $weeklyPayroll = WeeklyPayroll::with('employee')->findOrFail($id);
+        $weeklyPayroll = WeeklyPayroll::with(['employee', 'employee.bpjsSetting'])->findOrFail($id);
         return view('weekly-payroll.show', compact('weeklyPayroll'));
     }
 
@@ -119,14 +175,33 @@ class WeeklyPayrollController extends Controller
 
     public function exportPdf(Request $request)
     {
-        $query = WeeklyPayroll::with('employee');
+        $query = WeeklyPayroll::with(['employee', 'employee.bpjsSetting']);
 
         if ($request->filled('date_range')) {
-            [$startDate, $endDate] = explode(' - ', $request->date_range);
-            $query->whereBetween('start_date', [
-                Carbon::parse($startDate)->format('Y-m-d'),
-                Carbon::parse($endDate)->format('Y-m-d')
-            ]);
+            try {
+                $dateRange = trim($request->date_range);
+
+                if (strpos($dateRange, ' - ') !== false) {
+                    [$startDateStr, $endDateStr] = explode(' - ', $dateRange);
+                    $startDateStr = trim($startDateStr);
+                    $endDateStr = trim($endDateStr);
+
+                    $startDate = $this->parseDate($startDateStr);
+                    $endDate = $this->parseDate($endDateStr);
+
+                    if ($startDate && $endDate) {
+                        $query->whereBetween('start_date', [
+                            $startDate->format('Y-m-d'),
+                            $endDate->format('Y-m-d')
+                        ]);
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::warning('Date parsing error in weekly payroll PDF export', [
+                    'date_range' => $request->date_range,
+                    'error' => $e->getMessage()
+                ]);
+            }
         }
 
         if ($request->filled('employee')) {
@@ -156,10 +231,24 @@ class WeeklyPayrollController extends Controller
 
     public function downloadIndividualPdf($id)
     {
-        $weeklyPayroll = WeeklyPayroll::with('employee')->findOrFail($id);
+        $weeklyPayroll = WeeklyPayroll::with(['employee', 'employee.bpjsSetting'])->findOrFail($id);
 
         if ($weeklyPayroll->status !== 'paid') {
             return redirect()->back()->with('error', 'Slip gaji mingguan hanya bisa didownload setelah pembayaran selesai.');
+        }
+
+        // Check if employee has BPJS and add BPJS allowance info to weekly payroll
+        if ($weeklyPayroll->employee->bpjsSetting && $weeklyPayroll->employee->bpjsSetting->is_active) {
+            // Get BPJS premium for current month (if exists)
+            $currentMonth = Carbon::now()->month;
+            $currentYear = Carbon::now()->year;
+
+            $bpjsPremium = BpjsPremium::where('employee_id', $weeklyPayroll->employee->id)
+                ->where('month', $currentMonth)
+                ->where('year', $currentYear)
+                ->first();
+
+            $weeklyPayroll->bpjs_premium = $bpjsPremium;
         }
 
         $pdf = Pdf::loadView('weekly-payroll.individual', compact('weeklyPayroll'))

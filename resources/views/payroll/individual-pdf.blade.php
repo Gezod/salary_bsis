@@ -162,7 +162,7 @@
     </div>
 
     <div class="slip-title">
-        SLIP GAJI BULANAN KARYAWAN/STAFF<br>
+        SLIP GAJI BULANAN STAFF<br>
         <small>Periode: {{ $payroll->month_name }}</small>
     </div>
 
@@ -377,7 +377,7 @@
         @if ($payroll->needsBpjsCashPayment())
             <p style="color: #d32f2f;">• Pembayaran tunai BPJS sebesar Rp {{ number_format($payroll->bpjs_cash_payment, 0, ',', '.') }} harus diselesaikan terpisah</p>
         @endif
-        <p>• Slip gaji ini adalah bukti resmi pembayaran gaji karyawan</p>
+        <p>• Slip gaji ini adalah bukti resmi pembayaran gaji bulanan</p>
         <p>• Simpan slip gaji ini untuk keperluan administrasi</p>
         <hr>
         <p>Slip gaji ini digenerate secara otomatis pada {{ now()->setTimezone('Asia/Jakarta')->format('d F Y H:i:s') }} WIB</p>

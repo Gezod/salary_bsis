@@ -215,7 +215,7 @@
                                                         <button class="btn btn-sm btn-outline-warning"
                                                             onclick="editBpjs({{ $employee->id }})"
                                                             title="Edit BPJS">
-                                                            <i class="bi bi-pencil"></i>
+                                                            <i class="bi bi-pencil fs-4"></i>
                                                         </button>
                                                         @if ($bpjsSetting)
                                                             <form method="POST" action="{{ route('bpjs.delete', $bpjsSetting->id) }}"
@@ -225,7 +225,7 @@
                                                                 @method('DELETE')
                                                                 <button type="submit" class="btn btn-sm btn-outline-danger"
                                                                     title="Hapus BPJS">
-                                                                    <i class="bi bi-trash"></i>
+                                                                    <i class="bi bi-trash fs-4"></i>
                                                                 </button>
                                                             </form>
                                                         @endif

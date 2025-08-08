@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\WeeklyPayroll;
 use App\Models\Employee;
 use App\Models\BpjsSetting;
+use App\Models\BpjsPremium;
 use App\Models\Absensi;
 use App\Models\Attendance;
 use App\Models\Fine;
@@ -16,7 +17,8 @@ class WeeklyPayrollService
 {
     public static function generateWeeklyPayrollForAllEmployees($startDate, $endDate)
     {
-        $employees = Employee::all();
+        // HANYA UNTUK KARYAWAN
+        $employees = Employee::where('departemen', 'karyawan')->get();
         $generated = 0;
 
         foreach ($employees as $employee) {
@@ -40,6 +42,9 @@ class WeeklyPayrollService
         $workingDays = self::calculateWorkingDays($startDate, $endDate);
         $presentDays = self::calculatePresentDays($employee, $startDate, $endDate);
 
+        // Cek apakah ini akhir bulan untuk BPJS
+        $isEndOfMonth = self::isEndOfMonthPeriod($endDate);
+
         // Calculate salary based on department
         if ($employee->departemen === 'staff') {
             $basicSalary = self::calculateStaffWeeklySalary($employee, $startDate, $endDate);
@@ -52,10 +57,19 @@ class WeeklyPayrollService
         $overtimePay = self::calculateOvertimePay($employee, $startDate, $endDate);
         $totalFines = self::calculateTotalFines($employee, $startDate, $endDate);
 
-        // No BPJS deduction for weekly payroll - only for monthly payroll
+        // Calculate BPJS - hanya jika akhir bulan
+        $bpjsAllowance = 0;
+        $bpjsCashPayment = 0;
         $bpjsDeduction = 0;
 
-        $grossSalary = $basicSalary + $overtimePay + $mealAllowance;
+        if ($isEndOfMonth) {
+            $bpjsCalculation = self::calculateBpjsForEndOfMonth($employee, $endDate);
+            $bpjsAllowance = $bpjsCalculation['allowance'];
+            $bpjsCashPayment = $bpjsCalculation['cash_payment'];
+            $bpjsDeduction = $bpjsCalculation['net_deduction'];
+        }
+
+        $grossSalary = $basicSalary + $overtimePay + $mealAllowance + $bpjsAllowance;
         $netSalary = $grossSalary - $totalFines - $bpjsDeduction;
 
         return WeeklyPayroll::create([
@@ -69,10 +83,61 @@ class WeeklyPayrollService
             'meal_allowance' => $mealAllowance,
             'total_fines' => $totalFines,
             'bpjs_deduction' => $bpjsDeduction,
+            'bpjs_allowance' => $bpjsAllowance,
+            'bpjs_cash_payment' => $bpjsCashPayment,
             'gross_salary' => $grossSalary,
             'net_salary' => $netSalary,
             'status' => 'pending'
         ]);
+    }
+
+    /**
+     * Check if the end date is at the end of the month (last 7 days)
+     */
+    private static function isEndOfMonthPeriod($endDate)
+    {
+        $endOfMonth = $endDate->copy()->endOfMonth();
+        $daysFromEndOfMonth = $endDate->diffInDays($endOfMonth);
+
+        // Jika dalam 7 hari terakhir dari bulan tersebut
+        return $daysFromEndOfMonth <= 7;
+    }
+
+    /**
+     * Calculate BPJS for end of month weekly payroll
+     */
+    private static function calculateBpjsForEndOfMonth($employee, $endDate)
+    {
+        $month = $endDate->month;
+        $year = $endDate->year;
+
+        // Get BPJS setting (allowance from company)
+        $bpjsSetting = BpjsSetting::where('employee_id', $employee->id)
+            ->where('is_active', true)
+            ->first();
+
+        $bpjsAllowance = $bpjsSetting ? $bpjsSetting->bpjs_monthly_amount : 0;
+
+        // Get premium for this month
+        $bpjsPremium = BpjsPremium::where('employee_id', $employee->id)
+            ->where('month', $month)
+            ->where('year', $year)
+            ->first();
+
+        $premiumAmount = $bpjsPremium ? $bpjsPremium->premium_amount : 0;
+
+        // Calculate cash payment needed (if premium > allowance)
+        $cashPayment = max(0, $premiumAmount - $bpjsAllowance);
+
+        // Calculate net deduction from salary
+        $netDeduction = $premiumAmount > 0 ? min($bpjsAllowance, $premiumAmount) : $bpjsAllowance;
+
+        return [
+            'allowance' => $bpjsAllowance,
+            'premium' => $premiumAmount,
+            'cash_payment' => $cashPayment,
+            'net_deduction' => $netDeduction
+        ];
     }
 
     private static function calculateWorkingDays($startDate, $endDate)
@@ -147,7 +212,7 @@ class WeeklyPayrollService
 
         return Attendance::where('employee_id', $employee->id)
             ->whereBetween('tanggal', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
-            ->sum('total_fine');  // Changed from 'jumlah_denda' to 'total_fine'
+            ->sum('total_fine');
     }
 
     public static function recalculateWeeklyPayroll($weeklyPayrollId)
@@ -161,6 +226,9 @@ class WeeklyPayrollService
         $workingDays = self::calculateWorkingDays($startDate, $endDate);
         $presentDays = self::calculatePresentDays($employee, $startDate, $endDate);
 
+        // Cek apakah ini akhir bulan untuk BPJS
+        $isEndOfMonth = self::isEndOfMonthPeriod($endDate);
+
         // Calculate salary based on department
         if ($employee->departemen === 'staff') {
             $basicSalary = self::calculateStaffWeeklySalary($employee, $startDate, $endDate);
@@ -173,10 +241,19 @@ class WeeklyPayrollService
         $overtimePay = self::calculateOvertimePay($employee, $startDate, $endDate);
         $totalFines = self::calculateTotalFines($employee, $startDate, $endDate);
 
-        // No BPJS deduction for weekly payroll - only for monthly payroll
+        // Calculate BPJS - hanya jika akhir bulan
+        $bpjsAllowance = 0;
+        $bpjsCashPayment = 0;
         $bpjsDeduction = 0;
 
-        $grossSalary = $basicSalary + $overtimePay + $mealAllowance;
+        if ($isEndOfMonth) {
+            $bpjsCalculation = self::calculateBpjsForEndOfMonth($employee, $endDate);
+            $bpjsAllowance = $bpjsCalculation['allowance'];
+            $bpjsCashPayment = $bpjsCalculation['cash_payment'];
+            $bpjsDeduction = $bpjsCalculation['net_deduction'];
+        }
+
+        $grossSalary = $basicSalary + $overtimePay + $mealAllowance + $bpjsAllowance;
         $netSalary = $grossSalary - $totalFines - $bpjsDeduction;
 
         $weeklyPayroll->update([
@@ -187,6 +264,8 @@ class WeeklyPayrollService
             'meal_allowance' => $mealAllowance,
             'total_fines' => $totalFines,
             'bpjs_deduction' => $bpjsDeduction,
+            'bpjs_allowance' => $bpjsAllowance,
+            'bpjs_cash_payment' => $bpjsCashPayment,
             'gross_salary' => $grossSalary,
             'net_salary' => $netSalary
         ]);

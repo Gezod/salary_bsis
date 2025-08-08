@@ -56,6 +56,16 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="{{ route('bpjs.settings') }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-wrapper me-3">
+                                        <i class="bi bi-shield-check"></i>
+                                    </div>
+                                    <span>Pengaturan BPJS</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="{{ route('absensi.index') }}">
                                 <div class="d-flex align-items-center">
                                     <div class="icon-wrapper me-3">
@@ -103,7 +113,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
                             <h1 class="page-title mb-2">Data Payroll Mingguan</h1>
-                            <p class="text-muted mb-0">Kelola dan pantau penggajian karyawan dan staff mingguan dengan rentang tanggal fleksibel</p>
+                            <p class="text-muted mb-0">Kelola dan pantau penggajian karyawan mingguan dengan rentang tanggal fleksibel</p>
                         </div>
                         <div class="d-flex gap-2 align-items-center">
                             <div class="stats-card">
@@ -124,6 +134,25 @@
                         </div>
                     @endif
 
+                    @if (session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-circle me-2"></i>{{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
+
+                    {{-- Info Alert --}}
+                    <div class="alert alert-info mb-4">
+                        <h5 class="alert-heading"><i class="bi bi-info-circle me-2"></i>Informasi Payroll Mingguan:</h5>
+                        <hr>
+                        <ul class="mb-0">
+                            <li><strong>Payroll Mingguan:</strong> Hanya untuk karyawan (bukan staff)</li>
+                            <li><strong>BPJS:</strong> Hanya dipotong di gaji mingguan akhir bulan (7 hari terakhir bulan)</li>
+                            <li><strong>Gaji Akhir Bulan:</strong> Komponen seperti gaji bulanan dengan perhitungan pro-rata</li>
+                            <li><strong>Rentang Tanggal:</strong> Dapat disesuaikan sesuai kebutuhan (tidak harus 7 hari)</li>
+                        </ul>
+                    </div>
+
                     {{-- Filter Section --}}
                     <div class="filter-section">
                         <h5 class="text-white mb-3 d-flex align-items-center">
@@ -133,10 +162,11 @@
                         <form method="GET" class="row g-3">
                             <div class="col-md-3">
                                 <label class="form-label text-muted small">Rentang Tanggal</label>
-                                <input type="text" name="date_range" value="{{ request('date_range') }}" class="form-control" id="dateRange" placeholder="Pilih rentang tanggal">
+                                <input type="text" name="date_range" value="{{ request('date_range') }}" class="form-control" id="dateRange" placeholder="Pilih rentang tanggal" autocomplete="off">
+                                <small class="form-text text-muted">Format: DD/MM/YYYY - DD/MM/YYYY</small>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label text-muted small">Nama Karyawan/Staff</label>
+                                <label class="form-label text-muted small">Nama Karyawan</label>
                                 <input type="text" name="employee" value="{{ request('employee') }}"
                                     class="form-control" placeholder="Cari nama...">
                             </div>
@@ -144,8 +174,6 @@
                                 <label class="form-label text-muted small">Departemen</label>
                                 <select name="department" class="form-control">
                                     <option value="">Semua</option>
-                                    <option value="staff" {{ request('department') == 'staff' ? 'selected' : '' }}>Staff
-                                    </option>
                                     <option value="karyawan" {{ request('department') == 'karyawan' ? 'selected' : '' }}>
                                         Karyawan</option>
                                 </select>
@@ -179,13 +207,14 @@
                             <table class="table table-dark table-hover mb-0">
                                 <thead>
                                     <tr>
-                                        <th><i class="bi bi-person me-2"></i>Karyawan/Staff</th>
+                                        <th><i class="bi bi-person me-2"></i>Karyawan</th>
                                         <th><i class="bi bi-calendar-range me-2"></i>Periode</th>
                                         <th><i class="bi bi-calendar-check me-2"></i>Kehadiran</th>
                                         <th><i class="bi bi-cash me-2"></i>Gaji Pokok</th>
                                         <th><i class="bi bi-clock me-2"></i>Lembur</th>
                                         <th><i class="bi bi-cup-hot me-2"></i>Uang Makan</th>
                                         <th><i class="bi bi-exclamation-triangle me-2"></i>Denda</th>
+                                        <th><i class="bi bi-shield-check me-2"></i>BPJS</th>
                                         <th><i class="bi bi-currency-dollar me-2"></i>Total</th>
                                         <th><i class="bi bi-check-circle me-2"></i>Status</th>
                                         <th><i class="bi bi-gear me-2"></i>Aksi</th>
@@ -205,32 +234,39 @@
                                                     <div>
                                                         <div class="text-white fw-semibold">{{ $payroll->employee->nama }}
                                                         </div>
-                                                        <small class="badge {{ $payroll->employee->departemen == 'staff' ? 'bg-info' : 'bg-secondary' }}">
+                                                        <small class="badge bg-secondary">
                                                             {{ ucfirst($payroll->employee->departemen) }}
                                                         </small>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="text-white">{{ $payroll->period_name }}</td>
+                                            <td class="text-white">
+                                                {{ $payroll->period_name }}
+                                                <small class="text-muted d-block">
+                                                    ({{ $payroll->start_date->diffInDays($payroll->end_date) + 1 }} hari kalender)
+                                                </small>
+                                                @if($payroll->isEndOfMonthPeriod())
+                                                    <small class="badge bg-warning text-dark">Akhir Bulan</small>
+                                                @endif
+                                            </td>
                                             <td class="text-white">
                                                 {{ $payroll->present_days }}/{{ $payroll->working_days }} hari
-                                                @if($payroll->employee->departemen == 'staff')
-                                                    <small class="text-muted d-block">(Proporsional)</small>
+                                                @if($payroll->isEndOfMonthPeriod())
+                                                    <small class="text-warning d-block">Termasuk BPJS</small>
+                                                @else
+                                                    <small class="text-success d-block">Tanpa BPJS</small>
                                                 @endif
                                             </td>
                                             <td class="text-white">{{ $payroll->formatted_basic_salary }}</td>
                                             <td class="text-success">{{ $payroll->formatted_overtime_pay }}</td>
-                                            <td class="text-info">
-                                                {{ $payroll->formatted_meal_allowance }}
-                                                @if($payroll->employee->departemen == 'staff')
-                                                    <small class="text-muted d-block">({{ $payroll->present_days }} hari hadir)</small>
-                                                @endif
-                                            </td>
-                                            <td class="text-warning">
-                                                @if($payroll->employee->departemen == 'staff')
-                                                    <span class="text-muted">-</span>
+                                            <td class="text-info">{{ $payroll->formatted_meal_allowance }}</td>
+                                            <td class="text-warning">{{ $payroll->formatted_total_fines }}</td>
+                                            <td class="text-danger">
+                                                @if($payroll->bpjs_deduction > 0)
+                                                    {{ $payroll->formatted_bpjs_deduction }}
+                                                    <small class="text-warning d-block">Akhir Bulan</small>
                                                 @else
-                                                    {{ $payroll->formatted_total_fines }}
+                                                    <span class="text-muted">-</span>
                                                 @endif
                                             </td>
                                             <td class="text-white fw-bold">{{ $payroll->formatted_net_salary }}</td>
@@ -242,19 +278,19 @@
                                             <td>
                                                 <div class="btn-group" role="group">
                                                     <a href="{{ route('weekly-payroll.show', $payroll->id) }}"
-                                                        class="btn btn-sm btn-info">
-                                                        <i class="bi bi-eye fs-2"></i>
+                                                        class="btn btn-sm btn-info" title="Detail">
+                                                        <i class="bi bi-eye fs-4"></i>
                                                     </a>
                                                     <a href="{{ route('weekly-payroll.recalculate', $payroll->id) }}"
-                                                        class="btn btn-sm btn-warning">
-                                                        <i class="bi bi-arrow-clockwise fs-2"></i>
+                                                        class="btn btn-sm btn-warning" title="Hitung Ulang">
+                                                        <i class="bi bi-arrow-clockwise fs-4"></i>
                                                     </a>
                                                 </div>
                                             </td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="10" class="text-center py-5">
+                                            <td colspan="11" class="text-center py-5">
                                                 <div class="text-muted">
                                                     <i class="bi bi-inbox display-4 d-block mb-3"></i>
                                                     <h5>Tidak ada data</h5>
@@ -302,8 +338,11 @@
                         </div>
                         <div class="alert alert-info mt-3">
                             <i class="bi bi-info-circle me-2"></i>
-                            Sistem akan menghitung payroll untuk rentang tanggal yang dipilih.
-                            <br><strong>Staff:</strong> Gaji dihitung proporsional dari gaji bulanan.
+                            <strong>Catatan Penting:</strong>
+                            <br>• Sistem akan menghitung payroll hanya untuk <strong>karyawan</strong> (bukan staff)
+                            <br>• <strong>BPJS dipotong</strong> jika periode berakhir dalam 7 hari terakhir bulan
+                            <br>• Gaji akhir bulan menggunakan perhitungan pro-rata seperti gaji bulanan
+                            <br>• Rentang tanggal dapat disesuaikan kebutuhan
                         </div>
                     </div>
                     <div class="modal-footer border-secondary">
@@ -324,22 +363,34 @@
 
     <script>
         $(function() {
+            // Initialize daterangepicker with proper format handling
             $('#dateRange').daterangepicker({
                 opens: 'left',
                 locale: {
                     format: 'DD/MM/YYYY',
                     separator: ' - ',
-                    applyLabel: 'Apply',
-                    cancelLabel: 'Cancel',
-                    fromLabel: 'From',
-                    toLabel: 'To',
+                    applyLabel: 'Terapkan',
+                    cancelLabel: 'Batal',
+                    fromLabel: 'Dari',
+                    toLabel: 'Sampai',
                     customRangeLabel: 'Custom',
-                    weekLabel: 'W',
+                    weekLabel: 'M',
                     daysOfWeek: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
                     monthNames: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-                        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
+                        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+                    firstDay: 1
                 },
-                autoUpdateInput: false
+                autoUpdateInput: false,
+                showDropdowns: true,
+                showWeekNumbers: true,
+                ranges: {
+                   'Hari Ini': [moment(), moment()],
+                   'Kemarin': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                   '7 Hari Terakhir': [moment().subtract(6, 'days'), moment()],
+                   '30 Hari Terakhir': [moment().subtract(29, 'days'), moment()],
+                   'Bulan Ini': [moment().startOf('month'), moment().endOf('month')],
+                   'Bulan Lalu': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                }
             });
 
             $('#dateRange').on('apply.daterangepicker', function(ev, picker) {
@@ -349,12 +400,33 @@
             $('#dateRange').on('cancel.daterangepicker', function(ev, picker) {
                 $(this).val('');
             });
+
+            // Handle form submission to clear invalid date range
+            $('form').on('submit', function(e) {
+                const dateRange = $('#dateRange').val();
+                if (dateRange && !dateRange.match(/^\d{2}\/\d{2}\/\d{4} - \d{2}\/\d{2}\/\d{4}$/)) {
+                    $('#dateRange').val('');
+                }
+            });
         });
 
         function exportPdf() {
             const form = document.querySelector('form');
             const formData = new FormData(form);
-            const params = new URLSearchParams(formData);
+            const params = new URLSearchParams();
+
+            // Handle date range properly
+            const dateRange = formData.get('date_range');
+            if (dateRange && dateRange.trim()) {
+                params.append('date_range', dateRange);
+            }
+
+            // Add other form fields
+            for (let [key, value] of formData.entries()) {
+                if (key !== 'date_range' && value.trim()) {
+                    params.append(key, value);
+                }
+            }
 
             window.open(`{{ route('weekly-payroll.export.pdf') }}?${params.toString()}`, '_blank');
         }
@@ -372,5 +444,16 @@
                 toggleIcon.className = newTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
             }
         }
+
+        // Initialize theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+
+            const toggleIcon = document.querySelector('.theme-toggle i');
+            if (toggleIcon) {
+                toggleIcon.className = savedTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+            }
+        });
     </script>
 @endsection

@@ -254,14 +254,14 @@
                                             <td>
                                                 <div class="btn-group" role="group">
                                                     <button class="btn btn-sm btn-outline-warning" onclick="editPremium({{ $premium->id }})" title="Edit Premi">
-                                                        <i class="bi bi-pencil"></i>
+                                                        <i class="bi bi-pencil fs-4"></i>
                                                     </button>
                                                     <form method="POST" action="{{ route('bpjs.premiums.destroy', $premium->id) }}" class="d-inline"
                                                         onsubmit="return confirm('Yakin ingin menghapus premi BPJS untuk {{ $premium->employee->nama }} periode {{ $premium->period_name }}?')">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus Premi">
-                                                            <i class="bi bi-trash"></i>
+                                                            <i class="bi bi-trash fs-4"></i>
                                                         </button>
                                                     </form>
                                                 </div>

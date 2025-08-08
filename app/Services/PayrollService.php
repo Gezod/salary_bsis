@@ -17,7 +17,8 @@ class PayrollService
 {
     public static function generatePayrollForAllEmployees($month, $year)
     {
-        $employees = Employee::all();
+        // HANYA UNTUK STAFF
+        $employees = Employee::where('departemen', 'staff')->get();
         $generated = 0;
 
         foreach ($employees as $employee) {
