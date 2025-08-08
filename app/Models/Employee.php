@@ -47,6 +47,10 @@ class Employee extends Model
     {
         return $this->hasMany(WorkTimeChange::class);
     }
+    public function bpjsSetting()
+    {
+        return $this->hasOne(BpjsSetting::class);
+    }
 
     /**
      * Check if contract is expiring soon (within 7 days)

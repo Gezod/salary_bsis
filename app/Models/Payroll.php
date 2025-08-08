@@ -21,6 +21,8 @@ class Payroll extends Model
         'meal_allowance',
         'total_fines',
         'bpjs_deduction',
+        'bpjs_allowance',
+        'bpjs_cash_payment',
         'gross_salary',
         'net_salary',
         'payment_method',
@@ -37,6 +39,8 @@ class Payroll extends Model
         'meal_allowance' => 'integer',
         'total_fines' => 'integer',
         'bpjs_deduction' => 'integer',
+        'bpjs_allowance' => 'integer',
+        'bpjs_cash_payment' => 'integer',
         'gross_salary' => 'integer',
         'net_salary' => 'integer',
         'working_days' => 'integer',
@@ -71,6 +75,16 @@ class Payroll extends Model
     public function getFormattedBpjsDeductionAttribute()
     {
         return 'Rp ' . number_format($this->bpjs_deduction, 0, ',', '.');
+    }
+
+    public function getFormattedBpjsAllowanceAttribute()
+    {
+        return 'Rp ' . number_format($this->bpjs_allowance, 0, ',', '.');
+    }
+
+    public function getFormattedBpjsCashPaymentAttribute()
+    {
+        return 'Rp ' . number_format($this->bpjs_cash_payment, 0, ',', '.');
     }
 
     public function getFormattedGrossSalaryAttribute()
@@ -118,10 +132,37 @@ class Payroll extends Model
     }
 
     /**
+     * Get BPJS premium for this period
+     */
+    public function getBpjsPremiumAttribute()
+    {
+        return \App\Models\BpjsPremium::where('employee_id', $this->employee_id)
+            ->where('month', $this->month)
+            ->where('year', $this->year)
+            ->first();
+    }
+
+    /**
      * Check if employee has active BPJS
      */
     public function hasActiveBpjs()
     {
         return $this->bpjs_setting && $this->bpjs_setting->is_active;
+    }
+
+    /**
+     * Check if has BPJS premium for this period
+     */
+    public function hasBpjsPremium()
+    {
+        return $this->bpjs_premium !== null;
+    }
+
+    /**
+     * Check if needs cash payment for BPJS
+     */
+    public function needsBpjsCashPayment()
+    {
+        return $this->bpjs_cash_payment > 0;
     }
 }

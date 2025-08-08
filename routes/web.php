@@ -11,6 +11,7 @@ use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\WeeklyPayrollController;
 use App\Http\Controllers\BpjsSettingController;
 use App\Http\Controllers\KaryawanController;
+use App\Http\Controllers\BpjsPremiumController;
 
 /*
 |--------------------------------------------------------------------------
@@ -157,6 +158,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/employee/{employeeId}', [BpjsSettingController::class, 'show'])->name('bpjs.show');
         Route::get('/employee/{employeeId}/data', [BpjsSettingController::class, 'getEmployeeBpjs'])->name('bpjs.employee.data');
         Route::delete('/{id}', [BpjsSettingController::class, 'delete'])->name('bpjs.delete');
+
+        Route::get('/premiums', [BpjsPremiumController::class, 'index'])->name('bpjs.premiums');
+        Route::post('/premiums', [BpjsPremiumController::class, 'store'])->name('bpjs.premiums.store');
+        Route::get('/premiums/{id}/edit', [BpjsPremiumController::class, 'show'])->name('bpjs.premiums.edit');
+        Route::put('/premiums/{id}', [BpjsPremiumController::class, 'update'])->name('bpjs.premiums.update');
+        Route::delete('/premiums/{id}', [BpjsPremiumController::class, 'destroy'])->name('bpjs.premiums.destroy');
+        Route::get('/premiums/employee/{employeeId}/data', [BpjsPremiumController::class, 'getEmployeeBpjs'])->name('bpjs.premiums.employee.data');
+
     });
 });
 

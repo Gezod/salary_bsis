@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Payroll;
 use App\Models\Employee;
 use App\Models\BpjsSetting;
+use App\Models\BpjsPremium;
 use App\Models\Absensi;
 use App\Models\Attendance;
 use App\Models\Fine;
@@ -53,11 +54,17 @@ class PayrollService
         $overtimePay = self::calculateOvertimePay($employee, $month, $year);
         $totalFines = self::calculateTotalFines($employee, $month, $year);
 
-        // BPJS deduction only for monthly payroll
-        $bpjsDeduction = self::calculateBpjsDeduction($employee);
+        // Calculate BPJS with premium logic
+        $bpjsCalculation = self::calculateBpjsWithPremium($employee, $month, $year);
+        $bpjsAllowance = $bpjsCalculation['allowance'];
+        $bpjsCashPayment = $bpjsCalculation['cash_payment'];
+        $bpjsNetDeduction = $bpjsCalculation['net_deduction'];
 
-        $grossSalary = $basicSalary + $overtimePay + $mealAllowance;
-        $netSalary = $grossSalary - $totalFines - $bpjsDeduction;
+        // Gross salary = basic + overtime + meal allowance + BPJS allowance (company pays)
+        $grossSalary = $basicSalary + $overtimePay + $mealAllowance + $bpjsAllowance;
+
+        // Net salary = gross - fines - BPJS net deduction
+        $netSalary = $grossSalary - $totalFines - $bpjsNetDeduction;
 
         return Payroll::create([
             'employee_id' => $employee->id,
@@ -69,7 +76,9 @@ class PayrollService
             'overtime_pay' => $overtimePay,
             'meal_allowance' => $mealAllowance,
             'total_fines' => $totalFines,
-            'bpjs_deduction' => $bpjsDeduction,
+            'bpjs_deduction' => $bpjsNetDeduction,
+            'bpjs_allowance' => $bpjsAllowance,
+            'bpjs_cash_payment' => $bpjsCashPayment,
             'gross_salary' => $grossSalary,
             'net_salary' => $netSalary,
             'status' => 'pending'
@@ -80,10 +89,9 @@ class PayrollService
     {
         $startDate = Carbon::create($year, $month, 1);
         $endDate = $startDate->copy()->endOfMonth();
-
         $workingDays = 0;
-        $currentDate = $startDate->copy();
 
+        $currentDate = $startDate->copy();
         while ($currentDate->lte($endDate)) {
             if ($currentDate->isWeekday()) {
                 $workingDays++;
@@ -119,6 +127,7 @@ class PayrollService
 
         $overtimeHours = $overtimeMinutes / 60; // Convert minutes to hours
         $hourlyRate = ($employee->daily_salary ?? 0) / 8; // Assuming 8 hours per day
+
         return $overtimeHours * $hourlyRate * 1.5; // 1.5x rate for overtime
     }
 
@@ -137,24 +146,43 @@ class PayrollService
             ->sum('total_fine');
     }
 
-    private static function calculateBpjsDeduction($employee)
+    private static function calculateBpjsWithPremium($employee, $month, $year)
     {
+        // Get BPJS setting (allowance from company)
         $bpjsSetting = BpjsSetting::where('employee_id', $employee->id)
             ->where('is_active', true)
             ->first();
 
-        if (!$bpjsSetting) {
-            return 0;
-        }
+        $bpjsAllowance = $bpjsSetting ? $bpjsSetting->bpjs_monthly_amount : 0;
 
-        return $bpjsSetting->bpjs_monthly_amount;
+        // Get premium for this month
+        $bpjsPremium = BpjsPremium::where('employee_id', $employee->id)
+            ->where('month', $month)
+            ->where('year', $year)
+            ->first();
+
+        $premiumAmount = $bpjsPremium ? $bpjsPremium->premium_amount : 0;
+
+        // Calculate cash payment needed (if premium > allowance)
+        $cashPayment = max(0, $premiumAmount - $bpjsAllowance);
+
+        // Calculate net deduction from salary
+        // If there's premium, deduct the allowance amount from salary
+        // If there's cash payment, it's additional debt shown in PDF
+        $netDeduction = $premiumAmount > 0 ? min($bpjsAllowance, $premiumAmount) : $bpjsAllowance;
+
+        return [
+            'allowance' => $bpjsAllowance,
+            'premium' => $premiumAmount,
+            'cash_payment' => $cashPayment,
+            'net_deduction' => $netDeduction
+        ];
     }
 
     public static function recalculatePayroll($payrollId)
     {
         $payroll = Payroll::findOrFail($payrollId);
         $employee = $payroll->employee;
-
         $month = $payroll->month;
         $year = $payroll->year;
 
@@ -174,11 +202,17 @@ class PayrollService
         $overtimePay = self::calculateOvertimePay($employee, $month, $year);
         $totalFines = self::calculateTotalFines($employee, $month, $year);
 
-        // BPJS deduction only for monthly payroll
-        $bpjsDeduction = self::calculateBpjsDeduction($employee);
+        // Calculate BPJS with premium logic
+        $bpjsCalculation = self::calculateBpjsWithPremium($employee, $month, $year);
+        $bpjsAllowance = $bpjsCalculation['allowance'];
+        $bpjsCashPayment = $bpjsCalculation['cash_payment'];
+        $bpjsNetDeduction = $bpjsCalculation['net_deduction'];
 
-        $grossSalary = $basicSalary + $overtimePay + $mealAllowance;
-        $netSalary = $grossSalary - $totalFines - $bpjsDeduction;
+        // Gross salary = basic + overtime + meal allowance + BPJS allowance (company pays)
+        $grossSalary = $basicSalary + $overtimePay + $mealAllowance + $bpjsAllowance;
+
+        // Net salary = gross - fines - BPJS net deduction
+        $netSalary = $grossSalary - $totalFines - $bpjsNetDeduction;
 
         $payroll->update([
             'working_days' => $workingDays,
@@ -187,7 +221,9 @@ class PayrollService
             'overtime_pay' => $overtimePay,
             'meal_allowance' => $mealAllowance,
             'total_fines' => $totalFines,
-            'bpjs_deduction' => $bpjsDeduction,
+            'bpjs_deduction' => $bpjsNetDeduction,
+            'bpjs_allowance' => $bpjsAllowance,
+            'bpjs_cash_payment' => $bpjsCashPayment,
             'gross_salary' => $grossSalary,
             'net_salary' => $netSalary
         ]);
