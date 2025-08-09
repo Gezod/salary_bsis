@@ -25,7 +25,7 @@
                                 </div>
                             </a>
                         </li>
-                        <li class="nav-item">
+                        {{-- <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('absensi.denda.individual') ? 'active-link' : '' }}"
                                 href="{{ route('absensi.denda.individual') }}">
                                 <div class="d-flex align-items-center">
@@ -35,29 +35,9 @@
                                     <span>Denda Individu</span>
                                 </div>
                             </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('absensi.recap') ? 'active-link' : '' }}"
-                                href="{{ route('absensi.recap') }}">
-                                <div class="d-flex align-items-center">
-                                    <div class="icon-wrapper me-3">
-                                        <i class="bi bi-file-earmark-text"></i>
-                                    </div>
-                                    <span>Rekap Denda</span>
-                                </div>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('absensi.late-recap') ? 'active-link' : '' }}"
-                                href="{{ route('absensi.late-recap') }}">
-                                <div class="d-flex align-items-center">
-                                    <div class="icon-wrapper me-3">
-                                        <i class="bi bi-clock-history"></i>
-                                    </div>
-                                    <span>Rekap Keterlambatan</span>
-                                </div>
-                            </a>
-                        </li>
+                        </li> --}}
+
+
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('absensi.import') ? 'active-link' : '' }}"
                                 href="{{ route('absensi.import') }}">
@@ -113,7 +93,7 @@
                                 </div>
                             </a>
                         </li>
-                        <li class="nav-item">
+                        {{-- <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('absensi.denda') ? 'active-link' : '' }}"
                                 href="{{ route('absensi.denda') }}">
                                 <div class="d-flex align-items-center">
@@ -123,12 +103,34 @@
                                     <span>Pengaturan Denda</span>
                                 </div>
                             </a>
+                        </li> --}}
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('absensi.late-recap') ? 'active-link' : '' }}"
+                                href="{{ route('absensi.late-recap') }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="late-icon-wrapper me-3">
+                                        <i class="bi bi-clock-history"></i>
+                                    </div>
+                                    <span>Rekap Keterlambatan</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('absensi.recap') ? 'active-link' : '' }}"
+                                href="{{ route('absensi.recap') }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="fine-icon-wrapper me-3">
+                                        <i class="bi bi-file-earmark-text"></i>
+                                    </div>
+                                    <span>Rekap Denda</span>
+                                </div>
+                            </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ request()->routeIs('absensi.role') ? 'active-link' : '' }}"
                                 href="{{ route('absensi.role') }}">
                                 <div class="d-flex align-items-center">
-                                    <div class="icon-wrapper me-3">
+                                    <div class="employee-icon-wrapper me-3">
                                         <i class="bi bi-people"></i>
                                     </div>
                                     <span>Kelola Karyawan</span>
@@ -150,11 +152,9 @@
                             <a class="nav-link {{ request()->routeIs('payroll.*') ? 'active-link' : '' }}"
                                 href="{{ route('payroll.index') }}">
                                 <div class="d-flex align-items-center">
-
                                     <div class="cash-icon-wrapper me-3">
                                         <i class="bi bi-cash-stack"></i>
                                     </div>
-
                                     <span>Sistem Payroll</span>
                                 </div>
                             </a>

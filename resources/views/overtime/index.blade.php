@@ -19,7 +19,7 @@
                             <a class="nav-link {{ request()->routeIs('overtime.overview') ? 'active-link' : '' }}"
                                 href="{{ route('overtime.overview') }}">
                                 <div class="d-flex align-items-center">
-                                    <div class="icon-wrapper me-3">
+                                    <div class="overtime-icon-wrapper me-3">
                                         <i class="bi bi-speedometer2"></i>
                                     </div>
                                     <span class="menu-text">Overview</span>
@@ -30,7 +30,7 @@
                             <a class="nav-link {{ request()->routeIs('overtime.index') ? 'active-link' : '' }}"
                                 href="{{ route('overtime.index') }}">
                                 <div class="d-flex align-items-center">
-                                    <div class="icon-wrapper me-3">
+                                    <div class="overtime-icon-wrapper me-3">
                                         <i class="bi bi-file-earmark-text"></i>
                                     </div>
                                     <span class="menu-text">Data Lembur</span>
@@ -41,7 +41,7 @@
                             <a class="nav-link {{ request()->routeIs('overtime.settings') ? 'active-link' : '' }}"
                                 href="{{ route('overtime.settings') }}">
                                 <div class="d-flex align-items-center">
-                                    <div class="icon-wrapper me-3">
+                                    <div class="overtime-icon-wrapper me-3">
                                         <i class="bi bi-gear"></i>
                                     </div>
                                     <span class="menu-text">Pengaturan</span>
@@ -52,7 +52,7 @@
                             <a class="nav-link {{ request()->routeIs('overtime.recap') ? 'active-link' : '' }}"
                                 href="{{ route('overtime.recap') }}">
                                 <div class="d-flex align-items-center">
-                                    <div class="icon-wrapper me-3">
+                                    <div class="overtime-icon-wrapper me-3">
                                         <i class="bi bi-calendar-check"></i>
                                     </div>
                                     <span class="menu-text">Rekap</span>
@@ -63,7 +63,7 @@
                             <a class="nav-link {{ request()->routeIs('absensi.*') ? 'active-link' : '' }}"
                                 href="{{ route('absensi.index') }}">
                                 <div class="d-flex align-items-center">
-                                    <div class="overtime-icon-wrapper me-3"> <!-- Ganti class disini -->
+                                    <div class="back-icon-wrapper me-3"> <!-- Ganti class disini -->
                                         <i class="bi bi-arrow-bar-left"></i>
                                     </div>
                                     <span>Kembali ke Absensi</span>

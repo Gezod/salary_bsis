@@ -483,6 +483,21 @@ body {
     transform: translateY(-2px);
 }
 
+.back-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--danger-color), #eb0712) !important;
+    margin-right: 1rem;
+}
+
+.back-icon-wrapper i {
+    color: white !important;
+}
+
 .theme-toggle i {
     color: inherit !important;
 }

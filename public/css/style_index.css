@@ -16,6 +16,9 @@
     --hover-bg: rgba(59, 130, 246, 0.1);
     --table-hover: rgba(59, 130, 246, 0.05);
     --table-striped-bg: #f8fafc;
+    --grey-color: #D3D3D3;
+    --purple-color: #8c07ad;
+    --brown-color: #A52A2A;
 }
 
 [data-theme="dark"] {
@@ -377,11 +380,71 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, var(--danger-color), #dc2626) !important;
+    background: linear-gradient(135deg, var(--grey-color), #D3D3D3) !important;
     margin-right: 1rem;
 }
 
 .overtime-icon-wrapper i {
+    color: white !important;
+}
+
+.employee-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--purple-color), #8c07ad) !important;
+    margin-right: 1rem;
+}
+
+.employee-icon-wrapper i {
+    color: white !important;
+}
+
+.fine-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--warning-color), #e99a07) !important;
+    margin-right: 1rem;
+}
+
+.fine-icon-wrapper i {
+    color: white !important;
+}
+
+.late-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--warning-color), #A52A2A) !important;
+    margin-right: 1rem;
+}
+
+.late-icon-wrapper i {
+    color: white !important;
+}
+
+.back-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--danger-color), #eb0712) !important;
+    margin-right: 1rem;
+}
+
+.back-icon-wrapper i {
     color: white !important;
 }
 
