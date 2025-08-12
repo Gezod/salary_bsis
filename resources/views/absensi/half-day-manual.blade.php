@@ -15,32 +15,23 @@
                     </div>
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('absensi.index') }}">
-                                <div class="d-flex align-items-center">
-                                    <div class="icon-wrapper me-3">
-                                        <i class="bi bi-calendar-check"></i>
-                                    </div>
-                                    <span>Absensi Harian</span>
-                                </div>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('absensi.manual') }}">
-                                <div class="d-flex align-items-center">
-                                    <div class="icon-wrapper me-3">
-                                        <i class="bi bi-clipboard-check"></i>
-                                    </div>
-                                    <span>Manual Presensi</span>
-                                </div>
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link active-link" href="{{ route('absensi.half-day-manual') }}">
                                 <div class="d-flex align-items-center">
                                     <div class="icon-wrapper me-3">
                                         <i class="bi bi-clock-history"></i>
                                     </div>
                                     <span>Absensi Setengah Hari</span>
+                                </div>
+                            </a>
+                        </li>
+                         <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('absensi.*') ? 'active-link' : '' }}"
+                                href="{{ route('absensi.index') }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="back-icon-wrapper me-3"> <!-- Ganti class disini -->
+                                        <i class="bi bi-arrow-bar-left"></i>
+                                    </div>
+                                    <span>Kembali ke Absensi</span>
                                 </div>
                             </a>
                         </li>

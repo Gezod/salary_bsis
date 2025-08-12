@@ -18,7 +18,7 @@
                             <a class="nav-link {{ request()->routeIs('absensi.recap') ? 'active-link' : '' }}"
                                 href="{{ route('absensi.recap') }}">
                                 <div class="d-flex align-items-center">
-                                    <div class="icon-wrapper me-3">
+                                    <div class="fine-icon-wrapper me-3">
                                         <i class="bi bi-file-earmark-text"></i>
                                     </div>
                                     <span>Rekap Denda</span>
@@ -29,7 +29,7 @@
                             <a class="nav-link {{ request()->routeIs('absensi.denda') ? 'active-link' : '' }}"
                                 href="{{ route('absensi.denda') }}">
                                 <div class="d-flex align-items-center">
-                                    <div class="icon-wrapper me-3">
+                                    <div class="fine-icon-wrapper me-3">
                                         <i class="bi bi-currency-dollar"></i>
                                     </div>
                                     <span>Pengaturan Denda</span>
@@ -40,7 +40,7 @@
                             <a class="nav-link {{ request()->routeIs('absensi.denda.individual') ? 'active-link' : '' }}"
                                 href="{{ route('absensi.denda.individual') }}">
                                 <div class="d-flex align-items-center">
-                                    <div class="icon-wrapper me-3">
+                                    <div class="fine-icon-wrapper me-3">
                                         <i class="bi bi-person"></i>
                                     </div>
                                     <span>Denda Individu</span>

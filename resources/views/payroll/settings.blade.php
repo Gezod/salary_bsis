@@ -18,7 +18,7 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('payroll.index') }}">
                                 <div class="d-flex align-items-center">
-                                    <div class="icon-wrapper me-3">
+                                    <div class="cash-icon-wrapper me-3">
                                         <i class="bi bi-cash-stack"></i>
                                     </div>
                                     <span>Data Payroll</span>
@@ -28,7 +28,7 @@
                         <li class="nav-item">
                             <a class="nav-link active-link" href="{{ route('payroll.settings') }}">
                                 <div class="d-flex align-items-center">
-                                    <div class="icon-wrapper me-3">
+                                    <div class="cash-icon-wrapper me-3">
                                         <i class="bi bi-gear"></i>
                                     </div>
                                     <span>Pengaturan Karyawan</span>
@@ -38,7 +38,7 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('payroll.staff.settings') }}">
                                 <div class="d-flex align-items-center">
-                                    <div class="icon-wrapper me-3">
+                                    <div class="cash-icon-wrapper me-3">
                                         <i class="bi bi-people"></i>
                                     </div>
                                     <span>Pengaturan Staff</span>
@@ -48,7 +48,7 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('absensi.index') }}">
                                 <div class="d-flex align-items-center">
-                                    <div class="icon-wrapper me-3">
+                                    <div class="back-icon-wrapper me-3">
                                         <i class="bi bi-arrow-left"></i>
                                     </div>
                                     <span>Kembali ke Absensi</span>

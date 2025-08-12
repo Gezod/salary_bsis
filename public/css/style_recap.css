@@ -494,6 +494,36 @@ body {
     margin-right: 1rem;
 }
 
+.fine-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--warning-color), #e99a07) !important;
+    margin-right: 1rem;
+}
+
+.fine-icon-wrapper i {
+    color: white !important;
+}
+
+.late-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--warning-color), #A52A2A) !important;
+    margin-right: 1rem;
+}
+
+.late-icon-wrapper i {
+    color: white !important;
+}
+
 .back-icon-wrapper i {
     color: white !important;
 }

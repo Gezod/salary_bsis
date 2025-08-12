@@ -17,7 +17,7 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('payroll.index') }}">
                             <div class="d-flex align-items-center">
-                                <div class="icon-wrapper me-3">
+                                <div class="cash-icon-wrapper me-3">
                                     <i class="bi bi-cash-stack"></i>
                                 </div>
                                 <span>Payroll Bulanan</span>
@@ -27,7 +27,7 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('weekly-payroll.index') }}">
                             <div class="d-flex align-items-center">
-                                <div class="icon-wrapper me-3">
+                                <div class="cash-icon-wrapper me-3">
                                     <i class="bi bi-calendar-week"></i>
                                 </div>
                                 <span>Payroll Mingguan</span>
@@ -37,7 +37,7 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('bpjs.settings') }}">
                             <div class="d-flex align-items-center">
-                                <div class="icon-wrapper me-3">
+                                <div class="cash-icon-wrapper me-3">
                                     <i class="bi bi-shield-check"></i>
                                 </div>
                                 <span>Pengaturan BPJS</span>
@@ -47,7 +47,7 @@
                     <li class="nav-item">
                         <a class="nav-link active" href="{{ route('bpjs.premiums') }}">
                             <div class="d-flex align-items-center">
-                                <div class="icon-wrapper me-3">
+                                <div class="cash-icon-wrapper me-3">
                                     <i class="bi bi-credit-card"></i>
                                 </div>
                                 <span>Premi BPJS</span>
@@ -57,7 +57,7 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{{ route('absensi.index') }}">
                             <div class="d-flex align-items-center">
-                                <div class="icon-wrapper me-3">
+                                <div class="back-icon-wrapper me-3">
                                     <i class="bi bi-arrow-left"></i>
                                 </div>
                                 <span>Kembali ke Absensi</span>
