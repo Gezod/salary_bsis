@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <title>Slip Gaji Bulanan - {{ $payroll->employee->nama }}</title>
@@ -11,28 +12,33 @@
             padding: 20px;
             color: #333;
         }
+
         .header {
             text-align: center;
             margin-bottom: 30px;
             border-bottom: 2px solid #333;
             padding-bottom: 20px;
         }
+
         .logo {
             width: 80px;
             height: auto;
             margin-bottom: 10px;
         }
+
         .header h1 {
             margin: 10px 0 5px 0;
             color: #333;
             font-size: 20px;
             font-weight: bold;
         }
+
         .header p {
             margin: 5px 0;
             color: #666;
             font-size: 11px;
         }
+
         .slip-title {
             text-align: center;
             font-size: 16px;
@@ -40,51 +46,63 @@
             margin: 20px 0;
             color: #333;
         }
+
         .employee-info {
             margin-bottom: 20px;
         }
+
         .info-table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
         }
+
         .info-table td {
             padding: 5px 10px;
             border: 1px solid #ddd;
         }
+
         .info-table .label {
             background-color: #f5f5f5;
             font-weight: bold;
             width: 30%;
         }
+
         .salary-table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
         }
-        .salary-table th, .salary-table td {
+
+        .salary-table th,
+        .salary-table td {
             border: 1px solid #333;
             padding: 8px;
             text-align: left;
         }
+
         .salary-table th {
             background-color: #f2f2f2;
             font-weight: bold;
             text-align: center;
         }
+
         .salary-table .amount {
             text-align: right;
             font-weight: bold;
         }
+
         .total-row {
             background-color: #e8f4f8;
             font-weight: bold;
         }
+
         .net-salary-row {
             background-color: #d4edda;
             font-weight: bold;
             font-size: 14px;
         }
+
         .bpjs-section {
             background-color: #fff3cd;
             border: 1px solid #ffeaa7;
@@ -92,35 +110,42 @@
             border-radius: 5px;
             margin-bottom: 20px;
         }
+
         .bpjs-section h4 {
             margin: 0 0 10px 0;
             color: #333;
             font-size: 14px;
         }
+
         .bpjs-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
         }
+
         .bpjs-table td {
             padding: 5px 10px;
             border-bottom: 1px dotted #ccc;
         }
+
         .bpjs-table .label {
             font-weight: bold;
             width: 60%;
         }
+
         .signatures {
             margin-top: 40px;
             width: 100%;
             text-align: center;
         }
+
         .payment-info {
             background-color: #f8f9fa;
             padding: 15px;
             border-radius: 5px;
             margin-bottom: 20px;
         }
+
         .footer {
             margin-top: 30px;
             text-align: center;
@@ -129,6 +154,7 @@
             border-top: 1px solid #ddd;
             padding-top: 10px;
         }
+
         .period-highlight {
             background-color: #fff3cd;
             border: 1px solid #ffeaa7;
@@ -142,7 +168,8 @@
 
 <body>
     <div class="header">
-        <img src="{{ public_path('images/Logo-Bank-Sampah-Surabaya-bank-sampah-induk-surabaya-v2 (1).png') }}" alt="Bank Sampah Logo" class="logo">
+        <img src="{{ public_path('images/Logo-Bank-Sampah-Surabaya-bank-sampah-induk-surabaya-v2 (1).png') }}"
+            alt="Bank Sampah Logo" class="logo">
         <h1>BANK SAMPAH INDUK SURABAYA</h1>
         <p>Jl. Raya Menur No.31-A, Manyar Sabrangan, Kec. Mulyorejo, Surabaya, Jawa Timur 60116</p>
         <p>Telp: (0851)-0009-0858 | Email: banksampahinduksurabaya@gmail.com</p>
@@ -154,7 +181,8 @@
     </div>
 
     <div class="period-highlight">
-        <strong>PERIODE PEMBAYARAN:</strong> {{ \Carbon\Carbon::create($payroll->year, $payroll->month, 1)->translatedFormat('F Y') }}
+        <strong>PERIODE PEMBAYARAN:</strong>
+        {{ \Carbon\Carbon::create($payroll->year, $payroll->month, 1)->translatedFormat('F Y') }}
         <br><small>({{ $payroll->working_days }} hari kerja, {{ $payroll->present_days }} hari hadir)</small>
     </div>
 
@@ -211,7 +239,8 @@
                             (Rp {{ number_format($staffSetting->monthly_salary, 0, ',', '.') }})
                         @endif
                     @else
-                        {{ $payroll->present_days }} hari hadir × Rp {{ number_format($payroll->employee->daily_salary ?? 0, 0, ',', '.') }}
+                        {{ $payroll->present_days }} hari hadir × Rp
+                        {{ number_format($payroll->employee->daily_salary ?? 0, 0, ',', '.') }}
                     @endif
                 </td>
                 <td class="amount">Rp {{ number_format($payroll->basic_salary, 0, ',', '.') }}</td>
@@ -232,10 +261,12 @@
                             )->first();
                             $dailyMealAllowance = $staffSetting ? $staffSetting->daily_meal_allowance : 0;
                         @endphp
-                        {{ $payroll->present_days }} hari hadir × Rp {{ number_format($dailyMealAllowance, 0, ',', '.') }}
+                        {{ $payroll->present_days }} hari hadir × Rp
+                        {{ number_format($dailyMealAllowance, 0, ',', '.') }}
                         <br><small style="color: #666;">(Hanya hari masuk kerja)</small>
                     @else
-                        {{ $payroll->present_days }} hari hadir × Rp {{ number_format($payroll->employee->meal_allowance ?? 0, 0, ',', '.') }}
+                        {{ $payroll->present_days }} hari hadir × Rp
+                        {{ number_format($payroll->employee->meal_allowance ?? 0, 0, ',', '.') }}
                     @endif
                 </td>
                 <td class="amount">Rp {{ number_format($payroll->meal_allowance, 0, ',', '.') }}</td>
@@ -286,11 +317,17 @@
                 @if ($payroll->bpjs_premium)
                     <tr>
                         <td class="label">Total Premi BPJS periode ini:</td>
-                        <td><strong>Rp {{ number_format($payroll->bpjs_premium->premium_amount, 0, ',', '.') }}</strong></td>
+                        <td><strong>Rp
+                                {{ number_format($payroll->bpjs_premium->premium_amount, 0, ',', '.') }}</strong></td>
                     </tr>
                     <tr>
                         <td class="label">Langsung dipotong dari gaji:</td>
-                        <td><strong>Rp {{ number_format($payroll->bpjs_deduction, 0, ',', '.') }}</strong></td>
+                        <td>
+                            <strong>
+                                Rp
+                                {{ number_format($payroll->bpjs_premium->premium_amount - $payroll->bpjs_allowance, 0, ',', '.') }}
+                            </strong>
+                        </td>
                     </tr>
                 @else
                     <tr>
@@ -336,7 +373,8 @@
         <div style="display: inline-block; text-align: right;">
             <strong>Mengetahui,</strong>
             <div style="height: 100px; margin: 10px 0; position: relative;">
-                <img src="{{ storage_path('app/public/docs/images/ttd-fix.png') }}" alt="Tanda Tangan" style="height: 80px; object-fit: contain;">
+                <img src="{{ storage_path('app/public/docs/images/ttd-fix.png') }}" alt="Tanda Tangan"
+                    style="height: 80px; object-fit: contain;">
                 <div class="signature-info">
                     <strong>Nur Ainiya Fariza, S.E.</strong><br>
                     <span>Manajer Dept. HRD & Keuangan</span>
@@ -351,7 +389,8 @@
         <p>• Slip gaji ini adalah bukti resmi pembayaran gaji bulanan</p>
         <p>• Simpan slip gaji ini untuk keperluan administrasi</p>
         <hr>
-        <p>Slip gaji ini digenerate secara otomatis pada {{ now()->setTimezone('Asia/Jakarta')->format('d F Y H:i:s') }} WIB</p>
+        <p>Slip gaji ini digenerate secara otomatis pada
+            {{ now()->setTimezone('Asia/Jakarta')->format('d F Y H:i:s') }} WIB</p>
         <p>Bank Sampah Induk Surabaya - Sistem Payroll Terintegrasi</p>
     </div>
 </body>
