@@ -126,14 +126,14 @@ class WeeklyPayroll extends Model
     }
 
     /**
-     * Check if this is end of month period (within last 7 days of month)
+     * Check if this is end of month period (ONLY dates 28-31)
      */
     public function isEndOfMonthPeriod()
     {
-        $endOfMonth = $this->end_date->copy()->endOfMonth();
-        $daysFromEndOfMonth = $this->end_date->diffInDays($endOfMonth);
+        $dayOfMonth = $this->end_date->day;
 
-        return $daysFromEndOfMonth <= 7;
+        // HANYA tanggal 28-31 yang dianggap akhir bulan
+        return $dayOfMonth >= 28;
     }
 
     /**
@@ -175,11 +175,11 @@ class WeeklyPayroll extends Model
     }
 
     /**
-     * Check if needs cash payment for BPJS
+     * Check if needs cash payment for BPJS (always false now)
      */
     public function needsBpjsCashPayment()
     {
-        return ($this->bpjs_cash_payment ?? 0) > 0;
+        return false; // Tidak ada pembayaran tunai lagi
     }
 
     /**
@@ -188,5 +188,17 @@ class WeeklyPayroll extends Model
     public function shouldShowBpjsInfo()
     {
         return $this->isEndOfMonthPeriod() && $this->hasActiveBpjs();
+    }
+
+    /**
+     * Get total BPJS premium for this period
+     */
+    public function getTotalBpjsPremiumAttribute()
+    {
+        if ($this->bpjs_premium_for_period) {
+            return $this->bpjs_premium_for_period->premium_amount;
+        }
+
+        return $this->bpjs_allowance ?? 0;
     }
 }

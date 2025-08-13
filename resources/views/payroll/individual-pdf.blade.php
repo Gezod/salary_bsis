@@ -110,19 +110,6 @@
             font-weight: bold;
             width: 60%;
         }
-        .cash-payment {
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            padding: 10px;
-            border-radius: 3px;
-            margin-top: 10px;
-            text-align: center;
-        }
-        .cash-payment .amount {
-            font-size: 16px;
-            font-weight: bold;
-            color: #721c24;
-        }
         .signatures {
             margin-top: 40px;
             width: 100%;
@@ -273,8 +260,8 @@
             @endif
             @if ($payroll->bpjs_deduction > 0)
                 <tr>
-                    <td>Potongan BPJS</td>
-                    <td>Potongan iuran BPJS bulanan</td>
+                    <td>Total Premi BPJS</td>
+                    <td>Total Premi BPJS periode ini</td>
                     <td class="amount">Rp {{ number_format($payroll->bpjs_deduction, 0, ',', '.') }}</td>
                 </tr>
             @endif
@@ -302,30 +289,16 @@
                         <td><strong>Rp {{ number_format($payroll->bpjs_premium->premium_amount, 0, ',', '.') }}</strong></td>
                     </tr>
                     <tr>
-                        <td class="label">Dipotong dari gaji:</td>
+                        <td class="label">Langsung dipotong dari gaji:</td>
                         <td><strong>Rp {{ number_format($payroll->bpjs_deduction, 0, ',', '.') }}</strong></td>
                     </tr>
-                    @if ($payroll->needsBpjsCashPayment())
-                        <tr>
-                            <td class="label">Kelebihan premi yang harus dibayar tunai:</td>
-                            <td><strong>Rp {{ number_format($payroll->bpjs_cash_payment, 0, ',', '.') }}</strong></td>
-                        </tr>
-                    @endif
                 @else
                     <tr>
-                        <td class="label">Dipotong dari gaji (BPJS reguler):</td>
+                        <td class="label">Total Premi BPJS periode ini:</td>
                         <td><strong>Rp {{ number_format($payroll->bpjs_deduction, 0, ',', '.') }}</strong></td>
                     </tr>
                 @endif
             </table>
-
-            @if ($payroll->needsBpjsCashPayment())
-                <div class="cash-payment">
-                    <strong>⚠️ PEMBAYARAN TUNAI DIPERLUKAN</strong><br>
-                    <div class="amount">Rp {{ number_format($payroll->bpjs_cash_payment, 0, ',', '.') }}</div>
-                    <small>Kelebihan premi BPJS yang harus dibayar secara terpisah</small>
-                </div>
-            @endif
 
             @if ($payroll->bpjs_premium && $payroll->bpjs_premium->notes)
                 <div style="margin-top: 10px; padding: 8px; background: #f8f9fa; border-radius: 3px;">
@@ -374,9 +347,7 @@
 
     <div class="footer">
         <p><strong>PENTING:</strong></p>
-        @if ($payroll->needsBpjsCashPayment())
-            <p style="color: #d32f2f;">• Pembayaran tunai BPJS sebesar Rp {{ number_format($payroll->bpjs_cash_payment, 0, ',', '.') }} harus diselesaikan terpisah</p>
-        @endif
+        <p>• Total Premi BPJS sudah dipotong langsung dari pendapatan kotor</p>
         <p>• Slip gaji ini adalah bukti resmi pembayaran gaji bulanan</p>
         <p>• Simpan slip gaji ini untuk keperluan administrasi</p>
         <hr>

@@ -55,17 +55,16 @@ class PayrollService
         $overtimePay = self::calculateOvertimePay($employee, $month, $year);
         $totalFines = self::calculateTotalFines($employee, $month, $year);
 
-        // Calculate BPJS with premium logic
+        // Calculate BPJS with premium logic - Total Premi BPJS periode ini
         $bpjsCalculation = self::calculateBpjsWithPremium($employee, $month, $year);
         $bpjsAllowance = $bpjsCalculation['allowance'];
-        $bpjsCashPayment = $bpjsCalculation['cash_payment'];
-        $bpjsNetDeduction = $bpjsCalculation['net_deduction'];
+        $bpjsTotalPremium = $bpjsCalculation['total_premium'];
 
         // Gross salary = basic + overtime + meal allowance + BPJS allowance (company pays)
         $grossSalary = $basicSalary + $overtimePay + $mealAllowance + $bpjsAllowance;
 
-        // Net salary = gross - fines - BPJS net deduction
-        $netSalary = $grossSalary - $totalFines - $bpjsNetDeduction;
+        // Net salary = gross - fines - Total Premi BPJS periode ini
+        $netSalary = $grossSalary - $totalFines - $bpjsTotalPremium;
 
         return Payroll::create([
             'employee_id' => $employee->id,
@@ -77,9 +76,9 @@ class PayrollService
             'overtime_pay' => $overtimePay,
             'meal_allowance' => $mealAllowance,
             'total_fines' => $totalFines,
-            'bpjs_deduction' => $bpjsNetDeduction,
+            'bpjs_deduction' => $bpjsTotalPremium, // Total Premi BPJS periode ini
             'bpjs_allowance' => $bpjsAllowance,
-            'bpjs_cash_payment' => $bpjsCashPayment,
+            'bpjs_cash_payment' => 0, // Tidak ada pembayaran tunai lagi
             'gross_salary' => $grossSalary,
             'net_salary' => $netSalary,
             'status' => 'pending'
@@ -162,21 +161,14 @@ class PayrollService
             ->where('year', $year)
             ->first();
 
-        $premiumAmount = $bpjsPremium ? $bpjsPremium->premium_amount : 0;
-
-        // Calculate cash payment needed (if premium > allowance)
-        $cashPayment = max(0, $premiumAmount - $bpjsAllowance);
-
-        // Calculate net deduction from salary
-        // If there's premium, deduct the allowance amount from salary
-        // If there's cash payment, it's additional debt shown in PDF
-        $netDeduction = $premiumAmount > 0 ? min($bpjsAllowance, $premiumAmount) : $bpjsAllowance;
+        // Jika ada premi BPJS yang tercatat, gunakan itu. Jika tidak, gunakan tunjangan BPJS
+        $totalPremium = $bpjsPremium ? $bpjsPremium->premium_amount : $bpjsAllowance;
 
         return [
             'allowance' => $bpjsAllowance,
-            'premium' => $premiumAmount,
-            'cash_payment' => $cashPayment,
-            'net_deduction' => $netDeduction
+            'premium' => $bpjsPremium ? $bpjsPremium->premium_amount : 0,
+            'total_premium' => $totalPremium, // Total premi yang dipotong langsung
+            'cash_payment' => 0 // Tidak ada pembayaran tunai
         ];
     }
 
@@ -203,17 +195,16 @@ class PayrollService
         $overtimePay = self::calculateOvertimePay($employee, $month, $year);
         $totalFines = self::calculateTotalFines($employee, $month, $year);
 
-        // Calculate BPJS with premium logic
+        // Calculate BPJS with premium logic - Total Premi BPJS periode ini
         $bpjsCalculation = self::calculateBpjsWithPremium($employee, $month, $year);
         $bpjsAllowance = $bpjsCalculation['allowance'];
-        $bpjsCashPayment = $bpjsCalculation['cash_payment'];
-        $bpjsNetDeduction = $bpjsCalculation['net_deduction'];
+        $bpjsTotalPremium = $bpjsCalculation['total_premium'];
 
         // Gross salary = basic + overtime + meal allowance + BPJS allowance (company pays)
         $grossSalary = $basicSalary + $overtimePay + $mealAllowance + $bpjsAllowance;
 
-        // Net salary = gross - fines - BPJS net deduction
-        $netSalary = $grossSalary - $totalFines - $bpjsNetDeduction;
+        // Net salary = gross - fines - Total Premi BPJS periode ini
+        $netSalary = $grossSalary - $totalFines - $bpjsTotalPremium;
 
         $payroll->update([
             'working_days' => $workingDays,
@@ -222,9 +213,9 @@ class PayrollService
             'overtime_pay' => $overtimePay,
             'meal_allowance' => $mealAllowance,
             'total_fines' => $totalFines,
-            'bpjs_deduction' => $bpjsNetDeduction,
+            'bpjs_deduction' => $bpjsTotalPremium, // Total Premi BPJS periode ini
             'bpjs_allowance' => $bpjsAllowance,
-            'bpjs_cash_payment' => $bpjsCashPayment,
+            'bpjs_cash_payment' => 0, // Tidak ada pembayaran tunai lagi
             'gross_salary' => $grossSalary,
             'net_salary' => $netSalary
         ]);

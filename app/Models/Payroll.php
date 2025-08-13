@@ -159,10 +159,22 @@ class Payroll extends Model
     }
 
     /**
-     * Check if needs cash payment for BPJS
+     * Check if needs cash payment for BPJS (always false now)
      */
     public function needsBpjsCashPayment()
     {
-        return $this->bpjs_cash_payment > 0;
+        return false; // Tidak ada pembayaran tunai lagi
+    }
+
+    /**
+     * Get total BPJS premium for this period
+     */
+    public function getTotalBpjsPremiumAttribute()
+    {
+        if ($this->bpjs_premium) {
+            return $this->bpjs_premium->premium_amount;
+        }
+
+        return $this->bpjs_allowance ?? 0;
     }
 }

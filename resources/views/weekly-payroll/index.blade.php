@@ -147,8 +147,8 @@
                         <hr>
                         <ul class="mb-0">
                             <li><strong>Payroll Mingguan:</strong> Hanya untuk karyawan (bukan staff)</li>
-                            <li><strong>BPJS:</strong> Hanya dipotong di gaji mingguan akhir bulan (7 hari terakhir bulan)</li>
-                            <li><strong>Gaji Akhir Bulan:</strong> Komponen seperti gaji bulanan dengan perhitungan pro-rata</li>
+                            <li><strong>BPJS:</strong> Hanya dipotong di gaji mingguan akhir bulan <span class="badge bg-warning text-dark">TANGGAL 28-31</span></li>
+                            <li><strong>Total Premi BPJS:</strong> Langsung mengurangi pendapatan kotor untuk menghasilkan gaji bersih</li>
                             <li><strong>Rentang Tanggal:</strong> Dapat disesuaikan sesuai kebutuhan (tidak harus 7 hari)</li>
                         </ul>
                     </div>
@@ -246,7 +246,7 @@
                                                     ({{ $payroll->start_date->diffInDays($payroll->end_date) + 1 }} hari kalender)
                                                 </small>
                                                 @if($payroll->isEndOfMonthPeriod())
-                                                    <small class="badge bg-warning text-dark">Akhir Bulan</small>
+                                                    <small class="badge bg-warning text-dark">Akhir Bulan ({{ $payroll->end_date->day }})</small>
                                                 @endif
                                             </td>
                                             <td class="text-white">
@@ -264,7 +264,7 @@
                                             <td class="text-danger">
                                                 @if($payroll->bpjs_deduction > 0)
                                                     {{ $payroll->formatted_bpjs_deduction }}
-                                                    <small class="text-warning d-block">Akhir Bulan</small>
+                                                    <small class="text-warning d-block">Total Premi</small>
                                                 @else
                                                     <span class="text-muted">-</span>
                                                 @endif
@@ -340,8 +340,8 @@
                             <i class="bi bi-info-circle me-2"></i>
                             <strong>Catatan Penting:</strong>
                             <br>• Sistem akan menghitung payroll hanya untuk <strong>karyawan</strong> (bukan staff)
-                            <br>• <strong>BPJS dipotong</strong> jika periode berakhir dalam 7 hari terakhir bulan
-                            <br>• Gaji akhir bulan menggunakan perhitungan pro-rata seperti gaji bulanan
+                            <br>• <strong>BPJS dipotong</strong> jika periode berakhir di tanggal <span class="badge bg-warning text-dark">28-31</span>
+                            <br>• <strong>Total Premi BPJS</strong> langsung mengurangi pendapatan kotor
                             <br>• Rentang tanggal dapat disesuaikan kebutuhan
                         </div>
                     </div>

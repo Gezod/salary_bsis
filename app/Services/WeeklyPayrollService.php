@@ -42,7 +42,7 @@ class WeeklyPayrollService
         $workingDays = self::calculateWorkingDays($startDate, $endDate);
         $presentDays = self::calculatePresentDays($employee, $startDate, $endDate);
 
-        // Cek apakah ini akhir bulan untuk BPJS
+        // Cek apakah ini akhir bulan untuk BPJS (HANYA tanggal 28-31)
         $isEndOfMonth = self::isEndOfMonthPeriod($endDate);
 
         // Calculate salary based on department
@@ -57,7 +57,7 @@ class WeeklyPayrollService
         $overtimePay = self::calculateOvertimePay($employee, $startDate, $endDate);
         $totalFines = self::calculateTotalFines($employee, $startDate, $endDate);
 
-        // Calculate BPJS - hanya jika akhir bulan
+        // Calculate BPJS - hanya jika akhir bulan (28-31)
         $bpjsAllowance = 0;
         $bpjsCashPayment = 0;
         $bpjsDeduction = 0;
@@ -65,8 +65,7 @@ class WeeklyPayrollService
         if ($isEndOfMonth) {
             $bpjsCalculation = self::calculateBpjsForEndOfMonth($employee, $endDate);
             $bpjsAllowance = $bpjsCalculation['allowance'];
-            $bpjsCashPayment = $bpjsCalculation['cash_payment'];
-            $bpjsDeduction = $bpjsCalculation['net_deduction'];
+            $bpjsDeduction = $bpjsCalculation['total_premium']; // Langsung potong total premi
         }
 
         $grossSalary = $basicSalary + $overtimePay + $mealAllowance + $bpjsAllowance;
@@ -84,7 +83,7 @@ class WeeklyPayrollService
             'total_fines' => $totalFines,
             'bpjs_deduction' => $bpjsDeduction,
             'bpjs_allowance' => $bpjsAllowance,
-            'bpjs_cash_payment' => $bpjsCashPayment,
+            'bpjs_cash_payment' => 0, // Tidak ada pembayaran tunai lagi
             'gross_salary' => $grossSalary,
             'net_salary' => $netSalary,
             'status' => 'pending'
@@ -92,15 +91,14 @@ class WeeklyPayrollService
     }
 
     /**
-     * Check if the end date is at the end of the month (last 7 days)
+     * Check if the end date is at the end of the month (ONLY dates 28-31)
      */
     private static function isEndOfMonthPeriod($endDate)
     {
-        $endOfMonth = $endDate->copy()->endOfMonth();
-        $daysFromEndOfMonth = $endDate->diffInDays($endOfMonth);
+        $dayOfMonth = $endDate->day;
 
-        // Jika dalam 7 hari terakhir dari bulan tersebut
-        return $daysFromEndOfMonth <= 7;
+        // HANYA tanggal 28-31 yang dianggap akhir bulan
+        return $dayOfMonth >= 28;
     }
 
     /**
@@ -124,19 +122,14 @@ class WeeklyPayrollService
             ->where('year', $year)
             ->first();
 
-        $premiumAmount = $bpjsPremium ? $bpjsPremium->premium_amount : 0;
-
-        // Calculate cash payment needed (if premium > allowance)
-        $cashPayment = max(0, $premiumAmount - $bpjsAllowance);
-
-        // Calculate net deduction from salary
-        $netDeduction = $premiumAmount > 0 ? min($bpjsAllowance, $premiumAmount) : $bpjsAllowance;
+        // Jika ada premi BPJS yang tercatat, gunakan itu. Jika tidak, gunakan tunjangan BPJS
+        $totalPremium = $bpjsPremium ? $bpjsPremium->premium_amount : $bpjsAllowance;
 
         return [
             'allowance' => $bpjsAllowance,
-            'premium' => $premiumAmount,
-            'cash_payment' => $cashPayment,
-            'net_deduction' => $netDeduction
+            'premium' => $bpjsPremium ? $bpjsPremium->premium_amount : 0,
+            'total_premium' => $totalPremium, // Total premi yang dipotong langsung
+            'cash_payment' => 0 // Tidak ada pembayaran tunai
         ];
     }
 
@@ -226,7 +219,7 @@ class WeeklyPayrollService
         $workingDays = self::calculateWorkingDays($startDate, $endDate);
         $presentDays = self::calculatePresentDays($employee, $startDate, $endDate);
 
-        // Cek apakah ini akhir bulan untuk BPJS
+        // Cek apakah ini akhir bulan untuk BPJS (HANYA tanggal 28-31)
         $isEndOfMonth = self::isEndOfMonthPeriod($endDate);
 
         // Calculate salary based on department
@@ -241,16 +234,14 @@ class WeeklyPayrollService
         $overtimePay = self::calculateOvertimePay($employee, $startDate, $endDate);
         $totalFines = self::calculateTotalFines($employee, $startDate, $endDate);
 
-        // Calculate BPJS - hanya jika akhir bulan
+        // Calculate BPJS - hanya jika akhir bulan (28-31)
         $bpjsAllowance = 0;
-        $bpjsCashPayment = 0;
         $bpjsDeduction = 0;
 
         if ($isEndOfMonth) {
             $bpjsCalculation = self::calculateBpjsForEndOfMonth($employee, $endDate);
             $bpjsAllowance = $bpjsCalculation['allowance'];
-            $bpjsCashPayment = $bpjsCalculation['cash_payment'];
-            $bpjsDeduction = $bpjsCalculation['net_deduction'];
+            $bpjsDeduction = $bpjsCalculation['total_premium']; // Langsung potong total premi
         }
 
         $grossSalary = $basicSalary + $overtimePay + $mealAllowance + $bpjsAllowance;
@@ -265,7 +256,7 @@ class WeeklyPayrollService
             'total_fines' => $totalFines,
             'bpjs_deduction' => $bpjsDeduction,
             'bpjs_allowance' => $bpjsAllowance,
-            'bpjs_cash_payment' => $bpjsCashPayment,
+            'bpjs_cash_payment' => 0, // Tidak ada pembayaran tunai lagi
             'gross_salary' => $grossSalary,
             'net_salary' => $netSalary
         ]);

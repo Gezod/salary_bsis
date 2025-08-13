@@ -110,19 +110,6 @@
             font-weight: bold;
             width: 60%;
         }
-        .cash-payment {
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            padding: 10px;
-            border-radius: 3px;
-            margin-top: 10px;
-            text-align: center;
-        }
-        .cash-payment .amount {
-            font-size: 16px;
-            font-weight: bold;
-            color: #721c24;
-        }
         .signatures {
             margin-top: 40px;
             width: 100%;
@@ -179,13 +166,13 @@
         <strong>PERIODE PEMBAYARAN:</strong> {{ $weeklyPayroll->start_date->format('d F Y') }} s/d {{ $weeklyPayroll->end_date->format('d F Y') }}
         <br><small>({{ $weeklyPayroll->start_date->diffInDays($weeklyPayroll->end_date) + 1 }} hari kalender, {{ $weeklyPayroll->working_days }} hari kerja)</small>
         @if($weeklyPayroll->isEndOfMonthPeriod())
-            <br><span style="color: #856404; font-weight: bold;">⚡ GAJI AKHIR BULAN - TERMASUK BPJS</span>
+            <br><span style="color: #856404; font-weight: bold;">⚡ GAJI AKHIR BULAN - TERMASUK BPJS (Tanggal {{ $weeklyPayroll->end_date->day }})</span>
         @endif
     </div>
 
     @if(!$weeklyPayroll->isEndOfMonthPeriod())
     <div class="bpjs-note">
-        <strong>CATATAN:</strong> BPJS hanya dipotong dari gaji mingguan di akhir bulan atau gaji bulanan.
+        <strong>CATATAN:</strong> BPJS hanya dipotong dari gaji mingguan di akhir bulan (tanggal 28-31) atau gaji bulanan.
     </div>
     @endif
 
@@ -284,8 +271,8 @@
             @endif
             @if ($weeklyPayroll->bpjs_deduction > 0)
                 <tr>
-                    <td>Potongan BPJS</td>
-                    <td>Potongan iuran BPJS (gaji akhir bulan)</td>
+                    <td>Total Premi BPJS</td>
+                    <td>Total Premi BPJS periode ini (gaji akhir bulan)</td>
                     <td class="amount">Rp {{ number_format($weeklyPayroll->bpjs_deduction, 0, ',', '.') }}</td>
                 </tr>
             @endif
@@ -311,30 +298,16 @@
                         <td><strong>Rp {{ number_format($weeklyPayroll->bpjs_premium_for_period->premium_amount, 0, ',', '.') }}</strong></td>
                     </tr>
                     <tr>
-                        <td class="label">Dipotong dari gaji:</td>
+                        <td class="label">Langsung dipotong dari gaji:</td>
                         <td><strong>Rp {{ number_format($weeklyPayroll->bpjs_deduction, 0, ',', '.') }}</strong></td>
                     </tr>
-                    @if($weeklyPayroll->needsBpjsCashPayment())
-                        <tr>
-                            <td class="label">Kelebihan premi yang harus dibayar tunai:</td>
-                            <td><strong>Rp {{ number_format($weeklyPayroll->bpjs_cash_payment, 0, ',', '.') }}</strong></td>
-                        </tr>
-                    @endif
                 @else
                     <tr>
-                        <td class="label">Dipotong dari gaji (BPJS reguler):</td>
+                        <td class="label">Total Premi BPJS periode ini:</td>
                         <td><strong>Rp {{ number_format($weeklyPayroll->bpjs_deduction, 0, ',', '.') }}</strong></td>
                     </tr>
                 @endif
             </table>
-
-            @if($weeklyPayroll->needsBpjsCashPayment())
-                <div class="cash-payment">
-                    <strong>⚠️ PEMBAYARAN TUNAI DIPERLUKAN</strong><br>
-                    <div class="amount">Rp {{ number_format($weeklyPayroll->bpjs_cash_payment, 0, ',', '.') }}</div>
-                    <small>Kelebihan premi BPJS yang harus dibayar secara terpisah</small>
-                </div>
-            @endif
 
             @if($weeklyPayroll->bpjs_premium_for_period && $weeklyPayroll->bpjs_premium_for_period->notes)
                 <div style="margin-top: 10px; padding: 8px; background: #f8f9fa; border-radius: 3px;">
@@ -384,12 +357,10 @@
     <div class="footer">
         <p><strong>PENTING:</strong></p>
         @if($weeklyPayroll->isEndOfMonthPeriod())
-            @if($weeklyPayroll->needsBpjsCashPayment())
-                <p style="color: #d32f2f;">• Pembayaran tunai BPJS sebesar Rp {{ number_format($weeklyPayroll->bpjs_cash_payment, 0, ',', '.') }} harus diselesaikan terpisah</p>
-            @endif
+            <p>• Total Premi BPJS sudah dipotong langsung dari pendapatan kotor</p>
             <p>• Ini adalah gaji mingguan akhir bulan yang sudah termasuk perhitungan BPJS</p>
         @else
-            <p>• BPJS hanya dipotong dari gaji mingguan di akhir bulan atau gaji bulanan</p>
+            <p>• BPJS hanya dipotong dari gaji mingguan di akhir bulan (tanggal 28-31) atau gaji bulanan</p>
         @endif
         <p>• Slip gaji ini adalah bukti resmi pembayaran gaji mingguan karyawan</p>
         <p>• Simpan slip gaji ini untuk keperluan administrasi</p>
