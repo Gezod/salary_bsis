@@ -1144,3 +1144,23 @@ small {
   border-bottom: 1px solid var(--table-border);
   padding: 0.75rem;
 }
+
+
+/* rere */
+/* Background merah + semua teks di baris jadi putih */
+.bg-table-red td,
+.bg-table-red td *,
+.bg-table-red td .fw-semibold,
+.bg-table-red td small {
+    color: #ffffff !important;
+}
+
+/* background table karyawan */
+[data-theme="light"] .bg-table-red > td{
+    background-color:#fca9a9 !important;
+}
+
+[data-theme="dark"] .bg-table-red > td{
+    background-color:#A52A2A !important;
+}
+

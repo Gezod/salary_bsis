@@ -143,7 +143,7 @@
 
                     {{-- Info Alert --}}
                     <div class="alert alert-info mb-4">
-                        <h5 class="alert-heading"><i class="bi bi-info-circle me-2"></i>Informasi Payroll Mingguan:</h5>
+                        <h5 class="alert-heading" style="color:#405551 !important;"><i class="bi bi-info-circle me-2" ></i>Informasi Payroll Mingguan:</h5>
                         <hr>
                         <ul class="mb-0">
                             <li><strong>Payroll Mingguan:</strong> Hanya untuk karyawan (bukan staff)</li>

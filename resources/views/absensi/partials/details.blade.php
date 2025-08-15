@@ -96,7 +96,7 @@
     </div>
 
     <div class="col-md-4">
-        <h6 class="mb-3">Detail Denda & Perhitungan</h6>
+        <h6 class="mb-3 text-fix">Detail Denda & Perhitungan</h6>
         @if($attendance->is_half_day)
             <div class="alert alert-info">
                 <i class="bi bi-info-circle me-2"></i>
@@ -107,7 +107,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="row mb-2">
-                        <div class="col-8"><strong>Telat (menit):</strong></div>
+                        <div class="col-8 text-fix"><strong>Telat (menit):</strong></div>
                         <div class="col-4 text-end">
                             @if($attendance->late_minutes > 0)
                                 <span class="text-danger fw-bold">{{ $attendance->late_minutes }}</span>
@@ -137,7 +137,7 @@
                     @endif
 
                     <div class="row mb-2">
-                        <div class="col-8"><strong>Denda Telat:</strong></div>
+                        <div class="col-8 text-fix"><strong>Denda Telat:</strong></div>
                         <div class="col-4 text-end">
                             @if($attendance->late_fine > 0)
                                 <span class="text-danger fw-bold">Rp {{ number_format($attendance->late_fine, 0, ',', '.') }}</span>
@@ -148,7 +148,7 @@
                     </div>
 
                     <div class="row mb-2">
-                        <div class="col-8"><strong>Denda Istirahat:</strong></div>
+                        <div class="col-8 text-fix"><strong>Denda Istirahat:</strong></div>
                         <div class="col-4 text-end">
                             @if($attendance->break_fine > 0)
                                 <span class="text-warning fw-bold">Rp {{ number_format($attendance->break_fine, 0, ',', '.') }}</span>
@@ -159,7 +159,7 @@
                     </div>
 
                     <div class="row mb-2">
-                        <div class="col-8"><strong>Denda Absen:</strong></div>
+                        <div class="col-8 text-fix"><strong>Denda Absen:</strong></div>
                         <div class="col-4 text-end">
                             @if($attendance->absence_fine > 0)
                                 <span class="text-info fw-bold">Rp {{ number_format($attendance->absence_fine, 0, ',', '.') }}</span>
@@ -172,7 +172,7 @@
                     <hr>
 
                     <div class="row">
-                        <div class="col-8"><strong>Total Denda:</strong></div>
+                        <div class="col-8 text-fix"><strong>Total Denda:</strong></div>
                         <div class="col-4 text-end">
                             @if($attendance->total_fine > 0)
                                 <span class="fw-bold text-danger fs-5">Rp {{ number_format($attendance->total_fine, 0, ',', '.') }}</span>

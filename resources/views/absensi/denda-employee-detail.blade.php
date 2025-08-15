@@ -2,6 +2,7 @@
 
 @section('content')
     <link href="{{ asset('css/style_index.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/style_recover.css') }}" rel="stylesheet">
 
     <div class="container-fluid min-vh-100 px-0">
         <div class="row g-0">

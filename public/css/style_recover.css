@@ -1,0 +1,21 @@
+td{
+    padding : 0.5rem !important;
+    color: var(--text-primary) !important;
+    font-size: 0.875rem !important;
+}
+
+.text-fix {
+     color: var(--text-primary) !important;
+}
+
+.text-absolute-white {
+     color: white !important;
+}
+
+
+/* halaman karyawan modal */
+.color-close {
+    color: var(--text-primary) !important;
+}
+
+

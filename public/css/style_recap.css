@@ -644,6 +644,7 @@ small {
 
 .sidebar::-webkit-scrollbar-thumb:hover {
     background: var(--primary-dark);
+
 }
 
 /* Table text fixes */
@@ -765,7 +766,7 @@ input-group-text {
     --table-color: var(--text-primary);
     --table-border-color: var(--border-color);
     --table-striped-bg: var(--table-striped-bg);
-    --table-hover-bg: var(--table-hover);
+    /* --table-hover-bg: var(--table-hover); */
 
     width: 100%;
     margin-bottom: 1rem;

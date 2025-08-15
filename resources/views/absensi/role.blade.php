@@ -2,6 +2,7 @@
 
 @section('content')
     <link href="{{ asset('css/style_index.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/style_recover.css') }}" rel="stylesheet">
 
     <div class="container-fluid min-vh-100 px-0">
         <div class="row g-0">
@@ -196,29 +197,29 @@
                                 </thead>
                                 <tbody>
                                     @forelse ($employees as $employee)
-                                        <tr class="{{ $employee->isContractExpiringSoon() ? 'table-danger' : '' }}">
+                                        <tr class="{{ $employee->isContractExpiringSoon() ? 'bg-table-red' : '' }}">
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3"
                                                         style="width: 40px; height: 40px;">
-                                                        <span class="text-white fw-bold">
+                                                        <span class="fw-bold text">
                                                             {{ substr($employee->nama ?? 'N', 0, 1) }}
                                                         </span>
                                                     </div>
                                                     <div>
                                                         <div
-                                                            class="{{ $employee->isContractExpiringSoon() ? 'text-dark' : 'text-white' }} fw-semibold">
+                                                            class="{{ $employee->isContractExpiringSoon() ? 'text-absolute-white' : '' }} fw-semibold">
                                                             {{ $employee->nama ?? '-' }}
                                                         </div>
-                                                        <small
-                                                            class=" {{ $employee->isContractExpiringSoon() ? 'text-dark' : 'text-muted ' }} fw-bold ">ID:
-                                                            {{ $employee->id }}</small>
+                                                        <p
+                                                            class=" {{ $employee->isContractExpiringSoon() ? 'text-white' : 'text-white ' }} fw-bold ">ID:
+                                                            {{ $employee->id }}</p>
                                                         @if ($employee->isContractExpiringSoon())
-                                                            <small class="text-danger d-block">
+                                                            <p class="text-danger d-block">
                                                                 <i class="bi bi-exclamation-triangle"></i>
                                                                 Kontrak berakhir {{ $employee->contract_days_remaining }}
                                                                 hari lagi
-                                                            </small>
+                                                            </p>
                                                         @endif
                                                     </div>
                                                 </div>
@@ -244,7 +245,12 @@
                                                     {{ ucfirst($employee->departemen ?? '-') }}
                                                 </span>
                                             </td>
-                                            <td class="text-white">{{ $employee->kantor ?? '-' }}</td>
+                                            <td>
+                                                <div class="text-white">
+                                                    {{ $employee->kantor ?? '-' }}
+                                                </div>
+                                            </td>
+                                            {{-- <td class="text-white">{{ $employee->kantor ?? '-' }}</td> --}}
                                             <td class="text-white">
                                                 @if ($employee->tanggal_start_kontrak && $employee->tanggal_end_kontrak)
                                                     <div class="small">
@@ -263,10 +269,10 @@
                                                         <div class="fw-bold text-success">{{ $employee->work_duration }}
                                                         </div>
                                                         @if ($employee->tanggal_mulai_kontrak_awal)
-                                                            <small class="text-muted">
+                                                            <p class="mt-2 fw-semibold ">
                                                                 Sejak:
                                                                 {{ $employee->tanggal_mulai_kontrak_awal->format('d M Y') }}
-                                                            </small>
+                                                            </p>
                                                         @endif
                                                     </div>
                                                     <button type="button" class="btn btn-sm btn-outline-primary"
@@ -324,9 +330,9 @@
             <div class="modal-content" style="background: var(--card-bg); border: 1px solid var(--border-color);">
                 <div class="modal-header" style="border-bottom: 1px solid var(--border-color);">
                     <h5 class="modal-title text-white" id="addEmployeeModalLabel">
-                        <i class="bi bi-person-plus me-2"></i>Tambah Karyawan Baru
+                        <i class="bi bi-person-plus me-2 "></i>Tambah Karyawan Baru
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    <button type="button" class="btn-close color-close" data-bs-dismiss="modal"
                         aria-label="Close"></button>
                 </div>
                 <form method="POST" action="{{ route('absensi.role.store') }}">

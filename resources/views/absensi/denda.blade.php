@@ -2,6 +2,7 @@
 
 @section('content')
     <link href="{{ asset('css/style_index.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/style_recover.css') }}" rel="stylesheet">
 
     <div class="container-fluid min-vh-100 px-0">
         <div class="row g-0">
@@ -121,35 +122,35 @@
                                         <div class="col-md-6">
                                             <h6 class="text-primary mb-3">STAFF</h6>
                                             <ul class="list-unstyled">
-                                                <li><i class="bi bi-clock me-2 text-danger"></i><strong>Keterlambatan:</strong></li>
-                                                <li class="ms-4">• 1-15 menit: <span class="text-danger">Rp {{ number_format($penalties['staff']['late'][0][2], 0, ',', '.') }}</span></li>
-                                                <li class="ms-4">• 16-30 menit: <span class="text-danger">Rp {{ number_format($penalties['staff']['late'][1][2], 0, ',', '.') }}</span></li>
-                                                <li class="ms-4">• 31-45 menit: <span class="text-danger">Rp {{ number_format($penalties['staff']['late'][2][2], 0, ',', '.') }}</span></li>
-                                                <li class="ms-4">• 46-60 menit: <span class="text-danger">Rp {{ number_format($penalties['staff']['late'][3][2], 0, ',', '.') }}</span></li>
-                                                <li class="ms-4">• >60 menit: <span class="text-danger">Rp 12.000 + (menit - 60)</span></li>
+                                                <li><i class="bi bi-clock me-2 text-danger text-fix"></i><strong class="text-fix">Keterlambatan:</strong></li>
+                                                <li class="ms-4 text-fix">• 1-15 menit: <span class="text-danger">Rp {{ number_format($penalties['staff']['late'][0][2], 0, ',', '.') }}</span></li>
+                                                <li class="ms-4 text-fix">• 16-30 menit: <span class="text-danger">Rp {{ number_format($penalties['staff']['late'][1][2], 0, ',', '.') }}</span></li>
+                                                <li class="ms-4 text-fix">• 31-45 menit: <span class="text-danger">Rp {{ number_format($penalties['staff']['late'][2][2], 0, ',', '.') }}</span></li>
+                                                <li class="ms-4 text-fix">• 46-60 menit: <span class="text-danger">Rp {{ number_format($penalties['staff']['late'][3][2], 0, ',', '.') }}</span></li>
+                                                <li class="ms-4 text-fix">• >60 menit: <span class="text-danger">Rp 12.000 + (menit - 60)</span></li>
                                                 <hr class="my-2">
-                                                <li><i class="bi bi-cup-hot me-2 text-warning"></i><strong>Telat istirahat:</strong> <span class="text-warning">Rp {{ number_format($penalties['staff']['late_break'], 0, ',', '.') }}</span></li>
-                                                <li><i class="bi bi-person-x me-2 text-info"></i><strong>Lupa absen masuk:</strong> <span class="text-info">Rp {{ number_format($penalties['staff']['missing_checkin'], 0, ',', '.') }}</span></li>
-                                                <li><i class="bi bi-person-dash me-2 text-info"></i><strong>Lupa absen pulang:</strong> <span class="text-info">Rp {{ number_format($penalties['staff']['missing_checkout'], 0, ',', '.') }}</span></li>
-                                                <li><i class="bi bi-pause-circle me-2 text-secondary"></i><strong>1x absen istirahat:</strong> <span class="text-secondary">Rp {{ number_format($penalties['staff']['absent_break_once'], 0, ',', '.') }}</span></li>
-                                                <li><i class="bi bi-pause-circle-fill me-2 text-secondary"></i><strong>2x absen istirahat:</strong> <span class="text-secondary">Rp {{ number_format($penalties['staff']['absent_twice'], 0, ',', '.') }}</span></li>
+                                                <li><i class="bi bi-cup-hot me-2 text-warning"></i><strong class="text-fix">Telat istirahat:</strong> <span class="text-warning">Rp {{ number_format($penalties['staff']['late_break'], 0, ',', '.') }}</span></li>
+                                                <li><i class="bi bi-person-x me-2 text-info"></i><strong class="text-fix">Lupa absen masuk:</strong> <span class="text-info">Rp {{ number_format($penalties['staff']['missing_checkin'], 0, ',', '.') }}</span></li>
+                                                <li><i class="bi bi-person-dash me-2 text-info"></i><strong class="text-fix">Lupa absen pulang:</strong> <span class="text-info">Rp {{ number_format($penalties['staff']['missing_checkout'], 0, ',', '.') }}</span></li>
+                                                <li><i class="bi bi-pause-circle me-2 text-danger"></i><strong class="text-fix">1x absen istirahat:</strong> <span class="text-danger">Rp {{ number_format($penalties['staff']['absent_break_once'], 0, ',', '.') }}</span></li>
+                                                <li><i class="bi bi-pause-circle-fill me-2 text-danger"></i><strong class="text-fix">2x absen istirahat:</strong> <span class="text-danger">Rp {{ number_format($penalties['staff']['absent_twice'], 0, ',', '.') }}</span></li>
                                             </ul>
                                         </div>
                                         <div class="col-md-6">
                                             <h6 class="text-success mb-3">KARYAWAN</h6>
                                             <ul class="list-unstyled">
-                                                <li><i class="bi bi-clock me-2 text-danger"></i><strong>Keterlambatan:</strong></li>
-                                                <li class="ms-4">• 1-15 menit: <span class="text-danger">Rp {{ number_format($penalties['karyawan']['late'][0][2], 0, ',', '.') }}</span></li>
-                                                <li class="ms-4">• 16-30 menit: <span class="text-danger">Rp {{ number_format($penalties['karyawan']['late'][1][2], 0, ',', '.') }}</span></li>
-                                                <li class="ms-4">• 31-45 menit: <span class="text-danger">Rp {{ number_format($penalties['karyawan']['late'][2][2], 0, ',', '.') }}</span></li>
-                                                <li class="ms-4">• 46-60 menit: <span class="text-danger">Rp {{ number_format($penalties['karyawan']['late'][3][2], 0, ',', '.') }}</span></li>
-                                                <li class="ms-4">• >60 menit: <span class="text-danger">Rp 10.000 + (menit - 60)</span></li>
+                                                <li><i class="bi bi-clock me-2 text-danger"></i><strong class="text-fix"">Keterlambatan:</strong></li>
+                                                <li class="ms-4 text-fix">• 1-15 menit: <span class="text-danger">Rp {{ number_format($penalties['karyawan']['late'][0][2], 0, ',', '.') }}</span></li>
+                                                <li class="ms-4 text-fix">• 16-30 menit: <span class="text-danger">Rp {{ number_format($penalties['karyawan']['late'][1][2], 0, ',', '.') }}</span></li>
+                                                <li class="ms-4 text-fix">• 31-45 menit: <span class="text-danger">Rp {{ number_format($penalties['karyawan']['late'][2][2], 0, ',', '.') }}</span></li>
+                                                <li class="ms-4 text-fix">• 46-60 menit: <span class="text-danger">Rp {{ number_format($penalties['karyawan']['late'][3][2], 0, ',', '.') }}</span></li>
+                                                <li class="ms-4 text-fix">• >60 menit: <span class="text-danger">Rp 10.000 + (menit - 60)</span></li>
                                                 <hr class="my-2">
-                                                <li><i class="bi bi-cup-hot me-2 text-warning"></i><strong>Telat istirahat:</strong> <span class="text-warning">Rp {{ number_format($penalties['karyawan']['late_break'], 0, ',', '.') }}</span></li>
-                                                <li><i class="bi bi-person-x me-2 text-info"></i><strong>Lupa absen masuk:</strong> <span class="text-info">Rp {{ number_format($penalties['karyawan']['missing_checkin'], 0, ',', '.') }}</span></li>
-                                                <li><i class="bi bi-person-dash me-2 text-info"></i><strong>Lupa absen pulang:</strong> <span class="text-info">Rp {{ number_format($penalties['karyawan']['missing_checkout'], 0, ',', '.') }}</span></li>
-                                                <li><i class="bi bi-pause-circle me-2 text-secondary"></i><strong>1x absen istirahat:</strong> <span class="text-secondary">Rp {{ number_format($penalties['karyawan']['absent_break_once'], 0, ',', '.') }}</span></li>
-                                                <li><i class="bi bi-pause-circle-fill me-2 text-secondary"></i><strong>2x absen istirahat:</strong> <span class="text-secondary">Rp {{ number_format($penalties['karyawan']['absent_twice'], 0, ',', '.') }}</span></li>
+                                                <li><i class="bi bi-cup-hot me-2 text-warning"></i><strong class="text-fix">Telat istirahat:</strong> <span class="text-warning">Rp {{ number_format($penalties['karyawan']['late_break'], 0, ',', '.') }}</span></li>
+                                                <li><i class="bi bi-person-x me-2 text-info"></i><strong class="text-fix">Lupa absen masuk:</strong> <span class="text-info">Rp {{ number_format($penalties['karyawan']['missing_checkin'], 0, ',', '.') }}</span></li>
+                                                <li><i class="bi bi-person-dash me-2 text-info"></i><strong class="text-fix">Lupa absen pulang:</strong> <span class="text-info">Rp {{ number_format($penalties['karyawan']['missing_checkout'], 0, ',', '.') }}</span></li>
+                                                <li><i class="bi bi-pause-circle me-2 text-danger"></i><strong class="text-fix">1x absen istirahat:</strong> <span class="text-danger">Rp {{ number_format($penalties['karyawan']['absent_break_once'], 0, ',', '.') }}</span></li>
+                                                <li><i class="bi bi-pause-circle-fill me-2 text-danger"></i><strong class="text-fix">2x absen istirahat:</strong> <span class="text-danger">Rp {{ number_format($penalties['karyawan']['absent_twice'], 0, ',', '.') }}</span></li>
                                             </ul>
                                         </div>
                                     </div>
