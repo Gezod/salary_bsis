@@ -125,7 +125,7 @@
                                 <h6 class="text-primary mb-2">Drag & Drop file Excel di sini</h6>
                                 <p class="text-muted mb-3">atau klik untuk memilih file</p>
                                 <input type="file" name="file" id="file" class="form-control"
-                                    accept=".xlsx,.xls" required style="display: none;">
+                                    accept=".xlsx,.xls,.csv" required style="display: none;">
                                 <button type="button" class="btn btn-outline-info"
                                     onclick="document.getElementById('file').click()">
                                     <i class="bi bi-folder2-open me-2"></i>Pilih File
@@ -173,7 +173,7 @@
                                             </h6>
                                             <p class="text-muted small mb-3">Download template untuk memudahkan proses
                                                 import</p>
-                                            <a href="{{ asset('files/cek magang_fix.csv') }}"
+                                            <a href="{{ asset('files/template_dokumen_fix.csv') }}"
                                                 class="btn btn-sm btn-outline-info" download>
                                                 <i class="bi bi-download me-2"></i>Download Template
                                             </a>

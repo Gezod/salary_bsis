@@ -163,6 +163,118 @@
             margin-bottom: 15px;
             text-align: center;
         }
+
+        .payment-proof-section {
+            margin-top: 40px;
+            page-break-before: always;
+            background-color: #f8f9fa;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            padding: 25px;
+        }
+
+        .payment-proof-section h3 {
+            color: #007bff;
+            text-align: center;
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .payment-details {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+
+        .payment-details td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 11px;
+        }
+
+        .payment-details .label {
+            background-color: #e9ecef;
+            font-weight: bold;
+            width: 30%;
+            color: #495057;
+        }
+
+        .payment-details .value {
+            color: #212529;
+            font-weight: 600;
+        }
+
+        .bank-info {
+            background-color: #e3f2fd;
+            border: 1px solid #90caf9;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .bank-info h4 {
+            margin: 0 0 8px 0;
+            color: #1565c0;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .payment-proof-image {
+            text-align: center;
+            margin: 25px auto;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 90%;
+        }
+
+        .payment-proof-image img {
+            max-width: 100%;
+            height: auto;
+            max-height: 500px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+
+        .payment-notes {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .payment-notes strong {
+            color: #856404;
+        }
+
+        .payment-status {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .status-paid {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 8px 16px;
+            border: 1px solid #c3e6cb;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 8px 16px;
+            border: 1px solid #ffeaa7;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+        }
     </style>
 </head>
 
@@ -303,72 +415,6 @@
         </tbody>
     </table>
 
-    {{-- BPJS Premium Details --}}
-    {{-- @if ($payroll->bpjs_premium || $payroll->bpjs_allowance > 0)
-        <div class="bpjs-section">
-            <h4><i class="fas fa-shield-alt"></i> RINCIAN BPJS BULANAN</h4>
-            <table class="bpjs-table">
-                @if ($payroll->bpjs_allowance > 0)
-                    <tr>
-                        <td class="label">Tunjangan BPJS (dari perusahaan):</td>
-                        <td><strong>Rp {{ number_format($payroll->bpjs_allowance, 0, ',', '.') }}</strong></td>
-                    </tr>
-                @endif
-                @if ($payroll->bpjs_premium)
-                    <tr>
-                        <td class="label">Total Premi BPJS periode ini:</td>
-                        <td><strong>Rp
-                                {{ number_format($payroll->bpjs_premium->premium_amount, 0, ',', '.') }}</strong></td>
-                    </tr>
-                    <tr>
-                        <td class="label">Langsung dipotong dari gaji:</td>
-                        <td>
-                            <strong>
-                                Rp
-                                {{ number_format($payroll->bpjs_premium->premium_amount - $payroll->bpjs_allowance, 0, ',', '.') }}
-                            </strong>
-                        </td>
-                    </tr>
-                @else
-                    <tr>
-                        <td class="label">Total Premi BPJS periode ini:</td>
-                        <td><strong>Rp {{ number_format($payroll->bpjs_deduction, 0, ',', '.') }}</strong></td>
-                    </tr>
-                @endif
-            </table>
-
-            @if ($payroll->bpjs_premium && $payroll->bpjs_premium->notes)
-                <div style="margin-top: 10px; padding: 8px; background: #f8f9fa; border-radius: 3px;">
-                    <strong>Catatan:</strong> {{ $payroll->bpjs_premium->notes }}
-                </div>
-            @endif
-        </div>
-    @endif --}}
-
-    {{-- <div class="payment-info">
-        <h4>Informasi Pembayaran</h4>
-        <div style="display: table; width: 100%;">
-            <div style="display: table-cell; width: 50%;">
-                <strong>Metode Pembayaran:</strong> {{ ucfirst(str_replace('_', ' ', $payroll->payment_method)) }}<br>
-                <strong>Tanggal Pembayaran:</strong> {{ $payroll->payment_date->format('d F Y') }}
-            </div>
-            <div style="display: table-cell; width: 50%;">
-                @if ($payroll->payment_method !== 'cash' && $payroll->employee->bank_name)
-                    <div class="bank-info" style="background-color: #e3f2fd; padding: 10px; border-radius: 3px;">
-                        <strong>Data Bank Penerima:</strong><br>
-                        Bank: {{ $payroll->employee->bank_name }}<br>
-                        No. Rekening: {{ $payroll->employee->account_number }}
-                    </div>
-                @endif
-            </div>
-        </div>
-        @if ($payroll->notes)
-            <div style="margin-top: 10px;">
-                <strong>Catatan:</strong> {{ $payroll->notes }}
-            </div>
-        @endif
-    </div> --}}
-
     <div class="signatures" style="text-align: right;">
         <div style="display: inline-block; text-align: right;">
             <strong>Mengetahui,</strong>
@@ -382,11 +428,93 @@
             </div>
         </div>
     </div>
-    <div class="footer">
-        <p><strong>PENTING:</strong></p>
-        <p>Slip gaji ini digenerate secara otomatis pada
-            {{ now()->setTimezone('Asia/Jakarta')->format('d F Y H:i:s') }} WIB</p>
-    </div>
+
+
+
+    {{-- BUKTI PEMBAYARAN SECTION --}}
+    @if ($payroll->status === 'paid')
+        <div class="payment-proof-section">
+            <h3>Bukti Pembayaran Gaji</h3>
+
+            <div class="payment-status">
+                <span class="status-paid">TELAH DIBAYAR</span>
+            </div>
+
+            <table class="payment-details">
+                <tr>
+                    <td class="label">Metode Pembayaran:</td>
+                    <td class="value">{{ ucfirst(str_replace('_', ' ', $payroll->payment_method)) }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Tanggal Pembayaran:</td>
+                    <td class="value">{{ $payroll->payment_date ? $payroll->payment_date->format('d F Y') : '-' }}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">Jumlah Dibayar:</td>
+                    <td class="value">Rp {{ number_format($payroll->net_salary, 0, ',', '.') }}</td>
+                </tr>
+                @if ($payroll->payment_method !== 'cash' && $payroll->employee->bank_name)
+                    <tr>
+                        <td class="label">Nama Bank:</td>
+                        <td class="value">{{ $payroll->employee->bank_name }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">No. Rekening:</td>
+                        <td class="value">{{ $payroll->employee->account_number ?? '-' }}</td>
+                    </tr>
+                @endif
+            </table>
+
+            @if ($payroll->payment_method !== 'cash' && $payroll->employee->bank_name)
+                <div class="bank-info">
+                    <h4>Informasi Transfer Bank</h4>
+                    <strong>Penerima:</strong> {{ $payroll->employee->nama }}<br>
+                    <strong>Bank:</strong> {{ $payroll->employee->bank_name }}<br>
+                    <strong>No. Rekening:</strong> {{ $payroll->employee->account_number ?? 'Tidak tersedia' }}
+                </div>
+            @endif
+
+            @if ($payroll->notes)
+                <div class="payment-notes">
+                    <strong> Catatan Pembayaran:</strong><br>
+                    {{ $payroll->notes }}
+                </div>
+            @endif
+
+            @if ($payroll->payment_proof)
+                <div class="payment-proof-image" style="text-align: center; margin: 20px 0; page-break-inside: avoid;">
+                    <h4 style="margin-bottom: 15px; color: #495057; font-size: 14px;">Bukti Transfer/Pembayaran:</h4>
+                    <div
+                        style="display: inline-block; border: 1px solid #ddd; padding: 10px; background: white; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+                        <img src="{{ storage_path('app/public/' . $payroll->payment_proof) }}" alt="Bukti Pembayaran"
+                            style="max-width: 100%; height: auto; max-height: 400px; display: block; margin: 0 auto;">
+                    </div>
+                </div>
+            @endif
+
+            {{-- <div
+                style="text-align: center; margin-top: 20px; padding: 10px; background-color: #d1ecf1; border: 1px solid #bee5eb; border-radius: 5px;">
+                <strong style="color: #0c5460;">Pembayaran Telah Berhasil Diproses</strong><br>
+                <small style="color: #0c5460;">Terima kasih atas dedikasi dan kerja keras Anda</small>
+            </div> --}}
+        </div>
+    @else
+        <div class="payment-proof-section">
+            <h3>Status Pembayaran</h3>
+
+            <div class="payment-status">
+                <span class="status-pending"> MENUNGGU PEMBAYARAN</span>
+            </div>
+
+            <div
+                style="text-align: center; padding: 20px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px;">
+                <strong style="color: #856404;">Pembayaran akan segera diproses</strong><br>
+                <small style="color: #856404;">Slip gaji ini akan diperbarui setelah pembayaran selesai</small>
+            </div>
+        </div>
+    @endif
+
 </body>
 
 </html>
