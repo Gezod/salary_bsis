@@ -903,7 +903,7 @@ class AttendanceController extends Controller
     }
 
     // Employee Management Methods
-    
+
     private function arrayToPhpString($array, $indent = 0)
     {
         $spaces = str_repeat('    ', $indent);
@@ -934,17 +934,17 @@ class AttendanceController extends Controller
         $result .= $spaces . ']';
         return $result;
     }
-     public function destroy(){
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        Attendance::truncate();
-        OvertimeRecord::truncate();
-        OvertimeSetting::truncate();
-        Payroll::truncate();
-        Employee::truncate();
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+    //  public function destroy(){
+    //     DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+    //     Attendance::truncate();
+    //     OvertimeRecord::truncate();
+    //     OvertimeSetting::truncate();
+    //     Payroll::truncate();
+    //     Employee::truncate();
+    //     DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        // Implementation for destroy functionality
-        return redirect()->route('absensi.index')
-            ->with('success', 'Data absensi berhasil dihapus.');
-    }
+    //     // Implementation for destroy functionality
+    //     return redirect()->route('absensi.index')
+    //         ->with('success', 'Data absensi berhasil dihapus.');
+    // }
 }

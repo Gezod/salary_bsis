@@ -233,13 +233,13 @@
                                     </button>
                                 </div>
                             </form>
-                            <form method="POST" action="{{ route('destroyAbsensi') }}" class="col-md-4">
+                            {{-- <form method="POST" action="{{ route('destroyAbsensi') }}" class="col-md-4">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger w-100 mt-4">
                                     <i class="bi bi-trash me-2"></i>Hapus seluruh data
                                 </button>
-                            </form>
+                            </form> --}}
                         </div>
                     </div>
 

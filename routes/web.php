@@ -54,7 +54,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/manual', [AttendanceController::class, 'manual'])->name('absensi.manual');
         Route::post('/manual', [AttendanceController::class, 'manualStore'])->name('absensi.manual.store');
         Route::get('/{id}/row-data', [AttendanceController::class, 'getRowData']);
-        Route::delete('/destroy', [AttendanceController::class, 'destroy'])->name('destroyAbsensi');
+        // Route::delete('/destroy', [AttendanceController::class, 'destroy'])->name('destroyAbsensi');
 
         // Half Day Manual Routes
         Route::get('/half-day-manual', [AttendanceController::class, 'halfDayManual'])->name('absensi.half-day-manual');
