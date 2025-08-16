@@ -55,6 +55,16 @@
                                 </div>
                             </a>
                         </li>
+                        <li class="nav-item">
+                        <a class="nav-link active" href="{{ route('bpjs.premiums') }}">
+                            <div class="d-flex align-items-center">
+                                <div class="cash-icon-wrapper me-3">
+                                    <i class="bi bi-credit-card"></i>
+                                </div>
+                                <span>Premi BPJS</span>
+                            </div>
+                        </a>
+                    </li>
                     </ul>
                 </div>
             </nav>
