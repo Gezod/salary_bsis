@@ -284,7 +284,7 @@
     </table>
 
     {{-- BPJS Details for End of Month --}}
-    @if($weeklyPayroll->shouldShowBpjsInfo())
+    {{-- @if($weeklyPayroll->shouldShowBpjsInfo())
         <div class="bpjs-section">
             <h4><i class="fas fa-shield-alt"></i> RINCIAN BPJS BULANAN</h4>
             <table class="bpjs-table">
@@ -315,9 +315,9 @@
                 </div>
             @endif
         </div>
-    @endif
+    @endif --}}
 
-    <div class="payment-info">
+    {{-- <div class="payment-info">
         <h4>Informasi Pembayaran</h4>
         <div style="display: table; width: 100%;">
             <div style="display: table-cell; width: 50%;">
@@ -339,7 +339,7 @@
                 <strong>Catatan:</strong> {{ $weeklyPayroll->notes }}
             </div>
         @endif
-    </div>
+    </div> --}}
 
     <div class="signatures" style="text-align: right;">
         <div style="display: inline-block; text-align: right;">
@@ -356,7 +356,7 @@
 
     <div class="footer">
         <p><strong>PENTING:</strong></p>
-        @if($weeklyPayroll->isEndOfMonthPeriod())
+        {{-- @if($weeklyPayroll->isEndOfMonthPeriod())
             <p>• Total Premi BPJS sudah dipotong langsung dari pendapatan kotor</p>
             <p>• Ini adalah gaji mingguan akhir bulan yang sudah termasuk perhitungan BPJS</p>
         @else
@@ -364,7 +364,7 @@
         @endif
         <p>• Slip gaji ini adalah bukti resmi pembayaran gaji mingguan karyawan</p>
         <p>• Simpan slip gaji ini untuk keperluan administrasi</p>
-        <hr>
+        <hr> --}}
         <p>Slip gaji ini digenerate secara otomatis pada {{ now()->setTimezone('Asia/Jakarta')->format('d F Y H:i:s') }} WIB</p>
         <p>Bank Sampah Induk Surabaya - Sistem Payroll Terintegrasi</p>
     </div>

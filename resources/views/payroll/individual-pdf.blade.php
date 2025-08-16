@@ -304,7 +304,7 @@
     </table>
 
     {{-- BPJS Premium Details --}}
-    @if ($payroll->bpjs_premium || $payroll->bpjs_allowance > 0)
+    {{-- @if ($payroll->bpjs_premium || $payroll->bpjs_allowance > 0)
         <div class="bpjs-section">
             <h4><i class="fas fa-shield-alt"></i> RINCIAN BPJS BULANAN</h4>
             <table class="bpjs-table">
@@ -343,9 +343,9 @@
                 </div>
             @endif
         </div>
-    @endif
+    @endif --}}
 
-    <div class="payment-info">
+    {{-- <div class="payment-info">
         <h4>Informasi Pembayaran</h4>
         <div style="display: table; width: 100%;">
             <div style="display: table-cell; width: 50%;">
@@ -367,7 +367,7 @@
                 <strong>Catatan:</strong> {{ $payroll->notes }}
             </div>
         @endif
-    </div>
+    </div> --}}
 
     <div class="signatures" style="text-align: right;">
         <div style="display: inline-block; text-align: right;">
@@ -382,16 +382,10 @@
             </div>
         </div>
     </div>
-
     <div class="footer">
         <p><strong>PENTING:</strong></p>
-        <p>• Total Premi BPJS sudah dipotong langsung dari pendapatan kotor</p>
-        <p>• Slip gaji ini adalah bukti resmi pembayaran gaji bulanan</p>
-        <p>• Simpan slip gaji ini untuk keperluan administrasi</p>
-        <hr>
         <p>Slip gaji ini digenerate secara otomatis pada
             {{ now()->setTimezone('Asia/Jakarta')->format('d F Y H:i:s') }} WIB</p>
-        <p>Bank Sampah Induk Surabaya - Sistem Payroll Terintegrasi</p>
     </div>
 </body>
 
