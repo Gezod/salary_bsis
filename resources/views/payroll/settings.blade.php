@@ -21,7 +21,17 @@
                                     <div class="cash-icon-wrapper me-3">
                                         <i class="bi bi-cash-stack"></i>
                                     </div>
-                                    <span>Data Payroll</span>
+                                    <span>Payroll Bulanan</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('weekly-payroll.index') }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="cash-icon-wrapper me-3">
+                                        <i class="bi bi-calendar-week"></i>
+                                    </div>
+                                    <span>Payroll Mingguan</span>
                                 </div>
                             </a>
                         </li>
@@ -42,6 +52,16 @@
                                         <i class="bi bi-people"></i>
                                     </div>
                                     <span>Pengaturan Staff</span>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('bpjs.settings') }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="cash-icon-wrapper me-3">
+                                        <i class="bi bi-shield-check"></i>
+                                    </div>
+                                    <span>Pengaturan BPJS</span>
                                 </div>
                             </a>
                         </li>
