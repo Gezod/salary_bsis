@@ -163,6 +163,14 @@ Visit: http://localhost:8000
 ## 📁 Project Structure
 
 ```
+public/css/                          # Custom CSS for specific modules
+├── style_denda.css                  # Stylesheet for penalty management views
+├── style_import.css                 # Stylesheet for attendance import page
+├── style_index.css                  # Stylesheet for general index pages
+├── style_manual.css                 # Stylesheet for manual attendance entry
+├── style_recap.css                  # Stylesheet for attendance recap reports
+└── style_recover.css                # Stylesheet for recovery/restore pages
+
 resources/views/
 ├── auth/                            # Authentication pages
 │   ├── login.blade.php              # Premium login interface
@@ -183,17 +191,35 @@ resources/views/
 │   └── work_time_change/
 │       ├── create.blade.php         # Form to request work hour changes
 │       └── index.blade.php          # List of all work time change requests
+│   └── partials/                    # Reusable partial views for attendance
+│       ├── details.blade.php        # Detailed attendance modal/view
+│       ├── edit.blade.php           # Edit attendance data form
+│       └── overtime_cell_data.blade.php # Dynamic overtime cell data for tables
+│   └── pdf/                         # PDF templates for attendance
+│       ├── denda-all.blade.php      # Printable report for all penalties
+│       └── denda-individual.blade.php # Printable report for individual penalties
 ├── overtime/                        # Overtime management
 │   ├── index.blade.php              # Overview of overtime entries
 │   ├── overview.blade.php           # Monthly summary and statistics of overtime
 │   ├── recap.blade.php              # Recap and analysis of overtime by employee
 │   └── settings.blade.php           # Overtime policy settings and configurations
-└── payroll/                         # Payroll system
-    ├── index.blade.php              # Payroll records overview
-    ├── individual-pdf.blade.php     # Printable individual salary slip (PDF)
-    ├── pdf.blade.php                # Printable full payroll report (PDF)
-    ├── settings.blade.php           # Salary and bank account settings per employee
-    └── show.blade.php               # Detailed payroll view for a specific employee
+├── payroll/                         # Payroll system
+│   ├── index.blade.php              # Payroll records overview
+│   ├── individual-pdf.blade.php     # Printable individual salary slip (PDF)
+│   ├── pdf.blade.php                # Printable full payroll report (PDF)
+│   ├── settings.blade.php           # Salary and bank account settings per employee
+│   └── show.blade.php               # Detailed payroll view for a specific employee
+├── weekly-payroll/                  # Weekly payroll management
+│   ├── index.blade.php              # Weekly payroll records overview
+│   ├── individual.blade.php         # Weekly individual salary slip view
+│   ├── pdf.blade.php                # Printable full weekly payroll report (PDF)
+│   └── show.blade.php               # Detailed weekly payroll view for a specific employee
+└── bpjs/                            # BPJS management module
+    ├── premiums.blade.php           # Display and manage BPJS premiums
+    └── settings.blade.php           # BPJS policy and configuration settings
+
+routes/
+└── web.php                          # Main route definitions for the application
 
 ```
 
