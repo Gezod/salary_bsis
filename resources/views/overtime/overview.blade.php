@@ -154,7 +154,7 @@
                                             </h3>
                                         </div>
                                         <div class="bg-white bg-opacity-25 rounded-circle p-3">
-                                            <i class="bi bi-currency-dollar fs-4"></i>
+                                            <i class="bi bi-wallet2 fs-4"></i>
                                         </div>
                                     </div>
                                 </div>
