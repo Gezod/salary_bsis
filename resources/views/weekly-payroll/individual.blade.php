@@ -286,7 +286,7 @@
         <strong>PERIODE PEMBAYARAN:</strong> {{ $weeklyPayroll->start_date->format('d F Y') }} s/d {{ $weeklyPayroll->end_date->format('d F Y') }}
         <br><small>({{ $weeklyPayroll->start_date->diffInDays($weeklyPayroll->end_date) + 1 }} hari kalender, {{ $weeklyPayroll->working_days }} hari kerja)</small>
         @if($weeklyPayroll->isEndOfMonthPeriod())
-            <br><span style="color: #856404; font-weight: bold;">⚡ GAJI AKHIR BULAN - TERMASUK BPJS (Tanggal {{ $weeklyPayroll->end_date->day }})</span>
+            <br><span style="color: #856404; font-weight: bold;"> GAJI AKHIR BULAN - TERMASUK BPJS (Tanggal {{ $weeklyPayroll->end_date->day }})</span>
         @endif
     </div>
 
@@ -425,15 +425,15 @@
     {{-- BUKTI PEMBAYARAN SECTION --}}
     @if($weeklyPayroll->status === 'paid')
         <div class="payment-proof-section">
-            <h3>📋 Bukti Pembayaran Gaji Mingguan</h3>
+            <h3>Bukti Pembayaran Gaji Mingguan</h3>
 
             <div class="payment-status">
-                <span class="status-paid">✅ TELAH DIBAYAR</span>
+                <span class="status-paid">TELAH DIBAYAR</span>
             </div>
 
             @if($weeklyPayroll->bpjs_deduction > 0)
                 <div class="bpjs-weekly-note">
-                    <strong>📌 CATATAN KHUSUS:</strong> Gaji mingguan ini sudah termasuk pemotongan BPJS karena merupakan periode akhir bulan (tanggal {{ $weeklyPayroll->end_date->day }}).
+                    <strong> CATATAN KHUSUS:</strong> Gaji mingguan ini sudah termasuk pemotongan BPJS karena merupakan periode akhir bulan (tanggal {{ $weeklyPayroll->end_date->day }}).
                 </div>
             @endif
 
@@ -468,7 +468,7 @@
 
             @if($weeklyPayroll->payment_method !== 'cash' && $weeklyPayroll->employee->bank_name)
                 <div class="bank-info">
-                    <h4>💳 Informasi Transfer Bank</h4>
+                    <h4>Informasi Transfer Bank</h4>
                     <strong>Penerima:</strong> {{ $weeklyPayroll->employee->nama }}<br>
                     <strong>Bank:</strong> {{ $weeklyPayroll->employee->bank_name }}<br>
                     <strong>No. Rekening:</strong> {{ $weeklyPayroll->employee->account_number ?? 'Tidak tersedia' }}
@@ -484,7 +484,7 @@
 
             @if($weeklyPayroll->payment_proof)
                 <div class="payment-proof-image">
-                    <h4 style="margin-bottom: 10px; color: #495057;">📸 Bukti Transfer/Pembayaran:</h4>
+                    <h4 style="margin-bottom: 10px; color: #495057;"> Bukti Transfer/Pembayaran:</h4>
                     <img src="{{ storage_path('app/public/' . $weeklyPayroll->payment_proof) }}" alt="Bukti Pembayaran">
                     <p style="margin-top: 8px; font-size: 10px; color: #6c757d;">
                         Bukti pembayaran telah diverifikasi oleh HRD
@@ -493,16 +493,16 @@
             @endif
 
             <div style="text-align: center; margin-top: 20px; padding: 10px; background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px;">
-                <strong style="color: #155724;">✨ Pembayaran Mingguan Telah Berhasil Diproses ✨</strong><br>
+                <strong style="color: #155724;"> Pembayaran Mingguan Telah Berhasil Diproses </strong><br>
                 <small style="color: #155724;">Terima kasih atas dedikasi dan kerja keras Anda minggu ini</small>
             </div>
         </div>
     @else
         <div class="payment-proof-section">
-            <h3>⏳ Status Pembayaran Gaji Mingguan</h3>
+            <h3>Status Pembayaran Gaji Mingguan</h3>
 
             <div class="payment-status">
-                <span class="status-pending">⏳ MENUNGGU PEMBAYARAN</span>
+                <span class="status-pending">MENUNGGU PEMBAYARAN</span>
             </div>
 
             <div style="text-align: center; padding: 20px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px;">
