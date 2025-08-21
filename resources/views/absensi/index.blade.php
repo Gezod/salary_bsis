@@ -160,6 +160,17 @@
                                 </div>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('panduan.*') ? 'active-link' : '' }}"
+                                href="{{ route('panduan.index') }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="guide-icon-wrapper me-3">
+                                        <i class="bi bi-book"></i>
+                                    </div>
+                                    <span>Buku Panduan</span>
+                                </div>
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </nav>

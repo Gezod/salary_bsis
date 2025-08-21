@@ -144,15 +144,20 @@
             border-top: 1px solid #ddd;
             padding-top: 10px;
         }
+        .logo {
+            width: 80px;
+            height: auto;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 
 <body>
     <div class="header">
-        <h1>LAPORAN DENDA SEMUA KARYAWAN</h1>
+        <img src="{{ public_path('images/Logo-Bank-Sampah-Surabaya-bank-sampah-induk-surabaya-v2 (1).png') }}" alt="Bank Sampah Logo" class="logo">
+        <h1>REKAP DENDA</h1>
         <p>Periode: {{ $monthName }}</p>
         <p>Tanggal Cetak: {{ \Carbon\Carbon::now()->format('d/m/Y H:i') }}</p>
-        <p><strong>Jam Masuk:</strong> Senin-Kamis & Sabtu: 07:30 | Jumat: 07:00</p>
     </div>
 
     {{-- Overall Summary --}}

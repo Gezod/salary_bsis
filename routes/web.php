@@ -12,6 +12,7 @@ use App\Http\Controllers\WeeklyPayrollController;
 use App\Http\Controllers\BpjsSettingController;
 use App\Http\Controllers\KaryawanController;
 use App\Http\Controllers\BpjsPremiumController;
+use App\Http\Controllers\PanduanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -55,6 +56,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/manual', [AttendanceController::class, 'manualStore'])->name('absensi.manual.store');
         Route::get('/{id}/row-data', [AttendanceController::class, 'getRowData']);
         // Route::delete('/destroy', [AttendanceController::class, 'destroy'])->name('destroyAbsensi');
+         Route::get('/panduan', [PanduanController::class, 'index'])->name('panduan.index');
+        Route::get('/panduan/view-pdf', [PanduanController::class, 'viewPdf'])->name('panduan.view-pdf');
+        Route::get('/panduan/download-pdf', [PanduanController::class, 'downloadPdf'])->name('panduan.download-pdf');
 
         // Half Day Manual Routes
         Route::get('/half-day-manual', [AttendanceController::class, 'halfDayManual'])->name('absensi.half-day-manual');

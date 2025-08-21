@@ -19,6 +19,7 @@
     --grey-color: #D3D3D3;
     --purple-color: #8c07ad;
     --brown-color: #A52A2A;
+    --black-color: #000000;
 }
 
 [data-theme="dark"] {
@@ -460,6 +461,21 @@ body {
 }
 
 .cash-icon-wrapper i {
+    color: white !important;
+}
+
+.guide-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--black-color), #000000) !important;
+    margin-right: 1rem;
+}
+
+.guide-icon-wrapper i {
     color: white !important;
 }
 
