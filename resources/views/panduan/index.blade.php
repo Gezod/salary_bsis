@@ -190,6 +190,38 @@
                         </div>
                     </div>
 
+                    {{-- Video Panduan Section --}}
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-play-btn me-2"></i>Video Panduan</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i>
+                                Berikut adalah link Google Drive yang berisi video panduan penggunaan sistem:
+                            </div>
+
+                            <div class="drive-link-container p-4 border rounded bg-light">
+                                <div class="d-flex align-items-center mb-3">
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Google_Drive_icon_%282020%29.svg/1200px-Google_Drive_icon_%282020%29.svg.png"
+                                         alt="Google Drive" class="drive-icon me-3" style="width: 40px;">
+                                    <div>
+                                        <h5 class="mb-0">Video Panduan BSIS ABSENSI</h5>
+                                        <small class="text-muted">Google Drive Folder</small>
+                                    </div>
+                                </div>
+
+                                <p class="mb-3">Folder ini berisi kumpulan video panduan penggunaan sistem absensi BSIS. Silakan klik link di bawah untuk mengaksesnya:</p>
+
+                                <a href="https://drive.google.com/drive/folders/17QI6lvAcTAOYz2UDyr6crldlVf50tkC4?usp=sharing"
+                                   target="_blank"
+                                   class="btn btn-success mb-3">
+                                    <i class="bi bi-google me-2"></i>Buka di Google Drive
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
                     {{-- PDF Viewer Section --}}
                     <div class="pdf-viewer-container">
                         <div class="pdf-toolbar">
@@ -452,6 +484,21 @@
 
         [data-theme="dark"] .pdf-fallback {
             border-color: #495057;
+        }
+
+        /* Video Panduan Section */
+        .drive-link-container {
+            background: linear-gradient(to right, #f8f9fa, #e9ecef);
+            border-radius: 8px;
+        }
+
+        [data-theme="dark"] .drive-link-container {
+            background: linear-gradient(to right, #2d3748, #4a5568);
+            color: #e2e8f0;
+        }
+
+        .drive-icon {
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
         }
 
         /* Quick Guide Cards */
