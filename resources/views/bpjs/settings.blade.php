@@ -46,15 +46,15 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                        <a class="nav-link active" href="{{ route('bpjs.premiums') }}">
-                            <div class="d-flex align-items-center">
-                                <div class="cash-icon-wrapper me-3">
-                                    <i class="bi bi-credit-card"></i>
+                            <a class="nav-link" href="{{ route('bpjs.premiums') }}">
+                                <div class="d-flex align-items-center">
+                                    <div class="cash-icon-wrapper me-3">
+                                        <i class="bi bi-credit-card"></i>
+                                    </div>
+                                    <span>Premi BPJS</span>
                                 </div>
-                                <span>Premi BPJS</span>
-                            </div>
-                        </a>
-                    </li>
+                            </a>
+                        </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('absensi.index') }}">
                                 <div class="d-flex align-items-center">
@@ -110,19 +110,22 @@
                         </button>
                     </div>
 
-                    @if (session('success'))
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
+                    {{-- Alert Messages --}}
+                    <div id="alertContainer">
+                        @if (session('success'))
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        @endif
 
-                    @if (session('error'))
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <i class="bi bi-exclamation-circle me-2"></i>{{ session('error') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
+                        @if (session('error'))
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="bi bi-exclamation-circle me-2"></i>{{ session('error') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        @endif
+                    </div>
 
                     {{-- BPJS Settings Table --}}
                     <div class="card">
@@ -225,7 +228,7 @@
                                                         <button class="btn btn-sm btn-outline-warning"
                                                             onclick="editBpjs({{ $employee->id }})"
                                                             title="Edit BPJS">
-                                                            <i class="bi bi-pencil fs-4"></i>
+                                                            <i class="bi bi-pencil"></i>
                                                         </button>
                                                         @if ($bpjsSetting)
                                                             <form method="POST" action="{{ route('bpjs.delete', $bpjsSetting->id) }}"
@@ -235,7 +238,7 @@
                                                                 @method('DELETE')
                                                                 <button type="submit" class="btn btn-sm btn-outline-danger"
                                                                     title="Hapus BPJS">
-                                                                    <i class="bi bi-trash fs-4"></i>
+                                                                    <i class="bi bi-trash"></i>
                                                                 </button>
                                                             </form>
                                                         @endif
@@ -268,12 +271,13 @@
                     <h5 class="modal-title text-white" id="bpjsModalTitle">Tambah Pengaturan BPJS</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <form method="POST" action="{{ route('bpjs.update') }}" id="bpjsForm">
+                <form id="bpjsForm">
                     @csrf
-                    <input type="hidden" id="employee_id" name="employee_id">
+                    <input type="hidden" id="currentEmployeeId" name="employee_id">
                     <div class="modal-body">
+                        {{-- Employee Select --}}
                         <div class="mb-3">
-                            <label class="form-label text-white">Pilih Karyawan/Staff</label>
+                            <label class="form-label text-white">Pilih Karyawan/Staff <span class="text-danger">*</span></label>
                             <select id="employee_select" name="employee_id" class="form-control" required>
                                 <option value="">Pilih Karyawan/Staff</option>
                                 @foreach ($employees as $employee)
@@ -282,27 +286,32 @@
                                     </option>
                                 @endforeach
                             </select>
+                            <div class="invalid-feedback" id="employee_id_error"></div>
                         </div>
 
+                        {{-- BPJS Number --}}
                         <div class="mb-3">
-                            <label class="form-label text-white">Nomor BPJS</label>
+                            <label class="form-label text-white">Nomor BPJS <span class="text-danger">*</span></label>
                             <input type="text" id="bpjs_number" name="bpjs_number" class="form-control"
-                                placeholder="Masukkan nomor BPJS" required>
+                                placeholder="Masukkan nomor BPJS" required maxlength="50">
+                            <div class="invalid-feedback" id="bpjs_number_error"></div>
                         </div>
 
+                        {{-- Monthly Amount --}}
                         <div class="mb-3">
-                            <label class="form-label text-white">BPJS Bulanan</label>
+                            <label class="form-label text-white">BPJS Bulanan <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text">Rp</span>
-                                <input type="number" id="bpjs_monthly_amount" name="bpjs_monthly_amount"
-                                    class="form-control" min="0" max="1000000"
-                                    placeholder="0" required>
+                                <input type="text" id="bpjs_monthly_amount" name="bpjs_monthly_amount"
+                                    class="form-control" placeholder="0" required>
                             </div>
                             <small class="form-text text-muted">
                                 BPJS dipotong dari gaji bulanan saja, tidak ada potongan di gaji mingguan
                             </small>
+                            <div class="invalid-feedback" id="bpjs_monthly_amount_error"></div>
                         </div>
 
+                        {{-- Active Status --}}
                         <div class="mb-3">
                             <div class="form-check">
                                 <input type="checkbox" id="is_active" name="is_active" class="form-check-input" value="1" checked>
@@ -313,25 +322,44 @@
                             <small class="form-text text-muted">
                                 Centang untuk mengaktifkan potongan BPJS
                             </small>
+                            <div class="invalid-feedback" id="is_active_error"></div>
                         </div>
 
+                        {{-- Notes --}}
                         <div class="mb-3">
                             <label class="form-label text-white">Catatan</label>
                             <textarea id="notes" name="notes" class="form-control" rows="3"
                                 placeholder="Catatan tambahan (opsional)" maxlength="500"></textarea>
                             <small class="form-text text-muted">Maksimal 500 karakter</small>
+                            <div class="invalid-feedback" id="notes_error"></div>
                         </div>
                     </div>
                     <div class="modal-footer border-secondary">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary" id="submitBtn">Simpan</button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <span class="spinner-border spinner-border-sm me-2 d-none" id="loadingSpinner"></span>
+                            Simpan
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
+        // Global variables
+        let isEditMode = false;
+        let currentEmployeeId = null;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTheme();
+            setupFormValidation();
+        });
+
+        // Theme functions
         function toggleTheme() {
             const currentTheme = document.body.getAttribute('data-theme') || 'light';
             const newTheme = currentTheme === 'light' ? 'dark' : 'light';
@@ -345,61 +373,246 @@
             }
         }
 
-        function editBpjs(employeeId) {
-            // Reset form
-            document.getElementById('bpjsForm').reset();
-            document.getElementById('bpjsModalTitle').innerText = 'Edit Pengaturan BPJS';
-            document.getElementById('submitBtn').innerText = 'Perbarui';
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
 
-            // Get employee data
-            fetch(`/bpjs/employee/${employeeId}`)
-                .then(response => response.json())
+            const toggleIcon = document.querySelector('.theme-toggle i');
+            if (toggleIcon) {
+                toggleIcon.className = savedTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+            }
+        }
+
+        // Form validation setup
+        function setupFormValidation() {
+            const monthlyAmountInput = document.getElementById('bpjs_monthly_amount');
+
+            // Format number input
+            monthlyAmountInput.addEventListener('input', function() {
+                let value = this.value.replace(/[^\d]/g, '');
+                if (value.length > 0) {
+                    // Format as Indonesian Rupiah (without Rp symbol)
+                    let formattedValue = parseInt(value).toLocaleString('id-ID');
+                    this.value = formattedValue;
+                }
+            });
+        }
+
+        // Edit BPJS function
+        function editBpjs(employeeId) {
+            isEditMode = true;
+            currentEmployeeId = employeeId;
+
+            // Show loading state
+            showLoadingModal();
+
+            // Reset form first
+            resetForm();
+
+            // Update modal title
+            document.getElementById('bpjsModalTitle').innerText = 'Edit Pengaturan BPJS';
+            document.getElementById('submitBtn').innerHTML = '<span class="spinner-border spinner-border-sm me-2 d-none" id="loadingSpinner"></span>Perbarui';
+
+            // Fetch employee data
+            fetch(`{{ url('/bpjs/employee') }}/${employeeId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
-                        // Set employee
-                        document.getElementById('employee_select').value = employeeId;
-                        document.getElementById('employee_select').disabled = true;
+                        // Set employee data
+                        const employeeSelect = document.getElementById('employee_select');
+                        employeeSelect.value = employeeId;
+                        employeeSelect.disabled = true; // Disable employee selection in edit mode
+
+                        // Set hidden field
+                        document.getElementById('currentEmployeeId').value = employeeId;
 
                         // Set BPJS data if exists
                         if (data.bpjs_setting) {
                             document.getElementById('bpjs_number').value = data.bpjs_setting.bpjs_number || '';
-                            document.getElementById('bpjs_monthly_amount').value = data.bpjs_setting.bpjs_monthly_amount || '';
-                            document.getElementById('is_active').checked = data.bpjs_setting.is_active;
+
+                            // Format monthly amount
+                            const monthlyAmount = data.bpjs_setting.bpjs_monthly_amount || 0;
+                            document.getElementById('bpjs_monthly_amount').value = monthlyAmount.toLocaleString('id-ID');
+
+                            document.getElementById('is_active').checked = Boolean(data.bpjs_setting.is_active);
                             document.getElementById('notes').value = data.bpjs_setting.notes || '';
                         }
 
                         // Show modal
-                        new bootstrap.Modal(document.getElementById('addBpjsModal')).show();
+                        const modal = new bootstrap.Modal(document.getElementById('addBpjsModal'));
+                        modal.show();
                     } else {
-                        alert('Gagal mengambil data: ' + data.message);
+                        showAlert('danger', 'Gagal mengambil data: ' + data.message);
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Terjadi kesalahan saat mengambil data');
+                    showAlert('danger', 'Terjadi kesalahan saat mengambil data: ' + error.message);
+                })
+                .finally(() => {
+                    hideLoadingModal();
                 });
         }
 
+        // Form submission
+        document.getElementById('bpjsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Show loading
+            const submitBtn = document.getElementById('submitBtn');
+            const spinner = document.getElementById('loadingSpinner');
+
+            submitBtn.disabled = true;
+            spinner.classList.remove('d-none');
+
+            // Clear previous errors
+            clearFormErrors();
+
+            // Prepare form data
+            const formData = new FormData();
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+
+            // Get employee ID (either from select or hidden field in edit mode)
+            const employeeId = isEditMode ?
+                document.getElementById('currentEmployeeId').value :
+                document.getElementById('employee_select').value;
+
+            formData.append('employee_id', employeeId);
+            formData.append('bpjs_number', document.getElementById('bpjs_number').value);
+
+            // Clean and prepare monthly amount
+            const monthlyAmountRaw = document.getElementById('bpjs_monthly_amount').value.replace(/[^\d]/g, '');
+            formData.append('bpjs_monthly_amount', monthlyAmountRaw);
+
+            formData.append('is_active', document.getElementById('is_active').checked ? '1' : '0');
+            formData.append('notes', document.getElementById('notes').value);
+
+            // Submit form
+            fetch('{{ route("bpjs.update") }}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Close modal
+                    bootstrap.Modal.getInstance(document.getElementById('addBpjsModal')).hide();
+
+                    // Show success message
+                    showAlert('success', data.message);
+
+                    // Reload page after short delay
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    // Handle validation errors
+                    if (data.errors) {
+                        displayFormErrors(data.errors);
+                    } else {
+                        showAlert('danger', data.message);
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('danger', 'Terjadi kesalahan saat menyimpan data');
+            })
+            .finally(() => {
+                // Hide loading
+                submitBtn.disabled = false;
+                spinner.classList.add('d-none');
+            });
+        });
+
         // Reset modal when closed
         document.getElementById('addBpjsModal').addEventListener('hidden.bs.modal', function() {
+            resetForm();
+        });
+
+        // Helper functions
+        function resetForm() {
+            isEditMode = false;
+            currentEmployeeId = null;
+
             document.getElementById('bpjsForm').reset();
             document.getElementById('bpjsModalTitle').innerText = 'Tambah Pengaturan BPJS';
-            document.getElementById('submitBtn').innerText = 'Simpan';
+            document.getElementById('submitBtn').innerHTML = '<span class="spinner-border spinner-border-sm me-2 d-none" id="loadingSpinner"></span>Simpan';
             document.getElementById('employee_select').disabled = false;
-        });
+            document.getElementById('currentEmployeeId').value = '';
+            document.getElementById('is_active').checked = true; // Default to active
 
-        // Format number input
-        document.getElementById('bpjs_monthly_amount').addEventListener('input', function() {
-            let value = this.value.replace(/[^\d]/g, '');
-            if (value.length > 0) {
-                this.value = parseInt(value).toLocaleString('id-ID');
-            }
-        });
+            clearFormErrors();
+        }
 
-        // Remove formatting before submit
-        document.getElementById('bpjsForm').addEventListener('submit', function() {
-            let monthlyAmount = document.getElementById('bpjs_monthly_amount');
-            monthlyAmount.value = monthlyAmount.value.replace(/[^\d]/g, '');
-        });
+        function clearFormErrors() {
+            const errorElements = document.querySelectorAll('.invalid-feedback');
+            errorElements.forEach(element => {
+                element.textContent = '';
+            });
+
+            const inputElements = document.querySelectorAll('.form-control, .form-check-input');
+            inputElements.forEach(element => {
+                element.classList.remove('is-invalid');
+            });
+        }
+
+        function displayFormErrors(errors) {
+            Object.keys(errors).forEach(field => {
+                const errorElement = document.getElementById(field + '_error');
+                const inputElement = document.getElementById(field) || document.querySelector(`[name="${field}"]`);
+
+                if (errorElement && inputElement) {
+                    errorElement.textContent = errors[field][0];
+                    inputElement.classList.add('is-invalid');
+                }
+            });
+        }
+
+        function showAlert(type, message) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+
+            alertContainer.innerHTML = alertHtml;
+
+            // Auto dismiss after 5 seconds
+            setTimeout(() => {
+                const alert = alertContainer.querySelector('.alert');
+                if (alert) {
+                    bootstrap.Alert.getOrCreateInstance(alert).close();
+                }
+            }, 5000);
+        }
+
+        function showLoadingModal() {
+            // You can add a loading overlay here if needed
+        }
+
+        function hideLoadingModal() {
+            // Hide loading overlay if implemented
+        }
+
+        // Add CSRF token to meta if not exists
+        if (!document.querySelector('meta[name="csrf-token"]')) {
+            const meta = document.createElement('meta');
+            meta.name = 'csrf-token';
+            meta.content = '{{ csrf_token() }}';
+            document.getElementsByTagName('head')[0].appendChild(meta);
+        }
     </script>
 @endsection

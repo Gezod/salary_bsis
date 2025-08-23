@@ -10,6 +10,8 @@ class BpjsSetting extends Model
 {
     use HasFactory;
 
+    protected $table = 'bpjs_settings';
+
     protected $fillable = [
         'employee_id',
         'bpjs_number',
@@ -38,7 +40,7 @@ class BpjsSetting extends Model
      */
     public function getFormattedBpjsMonthlyAmountAttribute()
     {
-        return 'Rp ' . number_format($this->bpjs_monthly_amount, 0, ',', '.');
+        return 'Rp ' . number_format($this->bpjs_monthly_amount ?? 0, 0, ',', '.');
     }
 
     /**
@@ -46,7 +48,15 @@ class BpjsSetting extends Model
      */
     public function getFormattedUpdatedAtAttribute()
     {
-        return $this->updated_at ? $this->updated_at->setTimezone('Asia/Jakarta')->format('d/m/Y H:i') : '-';
+        if (!$this->updated_at) {
+            return '-';
+        }
+
+        try {
+            return $this->updated_at->setTimezone('Asia/Jakarta')->format('d/m/Y H:i');
+        } catch (\Exception $e) {
+            return $this->updated_at->format('d/m/Y H:i');
+        }
     }
 
     /**
@@ -94,6 +104,14 @@ class BpjsSetting extends Model
      */
     public function isActive()
     {
-        return $this->is_active;
+        return (bool) $this->is_active;
+    }
+
+    /**
+     * Get clean monthly amount (without formatting)
+     */
+    public function getCleanMonthlyAmountAttribute()
+    {
+        return $this->bpjs_monthly_amount ?? 0;
     }
 }

@@ -7,6 +7,7 @@ use App\Models\Employee;
 use App\Models\BpjsSetting;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Illuminate\Validation\Rule;
 
 class BpjsSettingController extends Controller
 {
@@ -28,33 +29,47 @@ class BpjsSettingController extends Controller
         }
     }
 
+    public function store(Request $request)
+    {
+        return $this->updateBpjs($request);
+    }
+
     public function updateBpjs(Request $request)
     {
         try {
+            // Clean the monthly amount from formatting
+            if ($request->has('bpjs_monthly_amount')) {
+                $cleanAmount = (int) preg_replace('/[^\d]/', '', $request->bpjs_monthly_amount);
+                $request->merge(['bpjs_monthly_amount' => $cleanAmount]);
+            }
+
             // Get existing BPJS setting for this employee to handle unique validation properly
             $existingBpjsSetting = BpjsSetting::where('employee_id', $request->employee_id)->first();
 
-            // Dynamic unique validation rule
-            $uniqueRule = 'required|string|max:50|unique:bpjs_settings,bpjs_number';
-            if ($existingBpjsSetting) {
-                $uniqueRule .= ',' . $existingBpjsSetting->id;
-            }
+            // Dynamic unique validation rule for bpjs_number
+            $bpjsNumberRule = [
+                'required',
+                'string',
+                'max:50',
+                Rule::unique('bpjs_settings', 'bpjs_number')->ignore($existingBpjsSetting ? $existingBpjsSetting->id : null)
+            ];
 
             $request->validate([
                 'employee_id' => 'required|exists:employees,id',
-                'bpjs_number' => $uniqueRule,
-                'bpjs_monthly_amount' => 'required|integer|min:0|max:1000000',
-                'is_active' => 'nullable|boolean', // Changed to nullable
+                'bpjs_number' => $bpjsNumberRule,
+                'bpjs_monthly_amount' => 'required|integer|min:0|max:10000000',
+                'is_active' => 'nullable|boolean',
                 'notes' => 'nullable|string|max:500'
             ], [
                 'employee_id.required' => 'Karyawan/Staff harus dipilih',
                 'employee_id.exists' => 'Karyawan/Staff tidak ditemukan',
                 'bpjs_number.required' => 'Nomor BPJS harus diisi',
                 'bpjs_number.unique' => 'Nomor BPJS sudah terdaftar untuk karyawan lain',
+                'bpjs_number.max' => 'Nomor BPJS terlalu panjang (maksimal 50 karakter)',
                 'bpjs_monthly_amount.required' => 'Jumlah BPJS bulanan harus diisi',
                 'bpjs_monthly_amount.integer' => 'Jumlah BPJS bulanan harus berupa angka',
                 'bpjs_monthly_amount.min' => 'Jumlah BPJS bulanan tidak boleh negatif',
-                'bpjs_monthly_amount.max' => 'Jumlah BPJS bulanan terlalu besar',
+                'bpjs_monthly_amount.max' => 'Jumlah BPJS bulanan terlalu besar (maksimal Rp 10.000.000)',
                 'notes.max' => 'Catatan terlalu panjang (maksimal 500 karakter)'
             ]);
 
@@ -86,8 +101,11 @@ class BpjsSettingController extends Controller
 
             $actionText = $bpjsSetting->wasRecentlyCreated ? 'ditambahkan' : 'diperbarui';
 
-            return redirect()->route('bpjs.settings')
-                ->with('success', "Pengaturan BPJS untuk {$employee->nama} berhasil {$actionText}!");
+            return response()->json([
+                'success' => true,
+                'message' => "Pengaturan BPJS untuk {$employee->nama} berhasil {$actionText}!",
+                'redirect' => route('bpjs.settings')
+            ]);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::warning('BPJS validation failed', [
@@ -95,10 +113,11 @@ class BpjsSettingController extends Controller
                 'input' => $request->except(['_token'])
             ]);
 
-            return back()
-                ->withErrors($e->errors())
-                ->withInput()
-                ->with('error', 'Data yang dimasukkan tidak valid. Silakan periksa kembali.');
+            return response()->json([
+                'success' => false,
+                'message' => 'Data yang dimasukkan tidak valid',
+                'errors' => $e->errors()
+            ], 422);
 
         } catch (\Exception $e) {
             Log::error('Error updating BPJS setting', [
@@ -107,9 +126,10 @@ class BpjsSettingController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
 
-            return back()
-                ->withInput()
-                ->with('error', 'Gagal menyimpan data BPJS: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menyimpan data BPJS: ' . $e->getMessage()
+            ], 500);
         }
     }
 
@@ -140,10 +160,8 @@ class BpjsSettingController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => [
-                    'employee' => $employee,
-                    'bpjs_setting' => $bpjsSetting
-                ]
+                'employee' => $employee,
+                'bpjs_setting' => $bpjsSetting
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -153,7 +171,27 @@ class BpjsSettingController extends Controller
         }
     }
 
-    public function delete($id)
+    public function edit($employeeId)
+    {
+        return $this->getEmployeeBpjs($employeeId);
+    }
+
+    public function update(Request $request, $id)
+    {
+        try {
+            $bpjsSetting = BpjsSetting::findOrFail($id);
+            $request->merge(['employee_id' => $bpjsSetting->employee_id]);
+
+            return $this->updateBpjs($request);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengupdate data BPJS: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function destroy($id)
     {
         try {
             $bpjsSetting = BpjsSetting::findOrFail($id);
@@ -175,5 +213,11 @@ class BpjsSettingController extends Controller
 
             return back()->with('error', 'Gagal menghapus pengaturan BPJS: ' . $e->getMessage());
         }
+    }
+
+    // Alias method for backward compatibility
+    public function delete($id)
+    {
+        return $this->destroy($id);
     }
 }
